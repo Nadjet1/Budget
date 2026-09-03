@@ -3,7 +3,6 @@ import pandas as pd
 import plotly.express as px
 import os
 import io
-from datetime import datetime # Ajout pour l'historisation (Audit Trail)
 
 st.set_page_config(page_title="Portail Budget Participatif Dalkia 2027", layout="wide", initial_sidebar_state="expanded")
 
@@ -36,7 +35,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# --- 2. BASE DE DONNÉES UTILISATEURS ---
+# --- 2. BASE DE DONNÉES UTILISATEURS (DÉMO) ---
 UTILISATEURS = {
     "vmo": {"mdp": "dalkia2027", "profil": "VMO", "nom": "Admin VMO"},
     "nhachemi": {"mdp": "user123", "profil": "BPO", "nom": "Nadjet Hachemi"},
@@ -44,18 +43,15 @@ UTILISATEURS = {
     "stagiaire": {"mdp": "nlp", "profil": "Data", "nom": "Stagiaire NLP"}
 }
 
-# --- 3. GESTION DU FICHIER EXCEL ET AUDIT TRAIL ---
+# --- 3. GESTION DU FICHIER EXCEL ---
 FICHIER_EXCEL = 'Support de Valorisation des capabilités - Budget2025_2.xlsx'
-
-# Ajout des deux colonnes invisibles pour l'Audit Trail
 COLONNES = [
     'Auteur', 'Enveloppe', 'Département', 'Domaine porteur', 'Axe Stratégique', 'Projet Stratégique', 
     'EPIC', 'ID Ticket JIRA EPIC', 'Nom CAPA', 'ID Ticket JIRA CAPA', 'Train / Hors train', 'Priorité', 'Etat', 
     'Features / Besoins', 'Equipes contributrices',
     'Budget R0 BP 2027 (K€)', 'Encouru R1 (K€)', 'Prévisionnel R2 (K€)', 'Delta R2-R0 (K€)',
     'Contexte de la CAPA', 'Critère Conformité', 'Critère Image', 'Critère Opérationnel', 'Critère Économique', 
-    'Explications des notes', 'Indicateur de mesure', 'Valeur à date', 'Valeur cible', 'Commentaires VMO',
-    'Modifié_Par', 'Dernière_Modification_Date'
+    'Explications des notes', 'Indicateur de mesure', 'Valeur à date', 'Valeur cible', 'Commentaires VMO'
 ]
 
 def charger_donnees():
@@ -81,6 +77,7 @@ def generer_excel_propre(df):
     with pd.ExcelWriter(output, engine='openpyxl') as writer:
         df.to_excel(writer, sheet_name='Portefeuille_BP2027', index=False)
         worksheet = writer.sheets['Portefeuille_BP2027']
+        # Ajustement automatique des colonnes
         for col in worksheet.columns:
             max_len = max(len(str(cell.value or '')) for cell in col)
             col_letter = col[0].column_letter
@@ -89,21 +86,6 @@ def generer_excel_propre(df):
 
 def generer_csv_excel(df):
     return df.to_csv(index=False, sep=';', encoding='utf-8-sig').encode('utf-8-sig')
-
-# --- FONCTION POUR CALCULER L'ALERTE DE DÉPASSEMENT ---
-def ajouter_alertes(df):
-    df_alert = df.copy()
-    def verifier_depassement(row):
-        r0 = pd.to_numeric(row['Budget R0 BP 2027 (K€)'], errors='coerce')
-        r2 = pd.to_numeric(row['Prévisionnel R2 (K€)'], errors='coerce')
-        if pd.notnull(r0) and pd.notnull(r2) and r0 > 0:
-            if r2 > (r0 * 1.15): # Si R2 dépasse R0 de plus de +15%
-                return "⚠️ Dépassement > 15%"
-        return "✅ OK"
-    
-    if not df_alert.empty:
-        df_alert['Alerte Budgétaire'] = df_alert.apply(verifier_depassement, axis=1)
-    return df_alert
 
 if 'projets' not in st.session_state:
     st.session_state.projets = charger_donnees()
@@ -158,24 +140,41 @@ df_visible = obtenir_donnees_visibles()
 if menu == "📊 Tableau de bord BP 2027":
     st.title("📊 Synthèse du Portefeuille - Budget Participatif 2027")
     
+    # BANDEAU D'EXPORTS
     col_exp1, col_exp2, col_exp3 = st.columns([1, 1, 1])
     with col_exp1:
         excel_data = generer_excel_propre(df_visible)
-        st.download_button(label="📊 Exporter en Excel (.xlsx)", data=excel_data, file_name='Portefeuille_BP2027_Comex.xlsx', mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', use_container_width=True)
+        st.download_button(
+            label="📊 Exporter en Excel (.xlsx)",
+            data=excel_data,
+            file_name='Portefeuille_BP2027_Comex.xlsx',
+            mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            use_container_width=True
+        )
     with col_exp2:
         csv_data = generer_csv_excel(df_visible)
-        st.download_button(label="📄 Exporter en CSV (;)", data=csv_data, file_name='Portefeuille_BP2027_Comex.csv', mime='text/csv', use_container_width=True)
+        st.download_button(
+            label="📄 Exporter en CSV (;)",
+            data=csv_data,
+            file_name='Portefeuille_BP2027_Comex.csv',
+            mime='text/csv',
+            use_container_width=True
+        )
     with col_exp3:
         st.link_button("🟢 Ouvrir Google Sheets", "https://sheets.new", use_container_width=True)
     
     st.info("👑 **Mode VMO** : Vous visualisez l'ensemble des données d'arbitrage de l'entreprise.")
         
+    # CALCULS DES KPI
     col_r0 = 'Budget R0 BP 2027 (K€)'
+    col_r1 = 'Encouru R1 (K€)'
     col_r2 = 'Prévisionnel R2 (K€)'
     col_delta = 'Delta R2-R0 (K€)'
     
     total_r0 = pd.to_numeric(df_visible[col_r0], errors='coerce').sum() if not df_visible.empty else 0
+    total_r2 = pd.to_numeric(df_visible[col_r2], errors='coerce').sum() if not df_visible.empty else 0
     total_delta = pd.to_numeric(df_visible[col_delta], errors='coerce').sum() if not df_visible.empty else 0
+    
     budget_p0 = pd.to_numeric(df_visible[df_visible['Priorité'] == 'P0'][col_r0], errors='coerce').sum() if not df_visible.empty else 0
     budget_p1p2 = pd.to_numeric(df_visible[df_visible['Priorité'].isin(['P1', 'P2'])][col_r0], errors='coerce').sum() if not df_visible.empty else 0
     
@@ -187,29 +186,7 @@ if menu == "📊 Tableau de bord BP 2027":
     
     st.markdown("---")
     
-    # --- NOUVEAU : GRAPHIQUES AVANCÉS ---
-    if not df_visible.empty:
-        st.markdown("### 📈 Visualisations Stratégiques (Comex)")
-        g1, g2 = st.columns(2)
-        with g1:
-            fig_bar = px.bar(df_visible, x='Département', y='Budget R0 BP 2027 (K€)', color='Axe Stratégique', title="📊 Budget R0 par Département & Axe Stratégique")
-            st.plotly_chart(fig_bar, use_container_width=True)
-        with g2:
-            fig_pie = px.pie(df_visible, names='Priorité', values='Budget R0 BP 2027 (K€)', title="🍩 Répartition du Budget par Priorité", hole=0.3)
-            st.plotly_chart(fig_pie, use_container_width=True)
-            
-        st.markdown("### 🎯 Matrice de Priorisation (Identification des Quick Wins)")
-        df_quick = df_visible.copy()
-        # Création d'un score de Valeur (Opérationnel + Économique)
-        df_quick['Score Valeur (Gains)'] = pd.to_numeric(df_quick['Critère Opérationnel'], errors='coerce').fillna(0) + pd.to_numeric(df_quick['Critère Économique'], errors='coerce').fillna(0)
-        fig_scatter = px.scatter(
-            df_quick, x='Budget R0 BP 2027 (K€)', y='Score Valeur (Gains)', color='Priorité', 
-            hover_name='Nom CAPA', size_max=60, title="Matrice Valeur vs Coût : Les projets 'Quick Wins' se trouvent en haut à gauche."
-        )
-        st.plotly_chart(fig_scatter, use_container_width=True)
-        st.markdown("---")
-    
-    # FILTRES MULTI-COLONNES ET AFFICHAGE AVEC ALERTES
+    # FILTRES MULTI-COLONNES
     with st.expander("🔍 FILTRER LES DONNÉES DU TABLEAU DE BORD", expanded=True):
         col_f1, col_f2, col_f3, col_f4 = st.columns(4)
         f_dept = col_f1.selectbox("Département :", ["Tous"] + sorted([str(x) for x in df_visible['Département'].dropna().unique()]))
@@ -218,7 +195,7 @@ if menu == "📊 Tableau de bord BP 2027":
         f_etat = col_f4.selectbox("État :", ["Tous"] + sorted([str(x) for x in df_visible['Etat'].dropna().unique()]))
         recherche_tb = st.text_input("🔍 Recherche globale (Nom CAPA, EPIC, Auteur, Ticket JIRA) :")
         
-    df_tb_filtre = ajouter_alertes(df_visible) # Ajout de la colonne Alerte
+    df_tb_filtre = df_visible.copy()
     if f_dept != "Tous": df_tb_filtre = df_tb_filtre[df_tb_filtre['Département'] == f_dept]
     if f_axe != "Tous": df_tb_filtre = df_tb_filtre[df_tb_filtre['Axe Stratégique'] == f_axe]
     if f_prio != "Toutes": df_tb_filtre = df_tb_filtre[df_tb_filtre['Priorité'] == f_prio]
@@ -229,21 +206,26 @@ if menu == "📊 Tableau de bord BP 2027":
             df_tb_filtre['EPIC'].astype(str).str.contains(recherche_tb, case=False, na=False) |
             df_tb_filtre['Auteur'].astype(str).str.contains(recherche_tb, case=False, na=False)
         ]
-    
-    # On affiche les colonnes utiles + l'alerte
-    cols_a_afficher = ['Alerte Budgétaire', 'Nom CAPA', 'EPIC', 'Département', 'Axe Stratégique', 'Budget R0 BP 2027 (K€)', 'Prévisionnel R2 (K€)', 'Priorité', 'Etat']
-    st.data_editor(df_tb_filtre[cols_a_afficher], use_container_width=True, hide_index=True, disabled=True)
+        
+    st.data_editor(df_tb_filtre, use_container_width=True, hide_index=True, disabled=True)
 
 # --- VUE 2 : GESTION DES CAPAS ---
 elif menu in ["⚙️ Gestion des CAPAs", "⚙️ Mes CAPAs (Saisie & Suivi)"]:
     st.title("⚙️ Espace de Saisie & Suivi des Demandes (BP 2027)")
     
+    # BOUTON D'EXTRACTION GOOGLE SHEETS
     col_top1, col_top2 = st.columns([2, 1])
     with col_top1:
         st.write("📊 **Besoin d'extraire vos données vers Google Sheets / Excel ?**")
     with col_top2:
         excel_saisie_data = generer_excel_propre(df_visible)
-        st.download_button(label="🟢 Exporter vers Google Sheets / Excel", data=excel_saisie_data, file_name='Extraction_CAPA_BP2027.xlsx', mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', use_container_width=True)
+        st.download_button(
+            label="🟢 Exporter vers Google Sheets / Excel",
+            data=excel_saisie_data,
+            file_name='Extraction_CAPA_BP2027.xlsx',
+            mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            use_container_width=True
+        )
     
     st.markdown("---")
     tabs = st.tabs(["➕ Ajouter une CAPA", "✏️ Modifier une CAPA", "🗑️ Supprimer une CAPA"])
@@ -319,8 +301,6 @@ elif menu in ["⚙️ Gestion des CAPAs", "⚙️ Mes CAPAs (Saisie & Suivi)"]:
                     st.error("⚠️ Les champs 'EPIC' et 'Nom de la CAPA' sont obligatoires.")
                 else:
                     delta_calcule = budget_r2 - budget_r0
-                    horodatage_actuel = datetime.now().strftime("%Y-%m-%d %H:%M:%S") # Audit Trail
-                    
                     nouvelle_ligne = pd.DataFrame([{
                         'Auteur': st.session_state.utilisateur, 'Enveloppe': enveloppe, 'Département': departement, 
                         'Domaine porteur': domaine, 'Axe Stratégique': axe, 'Projet Stratégique': projet_strat, 
@@ -331,14 +311,14 @@ elif menu in ["⚙️ Gestion des CAPAs", "⚙️ Mes CAPAs (Saisie & Suivi)"]:
                         'Delta R2-R0 (K€)': delta_calcule, 'Contexte de la CAPA': contexte, 
                         'Critère Conformité': n_conf, 'Critère Image': n_img, 'Critère Opérationnel': n_ope, 'Critère Économique': n_eco, 
                         'Explications des notes': justif, 'Indicateur de mesure': indicateur, 
-                        'Valeur à date': valeur_date, 'Valeur cible': valeur_cible, 'Commentaires VMO': commentaires_vmo,
-                        'Modifié_Par': st.session_state.utilisateur, 'Dernière_Modification_Date': horodatage_actuel
+                        'Valeur à date': valeur_date, 'Valeur cible': valeur_cible, 'Commentaires VMO': commentaires_vmo
                     }])
                     st.session_state.projets = pd.concat([st.session_state.projets, nouvelle_ligne], ignore_index=True)
                     sauvegarder_donnees(st.session_state.projets)
-                    st.success(f"✅ CAPA '{nom_capa}' enregistrée avec succès !")
+                    st.success(f"✅ CAPA '{nom_capa}' enregistrée avec succès dans la base !")
                     st.rerun()
 
+        # LISTE DES CAPAS SAISIES
         st.markdown("---")
         st.subheader("📋 Liste de vos CAPAs saisies")
         
@@ -354,7 +334,7 @@ elif menu in ["⚙️ Gestion des CAPAs", "⚙️ Mes CAPAs (Saisie & Suivi)"]:
                 f_etat_s = c_f5.selectbox("État :", ["Tous"] + sorted([str(x) for x in df_visible['Etat'].dropna().unique()]))
                 recherche_s = st.text_input("🔍 Recherche par mot-clé (Nom CAPA, EPIC, Ticket JIRA) :")
             
-            df_saisie_filtre = ajouter_alertes(df_visible) # Ajout de l'alerte
+            df_saisie_filtre = df_visible.copy()
             if f_dept_s != "Tous": df_saisie_filtre = df_saisie_filtre[df_saisie_filtre['Département'] == f_dept_s]
             if f_axe_s != "Tous": df_saisie_filtre = df_saisie_filtre[df_saisie_filtre['Axe Stratégique'] == f_axe_s]
             if f_prio_s != "Toutes": df_saisie_filtre = df_saisie_filtre[df_saisie_filtre['Priorité'] == f_prio_s]
@@ -366,10 +346,14 @@ elif menu in ["⚙️ Gestion des CAPAs", "⚙️ Mes CAPAs (Saisie & Suivi)"]:
                     df_saisie_filtre['EPIC'].astype(str).str.contains(recherche_s, case=False, na=False)
                 ]
                 
-            cols_saisie = ['Alerte Budgétaire', 'Nom CAPA', 'EPIC', 'Département', 'Budget R0 BP 2027 (K€)', 'Prévisionnel R2 (K€)', 'Priorité', 'Etat']
-            st.data_editor(df_saisie_filtre[cols_saisie], use_container_width=True, hide_index=True, disabled=True)
+            st.data_editor(
+                df_saisie_filtre[['Nom CAPA', 'EPIC', 'Département', 'Axe Stratégique', 'Train / Hors train', 'Budget R0 BP 2027 (K€)', 'Priorité', 'Etat']], 
+                use_container_width=True, 
+                hide_index=True,
+                disabled=True
+            )
 
-    # ONGLET MODIFIER (MISE À JOUR DE L'AUDIT TRAIL)
+    # ONGLET MODIFIER
     with tabs[1]:
         if df_visible.empty:
             st.warning("Aucune CAPA disponible à modifier.")
@@ -401,13 +385,8 @@ elif menu in ["⚙️ Gestion des CAPAs", "⚙️ Mes CAPAs (Saisie & Suivi)"]:
                     st.session_state.projets.at[idx, 'Priorité'] = new_priorite
                     st.session_state.projets.at[idx, 'Etat'] = new_etat
                     st.session_state.projets.at[idx, 'Commentaires VMO'] = new_comm
-                    
-                    # Mise à jour de l'Audit Trail
-                    st.session_state.projets.at[idx, 'Modifié_Par'] = st.session_state.utilisateur
-                    st.session_state.projets.at[idx, 'Dernière_Modification_Date'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                    
                     sauvegarder_donnees(st.session_state.projets)
-                    st.success("Mise à jour enregistrée. (Audit Trail mis à jour)")
+                    st.success("Mise à jour enregistrée.")
                     st.rerun()
 
     # ONGLET SUPPRIMER
@@ -424,7 +403,7 @@ elif menu in ["⚙️ Gestion des CAPAs", "⚙️ Mes CAPAs (Saisie & Suivi)"]:
 
 # --- VUE 3 : IA & NLP ---
 elif menu in ["🤖 Assistant NLP & Radar", "🤖 Mon Assistant NLP & Radar"]:
-    st.title("🤖 Analyse Sémantique & Aide à la Décision")
+    st.title("🤖 Analyse Sémantique & Radar de Valeur")
     
     if df_visible.empty:
         st.warning("Aucune donnée disponible à analyser. Veuillez d'abord saisir une CAPA.")
@@ -484,21 +463,3 @@ elif menu in ["🤖 Assistant NLP & Radar", "🤖 Mon Assistant NLP & Radar"]:
                     st.error("⚠️ **Incohérence** : Note économique élevée (>=3) mais aucun terme financier justifié dans le texte.")
             else:
                 st.info("La note économique est < 3, pas d'analyse requise.")
-                
-        # --- NOUVEAU : BOUTON GÉNÉRATION SYNTHÈSE COMEX IA ---
-        st.markdown("---")
-        st.markdown("### 🤖 Synthèse IA pour le Comex")
-        if st.button("✨ Générer le résumé IA pour l'arbitrage"):
-            with st.spinner("L'Intelligence Artificielle analyse le dossier et rédige la synthèse..."):
-                import time
-                time.sleep(1.5) # Simule le temps de calcul de l'IA
-                
-                # Génération dynamique du texte basée sur les données réelles
-                nom = donnees_capa['Nom CAPA']
-                dept = donnees_capa['Département']
-                axe = donnees_capa['Axe Stratégique']
-                budget = donnees_capa['Budget R0 BP 2027 (K€)']
-                prio = donnees_capa['Priorité']
-                
-                st.success("✅ Synthèse générée avec succès.")
-                st.info(f"**Résumé pour Décideurs :**\n\nLe projet **{nom}**, porté par le département **{dept}**, s'inscrit directement dans l'axe stratégique de **{axe}**. Nécessitant un investissement initial de **{budget} K€**, cette initiative est classée en priorité **{prio}** car elle présente un fort score de gain opérationnel ({c_ope}/4) et économique ({c_eco}/4), justifiant un arbitrage favorable rapide.")
