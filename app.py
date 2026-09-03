@@ -61,16 +61,15 @@ COLONNES = [
 ]
 
 def calculer_priorite_auto(n_conf, n_ope, n_eco):
-    """Calcul automatique de la priorité métier."""
     try:
         conf = float(n_conf)
         gains = float(n_ope) + float(n_eco)
         if conf >= 3:
-            return "P0" # Obligatoire / Obsolescence
+            return "P0"
         elif gains >= 6:
-            return "P1" # Forte valeur ajoutée
+            return "P1"
         else:
-            return "P2" # Secondaire / A arbitrer
+            return "P2"
     except:
         return "P2"
 
@@ -80,6 +79,7 @@ def charger_donnees():
             df = pd.read_excel(FICHIER_EXCEL, sheet_name='Base_CAPA')
             if 'Budget R0 (K€)' in df.columns:
                 df.rename(columns={'Budget R0 (K€)': 'Budget R0 BP 2027 (K€)'}, inplace=True)
+            # S'assurer que TOUTES les colonnes existent
             for col in COLONNES:
                 if col not in df.columns:
                     df[col] = None
@@ -108,6 +108,12 @@ def generer_csv_excel(df):
 
 def ajouter_alertes(df):
     df_alert = df.copy()
+    
+    # Sécurité : s'assurer que les colonnes nécessaires existent
+    for col in COLONNES:
+        if col not in df_alert.columns:
+            df_alert[col] = None
+            
     def verifier_depassement(row):
         r0 = pd.to_numeric(row['Budget R0 BP 2027 (K€)'], errors='coerce')
         r2 = pd.to_numeric(row['Prévisionnel R2 (K€)'], errors='coerce')
@@ -118,6 +124,9 @@ def ajouter_alertes(df):
     
     if not df_alert.empty:
         df_alert['Alerte Budgétaire'] = df_alert.apply(verifier_depassement, axis=1)
+    else:
+        df_alert['Alerte Budgétaire'] = None
+        
     return df_alert
 
 if 'projets' not in st.session_state:
@@ -193,10 +202,10 @@ if menu == "📊 Tableau de bord BP 2027":
     col_r2 = 'Prévisionnel R2 (K€)'
     col_delta = 'Delta R2-R0 (K€)'
     
-    total_r0 = pd.to_numeric(df_visible[col_r0], errors='coerce').sum() if not df_visible.empty else 0
-    total_delta = pd.to_numeric(df_visible[col_delta], errors='coerce').sum() if not df_visible.empty else 0
-    budget_p0 = pd.to_numeric(df_visible[df_visible['Priorité'] == 'P0'][col_r0], errors='coerce').sum() if not df_visible.empty else 0
-    budget_p1p2 = pd.to_numeric(df_visible[df_visible['Priorité'].isin(['P1', 'P2'])][col_r0], errors='coerce').sum() if not df_visible.empty else 0
+    total_r0 = pd.to_numeric(df_visible[col_r0], errors='coerce').sum() if not df_visible.empty and col_r0 in df_visible.columns else 0
+    total_delta = pd.to_numeric(df_visible[col_delta], errors='coerce').sum() if not df_visible.empty and col_delta in df_visible.columns else 0
+    budget_p0 = pd.to_numeric(df_visible[df_visible['Priorité'] == 'P0'][col_r0], errors='coerce').sum() if not df_visible.empty and 'Priorité' in df_visible.columns and col_r0 in df_visible.columns else 0
+    budget_p1p2 = pd.to_numeric(df_visible[df_visible['Priorité'].isin(['P1', 'P2'])][col_r0], errors='coerce').sum() if not df_visible.empty and 'Priorité' in df_visible.columns and col_r0 in df_visible.columns else 0
     
     c1, c2, c3, c4 = st.columns(4)
     c1.metric("Total Alloué R0", f"{total_r0:,.0f} K€")
@@ -210,28 +219,30 @@ if menu == "📊 Tableau de bord BP 2027":
         st.markdown("### 📈 Visualisations Stratégiques (Comex)")
         g1, g2 = st.columns(2)
         with g1:
-            fig_bar = px.bar(df_visible, x='Département', y='Budget R0 BP 2027 (K€)', color='Axe Stratégique', title="📊 Budget R0 par Département & Axe Stratégique")
-            st.plotly_chart(fig_bar, use_container_width=True)
+            if 'Département' in df_visible.columns and col_r0 in df_visible.columns:
+                fig_bar = px.bar(df_visible, x='Département', y=col_r0, color='Axe Stratégique', title="📊 Budget R0 par Département & Axe Stratégique")
+                st.plotly_chart(fig_bar, use_container_width=True)
         with g2:
-            fig_pie = px.pie(df_visible, names='Priorité', values='Budget R0 BP 2027 (K€)', title="🍩 Répartition par Priorité Calculée", hole=0.3)
-            st.plotly_chart(fig_pie, use_container_width=True)
+            if 'Priorité' in df_visible.columns and col_r0 in df_visible.columns:
+                fig_pie = px.pie(df_visible, names='Priorité', values=col_r0, title="🍩 Répartition par Priorité Calculée", hole=0.3)
+                st.plotly_chart(fig_pie, use_container_width=True)
             
         st.markdown("### 🎯 Matrice de Priorisation (Identification des Quick Wins)")
         df_quick = df_visible.copy()
         df_quick['Score Valeur (Gains)'] = pd.to_numeric(df_quick['Critère Opérationnel'], errors='coerce').fillna(0) + pd.to_numeric(df_quick['Critère Économique'], errors='coerce').fillna(0)
         fig_scatter = px.scatter(
-            df_quick, x='Budget R0 BP 2027 (K€)', y='Score Valeur (Gains)', color='Priorité', 
-            hover_name='Nom CAPA', size_max=60, title="Matrice Valeur vs Coût : Les projets 'Quick Wins' se trouvent en haut à gauche."
+            df_quick, x=col_r0, y='Score Valeur (Gains)', color='Priorité' if 'Priorité' in df_quick.columns else None, 
+            hover_name='Nom CAPA' if 'Nom CAPA' in df_quick.columns else None, size_max=60, title="Matrice Valeur vs Coût : Les projets 'Quick Wins' se trouvent en haut à gauche."
         )
         st.plotly_chart(fig_scatter, use_container_width=True)
         st.markdown("---")
     
     with st.expander("🔍 FILTRER LES DONNÉES DU TABLEAU DE BORD", expanded=True):
         col_f1, col_f2, col_f3, col_f4 = st.columns(4)
-        f_dept = col_f1.selectbox("Département :", ["Tous"] + sorted([str(x) for x in df_visible['Département'].dropna().unique()]))
-        f_axe = col_f2.selectbox("Axe Stratégique :", ["Tous"] + sorted([str(x) for x in df_visible['Axe Stratégique'].dropna().unique()]))
-        f_prio = col_f3.selectbox("Priorité (Calculée) :", ["Toutes"] + sorted([str(x) for x in df_visible['Priorité'].dropna().unique()]))
-        f_etat = col_f4.selectbox("État :", ["Tous"] + sorted([str(x) for x in df_visible['Etat'].dropna().unique()]))
+        f_dept = col_f1.selectbox("Département :", ["Tous"] + sorted([str(x) for x in df_visible['Département'].dropna().unique()])) if 'Département' in df_visible.columns else "Tous"
+        f_axe = col_f2.selectbox("Axe Stratégique :", ["Tous"] + sorted([str(x) for x in df_visible['Axe Stratégique'].dropna().unique()])) if 'Axe Stratégique' in df_visible.columns else "Tous"
+        f_prio = col_f3.selectbox("Priorité (Calculée) :", ["Toutes"] + sorted([str(x) for x in df_visible['Priorité'].dropna().unique()])) if 'Priorité' in df_visible.columns else "Toutes"
+        f_etat = col_f4.selectbox("État :", ["Tous"] + sorted([str(x) for x in df_visible['Etat'].dropna().unique()])) if 'Etat' in df_visible.columns else "Tous"
         recherche_tb = st.text_input("🔍 Recherche globale (Nom CAPA, EPIC, Auteur, Ticket JIRA) :")
         
     df_tb_filtre = ajouter_alertes(df_visible)
@@ -246,8 +257,11 @@ if menu == "📊 Tableau de bord BP 2027":
             df_tb_filtre['Auteur'].astype(str).str.contains(recherche_tb, case=False, na=False)
         ]
     
-    cols_a_afficher = ['Alerte Budgétaire', 'Nom CAPA', 'EPIC', 'Département', 'Axe Stratégique', 'Budget R0 BP 2027 (K€)', 'Reste à engager (K€)', 'Prévisionnel R2 (K€)', 'Priorité', 'Statut Arbitrage', 'Etat']
-    st.data_editor(df_tb_filtre[cols_a_afficher], use_container_width=True, hide_index=True, disabled=True)
+    # Filtre sécurisé pour n'afficher QUE les colonnes réellement présentes
+    cols_souhaitees = ['Alerte Budgétaire', 'Nom CAPA', 'EPIC', 'Département', 'Axe Stratégique', 'Budget R0 BP 2027 (K€)', 'Reste à engager (K€)', 'Prévisionnel R2 (K€)', 'Priorité', 'Statut Arbitrage', 'Etat']
+    cols_existantes = [c for c in cols_souhaitees if c in df_tb_filtre.columns]
+    
+    st.data_editor(df_tb_filtre[cols_existantes], use_container_width=True, hide_index=True, disabled=True)
 
 # --- VUE 2 : GESTION DES CAPAS ---
 elif menu in ["⚙️ Gestion des CAPAs", "⚙️ Mes CAPAs (Saisie & Suivi)"]:
@@ -369,11 +383,11 @@ elif menu in ["⚙️ Gestion des CAPAs", "⚙️ Mes CAPAs (Saisie & Suivi)"]:
         else:
             with st.expander("🔍 FILTRER LA LISTE DES CAPAs", expanded=True):
                 c_f1, c_f2, c_f3, c_f4, c_f5 = st.columns(5)
-                f_dept_s = c_f1.selectbox("Département :", ["Tous"] + sorted([str(x) for x in df_visible['Département'].dropna().unique()]))
-                f_axe_s = c_f2.selectbox("Axe Stratégique :", ["Tous"] + sorted([str(x) for x in df_visible['Axe Stratégique'].dropna().unique()]))
-                f_prio_s = c_f3.selectbox("Priorité (Calculée) :", ["Toutes"] + sorted([str(x) for x in df_visible['Priorité'].dropna().unique()]))
-                f_train_s = c_f4.selectbox("Train / Hors train :", ["Tous"] + sorted([str(x) for x in df_visible['Train / Hors train'].dropna().unique()]))
-                f_etat_s = c_f5.selectbox("État :", ["Tous"] + sorted([str(x) for x in df_visible['Etat'].dropna().unique()]))
+                f_dept_s = c_f1.selectbox("Département :", ["Tous"] + sorted([str(x) for x in df_visible['Département'].dropna().unique()])) if 'Département' in df_visible.columns else "Tous"
+                f_axe_s = c_f2.selectbox("Axe Stratégique :", ["Tous"] + sorted([str(x) for x in df_visible['Axe Stratégique'].dropna().unique()])) if 'Axe Stratégique' in df_visible.columns else "Tous"
+                f_prio_s = c_f3.selectbox("Priorité (Calculée) :", ["Toutes"] + sorted([str(x) for x in df_visible['Priorité'].dropna().unique()])) if 'Priorité' in df_visible.columns else "Toutes"
+                f_train_s = c_f4.selectbox("Train / Hors train :", ["Tous"] + sorted([str(x) for x in df_visible['Train / Hors train'].dropna().unique()])) if 'Train / Hors train' in df_visible.columns else "Tous"
+                f_etat_s = c_f5.selectbox("État :", ["Tous"] + sorted([str(x) for x in df_visible['Etat'].dropna().unique()])) if 'Etat' in df_visible.columns else "Tous"
                 recherche_s = st.text_input("🔍 Recherche par mot-clé (Nom CAPA, EPIC, Ticket JIRA) :")
             
             df_saisie_filtre = ajouter_alertes(df_visible)
@@ -388,8 +402,10 @@ elif menu in ["⚙️ Gestion des CAPAs", "⚙️ Mes CAPAs (Saisie & Suivi)"]:
                     df_saisie_filtre['EPIC'].astype(str).str.contains(recherche_s, case=False, na=False)
                 ]
                 
-            cols_saisie = ['Alerte Budgétaire', 'Nom CAPA', 'EPIC', 'Département', 'Budget R0 BP 2027 (K€)', 'Reste à engager (K€)', 'Prévisionnel R2 (K€)', 'Priorité', 'Statut Arbitrage', 'Etat']
-            st.data_editor(df_saisie_filtre[cols_saisie], use_container_width=True, hide_index=True, disabled=True)
+            cols_saisie_souhaitees = ['Alerte Budgétaire', 'Nom CAPA', 'EPIC', 'Département', 'Budget R0 BP 2027 (K€)', 'Reste à engager (K€)', 'Prévisionnel R2 (K€)', 'Priorité', 'Statut Arbitrage', 'Etat']
+            cols_saisie_existantes = [c for c in cols_saisie_souhaitees if c in df_saisie_filtre.columns]
+            
+            st.data_editor(df_saisie_filtre[cols_saisie_existantes], use_container_width=True, hide_index=True, disabled=True)
 
     with tabs[1]:
         if df_visible.empty:
@@ -401,7 +417,7 @@ elif menu in ["⚙️ Gestion des CAPAs", "⚙️ Mes CAPAs (Saisie & Suivi)"]:
             with st.form("form_modification"):
                 st.markdown(f"<h4 class='titre-section-2'>Édition de la CAPA : {capa_a_modifier}</h4>", unsafe_allow_html=True)
                 val_r0 = float(st.session_state.projets.at[idx, 'Budget R0 BP 2027 (K€)']) if pd.notnull(st.session_state.projets.at[idx, 'Budget R0 BP 2027 (K€)']) else 0.0
-                val_r1 = float(st.session_state.projets.at[idx, 'Encouru R1 (K€)']) if pd.notnull(st.session_state.projets.at[idx, 'Encouru R1 (K€)']) else 0.0
+                val_r1 = float(st.session_state.projets.at[idx, 'Encouru R1 (K€)']) if 'Encouru R1 (K€)' in st.session_state.projets.columns and pd.notnull(st.session_state.projets.at[idx, 'Encouru R1 (K€)']) else 0.0
                 val_r2 = float(st.session_state.projets.at[idx, 'Prévisionnel R2 (K€)']) if pd.notnull(st.session_state.projets.at[idx, 'Prévisionnel R2 (K€)']) else 0.0
                 
                 new_r0 = st.number_input("Nouveau Budget R0 BP 2027", value=val_r0)
@@ -410,7 +426,7 @@ elif menu in ["⚙️ Gestion des CAPAs", "⚙️ Mes CAPAs (Saisie & Suivi)"]:
                 
                 new_etat = st.selectbox("Mettre à jour l'état", ["En cours", "Prévu pour S2", "Reporté à 2027", "Abandonné", "Terminé"])
                 
-                new_statut_arb = st.session_state.projets.at[idx, 'Statut Arbitrage'] or "Soumis"
+                new_statut_arb = st.session_state.projets.at[idx, 'Statut Arbitrage'] if 'Statut Arbitrage' in st.session_state.projets.columns and pd.notnull(st.session_state.projets.at[idx, 'Statut Arbitrage']) else "Soumis"
                 new_comm = st.session_state.projets.at[idx, 'Commentaires VMO']
                 if est_admin:
                     new_statut_arb = st.selectbox("Décision / Statut d'Arbitrage Comex", ["Soumis", "Validé Comex", "Ajustement requis", "Refusé"])
@@ -522,7 +538,7 @@ elif menu in ["🤖 Assistant NLP & Radar", "🤖 Mon Assistant NLP & Radar"]:
                 dept = donnees_capa['Département']
                 axe = donnees_capa['Axe Stratégique']
                 budget = donnees_capa['Budget R0 BP 2027 (K€)']
-                prio = donnees_capa['Priorité']
+                prio = donnees_capa['Priorité'] if 'Priorité' in donnees_capa else "P2"
                 
                 st.success("✅ Synthèse générée avec succès.")
                 st.info(f"**Résumé pour Décideurs :**\n\nLe projet **{nom}**, porté par le département **{dept}**, s'inscrit directement dans l'axe stratégique de **{axe}**. Nécessitant un investissement initial de **{budget} K€**, cette initiative est classée en priorité **{prio}** car elle présente un fort score de gain opérationnel ({c_ope}/4) et économique ({c_eco}/4), justifiant un arbitrage favorable rapide.")
