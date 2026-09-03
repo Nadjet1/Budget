@@ -79,7 +79,6 @@ def charger_donnees():
             df = pd.read_excel(FICHIER_EXCEL, sheet_name='Base_CAPA')
             if 'Budget R0 (K€)' in df.columns:
                 df.rename(columns={'Budget R0 (K€)': 'Budget R0 BP 2027 (K€)'}, inplace=True)
-            # S'assurer que TOUTES les colonnes existent
             for col in COLONNES:
                 if col not in df.columns:
                     df[col] = None
@@ -108,8 +107,6 @@ def generer_csv_excel(df):
 
 def ajouter_alertes(df):
     df_alert = df.copy()
-    
-    # Sécurité : s'assurer que les colonnes nécessaires existent
     for col in COLONNES:
         if col not in df_alert.columns:
             df_alert[col] = None
@@ -177,6 +174,12 @@ def obtenir_donnees_visibles():
     return st.session_state.projets[st.session_state.projets['Auteur'] == st.session_state.utilisateur]
 
 df_visible = obtenir_donnees_visibles()
+
+# --- GESTION DES MESSAGES DE CONFIRMATION VERT ---
+if 'message_succes' in st.session_state and st.session_state.message_succes:
+    st.success(st.session_state.message_succes)
+    st.toast(st.session_state.message_succes, icon="✅")
+    st.session_state.message_succes = None
 
 # --- VUE 1 : TABLEAU DE BORD (RÉSERVÉ VMO) ---
 if menu == "📊 Tableau de bord BP 2027":
@@ -257,7 +260,6 @@ if menu == "📊 Tableau de bord BP 2027":
             df_tb_filtre['Auteur'].astype(str).str.contains(recherche_tb, case=False, na=False)
         ]
     
-    # Filtre sécurisé pour n'afficher QUE les colonnes réellement présentes
     cols_souhaitees = ['Alerte Budgétaire', 'Nom CAPA', 'EPIC', 'Département', 'Axe Stratégique', 'Budget R0 BP 2027 (K€)', 'Reste à engager (K€)', 'Prévisionnel R2 (K€)', 'Priorité', 'Statut Arbitrage', 'Etat']
     cols_existantes = [c for c in cols_souhaitees if c in df_tb_filtre.columns]
     
@@ -372,7 +374,9 @@ elif menu in ["⚙️ Gestion des CAPAs", "⚙️ Mes CAPAs (Saisie & Suivi)"]:
                     }])
                     st.session_state.projets = pd.concat([st.session_state.projets, nouvelle_ligne], ignore_index=True)
                     sauvegarder_donnees(st.session_state.projets)
-                    st.success(f"✅ CAPA '{nom_capa}' enregistrée avec succès (Priorité calculée : {priorite_calculee}) !")
+                    
+                    # Notification de succès en vert
+                    st.session_state.message_succes = f"✅ La CAPA '{nom_capa}' a bien été enregistrée (Priorité calculée : {priorite_calculee}) !"
                     st.rerun()
 
         st.markdown("---")
@@ -446,7 +450,9 @@ elif menu in ["⚙️ Gestion des CAPAs", "⚙️ Mes CAPAs (Saisie & Suivi)"]:
                     st.session_state.projets.at[idx, 'Dernière_Modification_Date'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                     
                     sauvegarder_donnees(st.session_state.projets)
-                    st.success("Mise à jour enregistrée.")
+                    
+                    # Notification de modification en vert
+                    st.session_state.message_succes = f"✅ La CAPA '{capa_a_modifier}' a été mise à jour avec succès !"
                     st.rerun()
 
     with tabs[2]:
@@ -457,7 +463,9 @@ elif menu in ["⚙️ Gestion des CAPAs", "⚙️ Mes CAPAs (Saisie & Suivi)"]:
             if st.button("🗑️ Supprimer définitivement cette CAPA"):
                 st.session_state.projets = st.session_state.projets[st.session_state.projets['Nom CAPA'] != capa_a_supprimer]
                 sauvegarder_donnees(st.session_state.projets)
-                st.success(f"La CAPA '{capa_a_supprimer}' a été supprimée.")
+                
+                # Notification de suppression en vert
+                st.session_state.message_succes = f"✅ La CAPA '{capa_a_supprimer}' a été supprimée de la base."
                 st.rerun()
 
 # --- VUE 3 : IA & NLP ---
