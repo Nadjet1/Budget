@@ -8,8 +8,7 @@ from datetime import datetime
 st.set_page_config(page_title="Portail Budget Participatif Dalkia 2027", layout="wide", initial_sidebar_state="expanded")
 
 # --- URL DU LOGO OFFICIEL DALKIA GROUPE EDF ---
-URL_LOGO_DALKIA = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png"
-
+URL_LOGO_DALKIA = "logo.png"
 # --- 1. DESIGN CUSTOMISÉ (CSS) ---
 st.markdown("""
     <style>
