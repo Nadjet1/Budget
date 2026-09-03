@@ -7,8 +7,9 @@ from datetime import datetime
 
 st.set_page_config(page_title="Portail Budget Participatif Dalkia 2027", layout="wide", initial_sidebar_state="expanded")
 
-# --- URL DU LOGO OFFICIEL DALKIA GROUPE EDF ---
-URL_LOGO_DALKIA = "logo.png"
+# --- GESTION DU LOGO (Local 'logo.png' ou Fallback URL) ---
+URL_LOGO_DALKIA = "logo.png" if os.path.exists("logo.png") else "https://upload.wikimedia.org/wikipedia/commons/6/63/Dalkia_logo_2014.svg"
+
 # --- 1. DESIGN CUSTOMISÉ (CSS) ---
 st.markdown("""
     <style>
@@ -52,12 +53,26 @@ FICHIER_EXCEL = 'Support de Valorisation des capabilités - Budget2025_2.xlsx'
 COLONNES = [
     'Auteur', 'Enveloppe', 'Département', 'Domaine porteur', 'Axe Stratégique', 'Projet Stratégique', 
     'EPIC', 'ID Ticket JIRA EPIC', 'Nom CAPA', 'ID Ticket JIRA CAPA', 'Train / Hors train', 'Priorité', 'Etat', 
-    'Features / Besoins', 'Equipes contributrices',
-    'Budget R0 BP 2027 (K€)', 'Encouru R1 (K€)', 'Prévisionnel R2 (K€)', 'Delta R2-R0 (K€)',
+    'Statut Arbitrage', 'Features / Besoins', 'Equipes contributrices',
+    'Budget R0 BP 2027 (K€)', 'Encouru R1 (K€)', 'Reste à engager (K€)', 'Prévisionnel R2 (K€)', 'Delta R2-R0 (K€)',
     'Contexte de la CAPA', 'Critère Conformité', 'Critère Image', 'Critère Opérationnel', 'Critère Économique', 
     'Explications des notes', 'Indicateur de mesure', 'Valeur à date', 'Valeur cible', 'Commentaires VMO',
     'Modifié_Par', 'Dernière_Modification_Date'
 ]
+
+def calculer_priorite_auto(n_conf, n_ope, n_eco):
+    """Calcul automatique de la priorité métier."""
+    try:
+        conf = float(n_conf)
+        gains = float(n_ope) + float(n_eco)
+        if conf >= 3:
+            return "P0" # Obligatoire / Obsolescence
+        elif gains >= 6:
+            return "P1" # Forte valeur ajoutée
+        else:
+            return "P2" # Secondaire / A arbitrer
+    except:
+        return "P2"
 
 def charger_donnees():
     if os.path.exists(FICHIER_EXCEL):
@@ -185,7 +200,7 @@ if menu == "📊 Tableau de bord BP 2027":
     
     c1, c2, c3, c4 = st.columns(4)
     c1.metric("Total Alloué R0", f"{total_r0:,.0f} K€")
-    c2.metric("Budget Garanti (P0)", f"{budget_p0:,.0f} K€")
+    c2.metric("Budget Garanti (P0 auto)", f"{budget_p0:,.0f} K€")
     c3.metric("Budget à Arbitrer (P1/P2)", f"{budget_p1p2:,.0f} K€")
     c4.metric("Delta R2 vs R0", f"{total_delta:,.0f} K€", delta="Dépassement budgétaire" if total_delta > 0 else "Dans le budget", delta_color="inverse")
     
@@ -198,7 +213,7 @@ if menu == "📊 Tableau de bord BP 2027":
             fig_bar = px.bar(df_visible, x='Département', y='Budget R0 BP 2027 (K€)', color='Axe Stratégique', title="📊 Budget R0 par Département & Axe Stratégique")
             st.plotly_chart(fig_bar, use_container_width=True)
         with g2:
-            fig_pie = px.pie(df_visible, names='Priorité', values='Budget R0 BP 2027 (K€)', title="🍩 Répartition du Budget par Priorité", hole=0.3)
+            fig_pie = px.pie(df_visible, names='Priorité', values='Budget R0 BP 2027 (K€)', title="🍩 Répartition par Priorité Calculée", hole=0.3)
             st.plotly_chart(fig_pie, use_container_width=True)
             
         st.markdown("### 🎯 Matrice de Priorisation (Identification des Quick Wins)")
@@ -215,7 +230,7 @@ if menu == "📊 Tableau de bord BP 2027":
         col_f1, col_f2, col_f3, col_f4 = st.columns(4)
         f_dept = col_f1.selectbox("Département :", ["Tous"] + sorted([str(x) for x in df_visible['Département'].dropna().unique()]))
         f_axe = col_f2.selectbox("Axe Stratégique :", ["Tous"] + sorted([str(x) for x in df_visible['Axe Stratégique'].dropna().unique()]))
-        f_prio = col_f3.selectbox("Priorité :", ["Toutes"] + sorted([str(x) for x in df_visible['Priorité'].dropna().unique()]))
+        f_prio = col_f3.selectbox("Priorité (Calculée) :", ["Toutes"] + sorted([str(x) for x in df_visible['Priorité'].dropna().unique()]))
         f_etat = col_f4.selectbox("État :", ["Tous"] + sorted([str(x) for x in df_visible['Etat'].dropna().unique()]))
         recherche_tb = st.text_input("🔍 Recherche globale (Nom CAPA, EPIC, Auteur, Ticket JIRA) :")
         
@@ -231,7 +246,7 @@ if menu == "📊 Tableau de bord BP 2027":
             df_tb_filtre['Auteur'].astype(str).str.contains(recherche_tb, case=False, na=False)
         ]
     
-    cols_a_afficher = ['Alerte Budgétaire', 'Nom CAPA', 'EPIC', 'Département', 'Axe Stratégique', 'Budget R0 BP 2027 (K€)', 'Prévisionnel R2 (K€)', 'Priorité', 'Etat']
+    cols_a_afficher = ['Alerte Budgétaire', 'Nom CAPA', 'EPIC', 'Département', 'Axe Stratégique', 'Budget R0 BP 2027 (K€)', 'Reste à engager (K€)', 'Prévisionnel R2 (K€)', 'Priorité', 'Statut Arbitrage', 'Etat']
     st.data_editor(df_tb_filtre[cols_a_afficher], use_container_width=True, hide_index=True, disabled=True)
 
 # --- VUE 2 : GESTION DES CAPAS ---
@@ -269,12 +284,11 @@ elif menu in ["⚙️ Gestion des CAPAs", "⚙️ Mes CAPAs (Saisie & Suivi)"]:
             departement = c2.text_input("Précisez le département :") if sel_dept == "Autre (préciser)" else sel_dept
             domaine = c3.text_input("Domaine porteur (ex: DP, Clefs, Infra...)")
             
-            c4, c5, c6 = st.columns(3)
+            c4, c5 = st.columns(2)
             sel_axe = c4.selectbox("Axe Stratégique", ["Numérique", "Engagement", "Décarbonation", "Performance", "Électrification", "Autre (préciser)"])
             axe = c4.text_input("Précisez l'axe :") if sel_axe == "Autre (préciser)" else sel_axe
             sel_ps = c5.selectbox("Projet Stratégique", ["Numérique - Infrastructures Cloud et Réseau", "Numérique - Cybersécurité", "DATA", "Referentiel", "Autre (préciser)"])
             projet_strat = c5.text_input("Précisez le projet :") if sel_ps == "Autre (préciser)" else sel_ps
-            priorite = c6.selectbox("Priorité proposée", ["P0", "P1", "P2", "P3"])
             
             c7, c8, c9, c10 = st.columns(4)
             epic = c7.text_input("Intitulé de l'EPIC *")
@@ -311,8 +325,10 @@ elif menu in ["⚙️ Gestion des CAPAs", "⚙️ Mes CAPAs (Saisie & Suivi)"]:
             valeur_cible = i3.text_input("Valeur cible")
             
             commentaires_vmo = ""
+            statut_arbitrage = "Soumis"
             if est_admin:
                 st.markdown("---")
+                statut_arbitrage = st.selectbox("Décision / Statut d'Arbitrage Comex", ["Soumis", "Validé Comex", "Ajustement requis", "Refusé"])
                 commentaires_vmo = st.text_area("✍️ Remarques / Décision de l'arbitrage VMO", help="Réservé au profil VMO")
             
             soumettre = st.form_submit_button("💾 Enregistrer la CAPA")
@@ -322,16 +338,19 @@ elif menu in ["⚙️ Gestion des CAPAs", "⚙️ Mes CAPAs (Saisie & Suivi)"]:
                     st.error("⚠️ Les champs 'EPIC' et 'Nom de la CAPA' sont obligatoires.")
                 else:
                     delta_calcule = budget_r2 - budget_r0
+                    reste_a_engager = budget_r0 - budget_r1
+                    priorite_calculee = calculer_priorite_auto(n_conf, n_ope, n_eco)
                     horodatage_actuel = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                     
                     nouvelle_ligne = pd.DataFrame([{
                         'Auteur': st.session_state.utilisateur, 'Enveloppe': enveloppe, 'Département': departement, 
                         'Domaine porteur': domaine, 'Axe Stratégique': axe, 'Projet Stratégique': projet_strat, 
                         'EPIC': epic, 'ID Ticket JIRA EPIC': id_jira_epic, 'Nom CAPA': nom_capa, 'ID Ticket JIRA CAPA': id_jira_capa,
-                        'Train / Hors train': train_hors_train, 'Priorité': priorite, 'Etat': etat, 
+                        'Train / Hors train': train_hors_train, 'Priorité': priorite_calculee, 'Etat': etat, 
+                        'Statut Arbitrage': statut_arbitrage,
                         'Features / Besoins': features, 'Equipes contributrices': equipes_contrib,
-                        'Budget R0 BP 2027 (K€)': budget_r0, 'Encouru R1 (K€)': budget_r1, 'Prévisionnel R2 (K€)': budget_r2, 
-                        'Delta R2-R0 (K€)': delta_calcule, 'Contexte de la CAPA': contexte, 
+                        'Budget R0 BP 2027 (K€)': budget_r0, 'Encouru R1 (K€)': budget_r1, 'Reste à engager (K€)': reste_a_engager,
+                        'Prévisionnel R2 (K€)': budget_r2, 'Delta R2-R0 (K€)': delta_calcule, 'Contexte de la CAPA': contexte, 
                         'Critère Conformité': n_conf, 'Critère Image': n_img, 'Critère Opérationnel': n_ope, 'Critère Économique': n_eco, 
                         'Explications des notes': justif, 'Indicateur de mesure': indicateur, 
                         'Valeur à date': valeur_date, 'Valeur cible': valeur_cible, 'Commentaires VMO': commentaires_vmo,
@@ -339,7 +358,7 @@ elif menu in ["⚙️ Gestion des CAPAs", "⚙️ Mes CAPAs (Saisie & Suivi)"]:
                     }])
                     st.session_state.projets = pd.concat([st.session_state.projets, nouvelle_ligne], ignore_index=True)
                     sauvegarder_donnees(st.session_state.projets)
-                    st.success(f"✅ CAPA '{nom_capa}' enregistrée avec succès !")
+                    st.success(f"✅ CAPA '{nom_capa}' enregistrée avec succès (Priorité calculée : {priorite_calculee}) !")
                     st.rerun()
 
         st.markdown("---")
@@ -352,7 +371,7 @@ elif menu in ["⚙️ Gestion des CAPAs", "⚙️ Mes CAPAs (Saisie & Suivi)"]:
                 c_f1, c_f2, c_f3, c_f4, c_f5 = st.columns(5)
                 f_dept_s = c_f1.selectbox("Département :", ["Tous"] + sorted([str(x) for x in df_visible['Département'].dropna().unique()]))
                 f_axe_s = c_f2.selectbox("Axe Stratégique :", ["Tous"] + sorted([str(x) for x in df_visible['Axe Stratégique'].dropna().unique()]))
-                f_prio_s = c_f3.selectbox("Priorité :", ["Toutes"] + sorted([str(x) for x in df_visible['Priorité'].dropna().unique()]))
+                f_prio_s = c_f3.selectbox("Priorité (Calculée) :", ["Toutes"] + sorted([str(x) for x in df_visible['Priorité'].dropna().unique()]))
                 f_train_s = c_f4.selectbox("Train / Hors train :", ["Tous"] + sorted([str(x) for x in df_visible['Train / Hors train'].dropna().unique()]))
                 f_etat_s = c_f5.selectbox("État :", ["Tous"] + sorted([str(x) for x in df_visible['Etat'].dropna().unique()]))
                 recherche_s = st.text_input("🔍 Recherche par mot-clé (Nom CAPA, EPIC, Ticket JIRA) :")
@@ -369,7 +388,7 @@ elif menu in ["⚙️ Gestion des CAPAs", "⚙️ Mes CAPAs (Saisie & Suivi)"]:
                     df_saisie_filtre['EPIC'].astype(str).str.contains(recherche_s, case=False, na=False)
                 ]
                 
-            cols_saisie = ['Alerte Budgétaire', 'Nom CAPA', 'EPIC', 'Département', 'Budget R0 BP 2027 (K€)', 'Prévisionnel R2 (K€)', 'Priorité', 'Etat']
+            cols_saisie = ['Alerte Budgétaire', 'Nom CAPA', 'EPIC', 'Département', 'Budget R0 BP 2027 (K€)', 'Reste à engager (K€)', 'Prévisionnel R2 (K€)', 'Priorité', 'Statut Arbitrage', 'Etat']
             st.data_editor(df_saisie_filtre[cols_saisie], use_container_width=True, hide_index=True, disabled=True)
 
     with tabs[1]:
@@ -382,26 +401,29 @@ elif menu in ["⚙️ Gestion des CAPAs", "⚙️ Mes CAPAs (Saisie & Suivi)"]:
             with st.form("form_modification"):
                 st.markdown(f"<h4 class='titre-section-2'>Édition de la CAPA : {capa_a_modifier}</h4>", unsafe_allow_html=True)
                 val_r0 = float(st.session_state.projets.at[idx, 'Budget R0 BP 2027 (K€)']) if pd.notnull(st.session_state.projets.at[idx, 'Budget R0 BP 2027 (K€)']) else 0.0
+                val_r1 = float(st.session_state.projets.at[idx, 'Encouru R1 (K€)']) if pd.notnull(st.session_state.projets.at[idx, 'Encouru R1 (K€)']) else 0.0
                 val_r2 = float(st.session_state.projets.at[idx, 'Prévisionnel R2 (K€)']) if pd.notnull(st.session_state.projets.at[idx, 'Prévisionnel R2 (K€)']) else 0.0
                 
                 new_r0 = st.number_input("Nouveau Budget R0 BP 2027", value=val_r0)
+                new_r1 = st.number_input("Nouveau Encouru R1", value=val_r1)
                 new_r2 = st.number_input("Nouveau Prévisionnel R2", value=val_r2)
                 
-                priorite_actuelle = st.session_state.projets.at[idx, 'Priorité']
-                idx_prio = ["P0", "P1", "P2", "P3"].index(priorite_actuelle) if priorite_actuelle in ["P0", "P1", "P2", "P3"] else 1
-                new_priorite = st.selectbox("Priorité", ["P0", "P1", "P2", "P3"], index=idx_prio)
                 new_etat = st.selectbox("Mettre à jour l'état", ["En cours", "Prévu pour S2", "Reporté à 2027", "Abandonné", "Terminé"])
                 
+                new_statut_arb = st.session_state.projets.at[idx, 'Statut Arbitrage'] or "Soumis"
                 new_comm = st.session_state.projets.at[idx, 'Commentaires VMO']
                 if est_admin:
+                    new_statut_arb = st.selectbox("Décision / Statut d'Arbitrage Comex", ["Soumis", "Validé Comex", "Ajustement requis", "Refusé"])
                     new_comm = st.text_area("Commentaires VMO / Arbitrage", value=str(st.session_state.projets.at[idx, 'Commentaires VMO'] or ''))
                 
                 if st.form_submit_button("💾 Enregistrer la modification"):
                     st.session_state.projets.at[idx, 'Budget R0 BP 2027 (K€)'] = new_r0
+                    st.session_state.projets.at[idx, 'Encouru R1 (K€)'] = new_r1
+                    st.session_state.projets.at[idx, 'Reste à engager (K€)'] = new_r0 - new_r1
                     st.session_state.projets.at[idx, 'Prévisionnel R2 (K€)'] = new_r2
                     st.session_state.projets.at[idx, 'Delta R2-R0 (K€)'] = new_r2 - new_r0
-                    st.session_state.projets.at[idx, 'Priorité'] = new_priorite
                     st.session_state.projets.at[idx, 'Etat'] = new_etat
+                    st.session_state.projets.at[idx, 'Statut Arbitrage'] = new_statut_arb
                     st.session_state.projets.at[idx, 'Commentaires VMO'] = new_comm
                     
                     st.session_state.projets.at[idx, 'Modifié_Par'] = st.session_state.utilisateur
@@ -438,7 +460,7 @@ elif menu in ["🤖 Assistant NLP & Radar", "🤖 Mon Assistant NLP & Radar"]:
         
         conf_val = pd.to_numeric(donnees_capa['Critère Conformité'], errors='coerce') or 1
         if conf_val >= 3:
-            st.success("🚨 **Règle métier Dalkia :** Le critère de Conformité / Obsolescence est élevé (>=3). Cette CAPA est classée en **Top Priorité automatique**.")
+            st.success("🚨 **Règle métier Dalkia :** Le critère de Conformité / Obsolescence est élevé (>=3). Cette CAPA est classée en **Top Priorité automatique (P0)**.")
         
         st.markdown("### 🔍 Détecteur de Doublons Sémantiques")
         texte_actuel = set(str(donnees_capa['Contexte de la CAPA']).lower().split())
