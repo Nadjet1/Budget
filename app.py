@@ -100,7 +100,7 @@ def ajouter_alertes(df):
 if 'projets' not in st.session_state:
     st.session_state.projets = charger_donnees()
 
-# --- 4. ACCUEIL : INTERFACE CONNEXION SAAS ÉLARGIE & HAUTEUR MAXIMALE ---
+# --- 4. ACCUEIL : INTERFACE CONNEXION SAAS ÉPURÉE (TITRE À DROITE, IMAGE CLAIRE) ---
 if 'connecte' not in st.session_state:
     st.session_state.connecte = False
 
@@ -125,15 +125,15 @@ if not st.session_state.connecte:
             justify-content: center !important;
             align-items: center !important;
             height: 100vh !important;
-            max-width: 1400px !important; /* Carte encore plus large pour un ratio parfait */
+            max-width: 1250px !important;
         }
 
-        /* --- LA CARTE FUSIONNÉE (AJUSTEMENT DE LA HAUTEUR) --- */
+        /* --- LA CARTE FUSIONNÉE --- */
         div[data-testid="stHorizontalBlock"] {
             background-color: #FFFFFF !important;
             border-radius: 20px !important;
             box-shadow: 0 25px 50px -12px rgba(0, 43, 73, 0.25) !important;
-            height: 88vh !important; /* <-- HAUTEUR AUGMENTÉE POUR SUPPRIMER LE VIDE */
+            height: 85vh !important;
             min-height: 600px !important;
             width: 100% !important;
             overflow: hidden !important;
@@ -142,24 +142,21 @@ if not st.session_state.connecte:
             align-items: stretch !important;
         }
 
-        /* Moitié Gauche : Image et Texte */
+        /* Moitié Gauche : Image Claire sans texte */
         div[data-testid="stColumn"]:nth-of-type(1) {
-            background: linear-gradient(135deg, rgba(0,43,73,0.85) 0%, rgba(0,43,73,0.2) 100%), url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1200&auto=format&fit=crop');
+            background: url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1200&auto=format&fit=crop');
             background-size: cover !important;
             background-position: center !important;
             width: 50% !important;
             min-width: 50% !important;
-            padding: 60px 50px !important;
-            display: flex !important;
-            flex-direction: column !important;
-            justify-content: center !important;
+            padding: 0 !important;
         }
 
-        /* Moitié Droite : Formulaire */
+        /* Moitié Droite : Formulaire et Titre */
         div[data-testid="stColumn"]:nth-of-type(2) {
             width: 50% !important;
             min-width: 50% !important;
-            padding: 50px 80px !important;
+            padding: 50px 70px !important;
             display: flex !important;
             flex-direction: column !important;
             justify-content: center !important;
@@ -199,7 +196,7 @@ if not st.session_state.connecte:
             border: none !important;
             width: 100%;
             padding: 14px !important;
-            margin-top: 15px !important;
+            margin-top: 10px !important;
             transition: all 0.3s ease !important;
         }
         div[data-testid="stFormSubmitButton"] > button:hover {
@@ -212,22 +209,25 @@ if not st.session_state.connecte:
     
     col_left, col_right = st.columns([1, 1])
     
-    # GAUCHE : Texte intégré directement sur l'image
+    # GAUCHE : On laisse complètement vide pour que l'image s'affiche purement via le CSS
     with col_left:
-        st.markdown("""
-            <div style="color: white; padding-bottom: 20px;">
-                <div style="font-size: 45px; font-weight: 900; margin: 0; line-height: 1.1; font-family: Arial, sans-serif;">BUDGET</div>
-                <div style="font-size: 45px; font-weight: 900; margin: 0; line-height: 1.1; font-family: Arial, sans-serif;">PARTICIPATIF</div>
-                <div style="font-size: 60px; color: #88C425; font-weight: 900; margin: 5px 0 0 0; font-family: Arial, sans-serif;">2027</div>
-                <div style="width: 50px; height: 6px; background-color: #88C425; margin: 30px 0 0 0; border-radius: 3px;"></div>
-            </div>
-        """, unsafe_allow_html=True)
+        st.empty()
 
-    # DROITE : Formulaire propre
+    # DROITE : Logo + Titre Budget Participatif + Formulaire
     with col_right:
-        st.image(URL_LOGO_DALKIA, width=170)
-        st.markdown("<div style='color: #002B49; font-weight: 800; font-size: 28px; margin-top: 25px; margin-bottom: 5px; font-family: Arial, sans-serif;'>Bienvenue 👋</div>", unsafe_allow_html=True)
-        st.markdown("<div style='color: #64748B; font-size: 15px; margin-bottom: 30px; font-family: Arial, sans-serif;'>Veuillez saisir vos identifiants pour continuer.</div>", unsafe_allow_html=True)
+        st.markdown(f"""
+            <div style="margin-bottom: 30px;">
+                <img src="{URL_LOGO_DALKIA}" width="160" style="margin-bottom: 25px;">
+                <h1 style="color: #6FA247; font-weight: 900; font-size: 32px; margin: 0; line-height: 1.2; font-family: Arial, sans-serif; text-transform: uppercase;">
+                    BUDGET PARTICIPATIF <span style="color: #002B49;">2027</span>
+                </h1>
+                <p style="color: #64748B; font-size: 15px; margin-top: 5px; font-family: Arial, sans-serif;">
+                    Gouvernance et arbitrage stratégique des capacités.
+                </p>
+            </div>
+            <div style="color: #002B49; font-weight: 800; font-size: 24px; margin-bottom: 5px; font-family: Arial, sans-serif;">Bienvenue 👋</div>
+            <div style="color: #64748B; font-size: 14px; margin-bottom: 25px; font-family: Arial, sans-serif;">Veuillez saisir vos identifiants pour continuer.</div>
+        """, unsafe_allow_html=True)
         
         with st.form("form_login_pro"):
             identifiant = st.text_input("Identifiant", placeholder="ex: vmo ou nhachemi").lower()
