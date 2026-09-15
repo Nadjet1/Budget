@@ -10,7 +10,7 @@ st.set_page_config(page_title="Portail Budget Participatif Dalkia 2027", layout=
 # --- LOGO OFFICIEL DALKIA GROUPE EDF ---
 URL_LOGO_DALKIA = "logo.png" if os.path.exists("logo.png") else "https://upload.wikimedia.org/wikipedia/commons/6/63/Dalkia_logo_2014.svg"
 
-# --- 1. DESIGN ÉPURÉ & PROFESSIONNEL (CLEAN UI) ---
+# --- 1. DESIGN VERT CLAIR MODERNE & DYNAMIQUE (CSS CUSTOM) ---
 st.markdown("""
     <style>
     /* Masquer le menu natif Streamlit */
@@ -18,52 +18,61 @@ st.markdown("""
     footer {visibility: hidden;}
     header {visibility: hidden;}
 
-    /* Fond clair et reposant */
+    /* Arrière-plan doux en vert très clair pastel */
     .stApp {
-        background-color: #F8F9FA !important;
+        background-color: #F3F8EC !important;
     }
 
-    /* Carte de connexion épurée */
+    /* Style du formulaire de connexion vert clair */
     div[data-testid="stForm"] {
         background: #FFFFFF !important;
-        border-radius: 16px !important;
+        border-radius: 20px !important;
         padding: 40px !important;
-        border: 1px solid #E2E8F0 !important;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04) !important;
+        border: 2px solid #D1E7B6 !important;
+        box-shadow: 0 12px 35px rgba(136, 196, 37, 0.15) !important;
     }
 
-    /* Bouton principal aux couleurs Dalkia */
+    /* Bouton d'action principal Vert Clair dynamique */
     div[data-testid="stFormSubmitButton"] > button, .stButton > button {
-        background-color: #6FA247 !important;
+        background: linear-gradient(135deg, #88C425 0%, #61A814 100%) !important;
         color: white !important;
-        font-weight: 600 !important;
-        font-size: 15px !important;
-        border-radius: 8px !important;
+        font-weight: 700 !important;
+        font-size: 16px !important;
+        border-radius: 12px !important;
         border: none !important;
         width: 100%;
-        padding: 10px 20px;
-        transition: background-color 0.2s ease;
+        padding: 12px 24px;
+        transition: all 0.3s ease;
+        box-shadow: 0 6px 18px rgba(136, 196, 37, 0.35);
     }
     div[data-testid="stFormSubmitButton"] > button:hover, .stButton > button:hover {
-        background-color: #5B8839 !important;
+        background: linear-gradient(135deg, #71B012 0%, #4E8B0A 100%) !important;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 22px rgba(136, 196, 37, 0.5);
     }
 
-    /* Inputs modernes */
+    /* Inputs modernes avec bordure vert clair au focus */
     input {
-        border-radius: 8px !important;
-        border: 1px solid #CBD5E1 !important;
+        border-radius: 10px !important;
+        border: 1.5px solid #C1E19F !important;
+        padding: 10px 14px !important;
+    }
+    input:focus {
+        border-color: #88C425 !important;
+        box-shadow: 0 0 8px rgba(136, 196, 37, 0.4) !important;
     }
 
+    /* Style des cartes et sections */
     .cadre-creer {
-        background-color: #F4F8F1;
+        background-color: #EEF7E6;
         padding: 20px;
-        border-left: 6px solid #6FA247;
+        border-left: 6px solid #88C425;
         border-radius: 8px;
         margin-bottom: 20px;
     }
-    .titre-section-1 { color: #6FA247; border-bottom: 2px solid #6FA247; padding-bottom: 5px; margin-top: 15px; }
+    .titre-section-1 { color: #61A814; border-bottom: 2px solid #88C425; padding-bottom: 5px; margin-top: 15px; }
     .titre-section-2 { color: #005A9C; border-bottom: 2px solid #005A9C; padding-bottom: 5px; margin-top: 15px; }
-    .titre-section-3 { color: #009688; border-bottom: 2px solid #009688; padding-bottom: 5px; margin-top: 15px; }
+    .titre-section-3 { color: #88C425; border-bottom: 2px solid #88C425; padding-bottom: 5px; margin-top: 15px; }
     </style>
 """, unsafe_allow_html=True)
 
@@ -157,7 +166,7 @@ def ajouter_alertes(df):
 if 'projets' not in st.session_state:
     st.session_state.projets = charger_donnees()
 
-# --- 4. ACCUEIL ÉPURÉ & CONNEXION ---
+# --- 4. ACCUEIL VERT CLAIR & CONNEXION ---
 if 'connecte' not in st.session_state:
     st.session_state.connecte = False
 
@@ -168,16 +177,16 @@ if not st.session_state.connecte:
     _, col_center, _ = st.columns([1, 1.2, 1])
     
     with col_center:
-        with st.form("form_login_clean"):
+        with st.form("form_login_green"):
             st.image(URL_LOGO_DALKIA, width=180)
-            st.markdown("<h3 style='color: #003366; font-weight: 700; margin-top: 15px; margin-bottom: 5px;'>Budget Participatif 2027</h3>", unsafe_allow_html=True)
-            st.markdown("<p style='color: #64748B; font-size: 14px; margin-bottom: 25px;'>Portail d'Arbitrage & Valorisation des Capabilités</p>", unsafe_allow_html=True)
+            st.markdown("<h3 style='color: #61A814; font-weight: 700; margin-top: 15px; margin-bottom: 5px;'>Budget Participatif 2027</h3>", unsafe_allow_html=True)
+            st.markdown("<p style='color: #555555; font-size: 14px; margin-bottom: 25px;'>Portail d'Arbitrage & Valorisation des Capabilités</p>", unsafe_allow_html=True)
             
             identifiant = st.text_input("Identifiant", placeholder="ex: vmo ou nhachemi").lower()
             mdp = st.text_input("Mot de passe", type="password", placeholder="••••••••")
             
             st.markdown("<br>", unsafe_allow_html=True)
-            submit_login = st.form_submit_button("Se connecter")
+            submit_login = st.form_submit_button("Se connecter ➔")
             
             if submit_login:
                 if identifiant in UTILISATEURS and UTILISATEURS[identifiant]["mdp"] == mdp:
@@ -263,11 +272,11 @@ if menu == "📊 Tableau de bord BP 2027":
         g1, g2 = st.columns(2)
         with g1:
             if 'Département' in df_visible.columns and col_r0 in df_visible.columns:
-                fig_bar = px.bar(df_visible, x='Département', y=col_r0, color='Axe Stratégique', title="📊 Budget R0 par Département & Axe Stratégique", color_discrete_sequence=['#6FA247', '#005A9C', '#E5004F', '#009688'])
+                fig_bar = px.bar(df_visible, x='Département', y=col_r0, color='Axe Stratégique', title="📊 Budget R0 par Département & Axe Stratégique", color_discrete_sequence=['#88C425', '#005A9C', '#E5004F', '#009688'])
                 st.plotly_chart(fig_bar, use_container_width=True)
         with g2:
             if 'Priorité' in df_visible.columns and col_r0 in df_visible.columns:
-                fig_pie = px.pie(df_visible, names='Priorité', values=col_r0, title="🍩 Répartition par Priorité Calculée", hole=0.3, color_discrete_sequence=['#6FA247', '#005A9C', '#E5004F'])
+                fig_pie = px.pie(df_visible, names='Priorité', values=col_r0, title="🍩 Répartition par Priorité Calculée", hole=0.3, color_discrete_sequence=['#88C425', '#005A9C', '#E5004F'])
                 st.plotly_chart(fig_pie, use_container_width=True)
             
         st.markdown("### 🎯 Matrice de Priorisation (Identification des Quick Wins)")
@@ -326,7 +335,7 @@ elif menu in ["⚙️ Gestion des CAPAs", "⚙️ Mes CAPAs (Saisie & Suivi)"]:
     with tabs[0]:
         st.markdown("""
             <div class="cadre-creer">
-                <h3 style='margin-top: 0; color: #6FA247;'>✨ Soumettre une nouvelle CAPA (Budget 2027)</h3>
+                <h3 style='margin-top: 0; color: #61A814;'>✨ Soumettre une nouvelle CAPA (Budget 2027)</h3>
                 <p style='margin-bottom: 0;'>Renseignez les éléments ci-dessous. Dès validation, votre demande sera affichée en direct.</p>
             </div>
         """, unsafe_allow_html=True)
@@ -554,7 +563,7 @@ elif menu in ["🤖 Assistant NLP & Radar", "🤖 Mon Assistant NLP & Radar"]:
                 r=[c_conf, c_img, c_ope, c_eco],
                 theta=['Conformité', 'Image', 'Gain Opé.', 'Gain Éco.']))
             fig = px.line_polar(df_radar, r='r', theta='theta', line_close=True, range_r=[0,4])
-            fig.update_traces(fill='toself', line_color='#6FA247')
+            fig.update_traces(fill='toself', line_color='#88C425')
             st.plotly_chart(fig, use_container_width=True)
 
         with col_ia2:
