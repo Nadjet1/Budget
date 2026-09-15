@@ -10,75 +10,67 @@ st.set_page_config(page_title="Portail Budget Participatif Dalkia 2027", layout=
 # --- LOGO OFFICIEL DALKIA GROUPE EDF ---
 URL_LOGO_DALKIA = "logo.png" if os.path.exists("logo.png") else "https://upload.wikimedia.org/wikipedia/commons/6/63/Dalkia_logo_2014.svg"
 
-# --- 1. DESIGN FULLSCREEN EXACT (CSS VERROUILLÉ) ---
+# --- 1. DESIGN FULLSCREEN & CARTE FUSIONNÉE (CSS) ---
 st.markdown("""
     <style>
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
 
-    /* Verrouillage strict de la hauteur et blocage absolu du scroll */
-    html, body, [data-testid="stAppViewContainer"], .main {
+    /* Verrouillage strict de l'écran pour éviter tout scroll */
+    html, body, [data-testid="stAppViewContainer"] {
         overflow: hidden !important;
         height: 100vh !important;
-        max-height: 100vh !important;
         margin: 0 !important;
         padding: 0 !important;
     }
 
     .stApp {
-        background-color: #F8FAF6 !important;
+        background-color: #F4F7F2 !important;
     }
 
-    /* Marge du container calculée pour remplir l'écran sans déborder */
+    /* Marge globale ajustée */
     .block-container {
-        padding: 3vh 3vw 0 3vw !important;
+        padding-top: 3vh !important;
+        padding-bottom: 0rem !important;
+        padding-left: 5vw !important;
+        padding-right: 5vw !important;
         max-width: 100% !important;
         height: 100vh !important;
-        box-sizing: border-box !important;
-        overflow: hidden !important;
     }
 
-    /* Suppression des espaces vides natifs de Streamlit */
-    div[data-testid="stVerticalBlock"] {
+    /* FUSION : Suppression totale de l'espace (gap) entre les 2 colonnes */
+    div[data-testid="stHorizontalBlock"] {
         gap: 0 !important;
+        align-items: center !important;
+    }
+    [data-testid="column"]:nth-of-type(1) {
+        padding-right: 0 !important;
+    }
+    [data-testid="column"]:nth-of-type(2) {
+        padding-left: 0 !important;
     }
 
-    /* Image claire de gauche ajustée exactement à l'écran */
+    /* Carte de gauche : Image (Coins arrondis à gauche seulement) */
     .dalkia-cover-card {
         background: url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1200&auto=format&fit=crop');
         background-size: cover;
         background-position: center;
-        border-radius: 24px;
-        height: 87vh !important; 
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        border-radius: 24px 0 0 24px !important;
+        height: 80vh !important; 
         width: 100%;
+        margin: 0;
+        box-shadow: -10px 15px 35px rgba(0, 0, 0, 0.08);
     }
 
-    /* Titre vert sur une seule ligne */
-    .title-dalkia-single-line {
-        color: #6FA247;
-        font-weight: 900;
-        font-size: 32px;
-        letter-spacing: 0.5px;
-        margin: 0 0 2vh 0 !important;
-        padding: 0 !important;
-        white-space: nowrap;
-        text-transform: uppercase;
-        font-family: Arial, sans-serif;
-        height: 5vh;
-        display: flex;
-        align-items: flex-end;
-    }
-
-    /* Formulaire de connexion aligné sur la même hauteur exacte */
+    /* Formulaire à droite (Coins arrondis à droite seulement) */
     div[data-testid="stForm"] {
         background: #FFFFFF !important;
-        border-radius: 24px !important;
-        padding: 40px 35px !important;
-        border: 2px solid #D1E7B6 !important;
-        box-shadow: 0 12px 35px rgba(111, 162, 71, 0.12) !important;
-        height: 94vh !important; /* 5vh (titre) + 2vh (marge) + 87vh (image) = 94vh total */
+        border-radius: 0 24px 24px 0 !important;
+        padding: 40px 50px !important;
+        border: none !important;
+        box-shadow: 10px 15px 35px rgba(0, 0, 0, 0.08) !important;
+        height: 80vh !important;
         display: flex;
         flex-direction: column;
         justify-content: center;
@@ -106,11 +98,16 @@ st.markdown("""
 
     input {
         border-radius: 10px !important;
-        border: 1.5px solid #C1E19F !important;
+        border: 1.5px solid #E2E8F0 !important;
         padding: 12px 14px !important;
+        background-color: #F8FAF6 !important;
+    }
+    input:focus {
+        border-color: #6FA247 !important;
+        background-color: #FFFFFF !important;
     }
 
-    /* Design intérieur des pages connectées */
+    /* Styles pour la partie connectée */
     .cadre-creer {
         background-color: #F4F8F1;
         padding: 20px;
@@ -214,25 +211,31 @@ def ajouter_alertes(df):
 if 'projets' not in st.session_state:
     st.session_state.projets = charger_donnees()
 
-# --- 4. ACCUEIL : INTERFACE VERROUILLÉE SANS SCROLL ---
+# --- 4. ACCUEIL : TITRE MODERNE + CARTE FUSIONNÉE (IMAGE/FORMULAIRE) ---
 if 'connecte' not in st.session_state:
     st.session_state.connecte = False
 
 if not st.session_state.connecte:
     st.markdown("""<style>section[data-testid="stSidebar"] {display: none;}</style>""", unsafe_allow_html=True)
     
-    col_left, col_right = st.columns([1.1, 1], gap="medium")
-    
-    # GAUCHE : Titre vert au-dessus + Image claire
-    with col_left:
-        st.markdown(f"""
-            <h1 class="title-dalkia-single-line">BUDGET PARTICIPATIF 2027</h1>
-            <div class="dalkia-cover-card"></div>
-        """, unsafe_allow_html=True)
+    # TITRE MODERNE STYLÉ AU-DESSUS DE TOUT
+    st.markdown("""
+        <div style="display: flex; justify-content: center; align-items: center; margin-bottom: 3vh;">
+            <h1 style="color: #002B49; font-weight: 900; font-size: 38px; margin: 0; letter-spacing: 1px; font-family: Arial, sans-serif;">BUDGET PARTICIPATIF</h1>
+            <span style="background: linear-gradient(135deg, #6FA247 0%, #4E7A2F 100%); color: white; font-weight: 900; font-size: 34px; padding: 4px 22px; border-radius: 50px; margin-left: 15px; box-shadow: 0 4px 15px rgba(111,162,71,0.4);">2027</span>
+        </div>
+    """, unsafe_allow_html=True)
 
-    # DROITE : Formulaire de connexion aligné en hauteur
+    # LA CARTE FUSIONNÉE (Colonnes sans espace)
+    col_left, col_right = st.columns([1.2, 1])
+    
+    # GAUCHE : Image claire intégrée (arrondie à gauche)
+    with col_left:
+        st.markdown('<div class="dalkia-cover-card"></div>', unsafe_allow_html=True)
+
+    # DROITE : Formulaire encastré (arrondi à droite)
     with col_right:
-        with st.form("form_login_exact"):
+        with st.form("form_login_merged"):
             st.image(URL_LOGO_DALKIA, width=170)
             st.markdown("<h3 style='color: #6FA247; font-weight: 700; margin-top: 15px; margin-bottom: 2px;'>Authentification</h3>", unsafe_allow_html=True)
             st.markdown("<p style='color: #666; font-size: 13px; margin-bottom: 25px;'>Portail de Gouvernance & Valorisation des CAPAs</p>", unsafe_allow_html=True)
@@ -254,10 +257,9 @@ if not st.session_state.connecte:
 
     st.stop()
 
-# --- 5. NAVIGATION & RÔLES CONNECTÉS (RÉACTIVATION DU SCROLL POUR L'APPLICATION) ---
+# --- 5. NAVIGATION & RÔLES CONNECTÉS (RETOUR DU SCROLL NORMAL) ---
 st.markdown("""
     <style>
-    /* Rétablit le comportement normal de défilement une fois l'utilisateur connecté */
     html, body, [data-testid="stAppViewContainer"], .main {
         overflow: auto !important;
         height: auto !important;
