@@ -1,8 +1,6 @@
 import streamlit as st
 import pandas as pd
-import plotly.express as px
 import plotly.graph_objects as go
-import numpy as np
 import os
 import io
 from datetime import datetime
@@ -176,7 +174,7 @@ def ajouter_alertes(df):
 if 'projets' not in st.session_state:
     st.session_state.projets = charger_donnees()
 
-# --- 4. ACCUEIL : GRAPH POLAIRE BASÉ SUR LES VRAIES DONNÉES EXCEL ---
+# --- 4. ACCUEIL : NIGHTINGALE PAR DÉPARTEMENT (SANS CHIFFRES) ---
 if 'connecte' not in st.session_state:
     st.session_state.connecte = False
 
@@ -185,30 +183,27 @@ if not st.session_state.connecte:
     
     col_left, col_right = st.columns([1.3, 1], gap="large")
     
-    # GAUCHE : Graphique Nightingale calculé à partir de la Base_CAPA réelle
+    # GAUCHE : Graphique Nightingale par DÉPARTEMENT sans aucun chiffre
     with col_left:
         df_donnees = st.session_state.projets.copy()
         
-        # Filtrage et agrégation des vraies données
-        if not df_donnees.empty and 'Axe Stratégique' in df_donnees.columns:
-            df_donnees['Budget_Val'] = pd.to_numeric(df_donnees['Budget R0 BP 2027 (K€)'], errors='coerce').fillna(0)
-            # Supprimer les lignes où l'axe est non renseigné
-            df_donnees = df_donnees[df_donnees['Axe Stratégique'].notnull()]
-            df_grp = df_donnees.groupby('Axe Stratégique')['Budget_Val'].sum().reset_index()
+        # Aggrégat par DÉPARTEMENT (au lieu d'Axe Stratégique)
+        if not df_donnees.empty and 'Département' in df_donnees.columns:
+            df_donnees['Budget_Val'] = pd.to_numeric(df_donnees['Budget R0 BP 2027 (K€)'], errors='coerce').fillna(10)
+            df_donnees = df_donnees[df_donnees['Département'].notnull()]
+            df_grp = df_donnees.groupby('Département')['Budget_Val'].sum().reset_index()
         else:
-            df_grp = pd.DataFrame(columns=['Axe Stratégique', 'Budget_Val'])
+            df_grp = pd.DataFrame(columns=['Département', 'Budget_Val'])
 
-        # Si le fichier contient des données d'axes réelles
         if not df_grp.empty and df_grp['Budget_Val'].sum() > 0:
             df_grp = df_grp.sort_values(by='Budget_Val', ascending=False).reset_index(drop=True)
-            labels = df_grp['Axe Stratégique'].tolist()
+            labels = df_grp['Département'].tolist()
             r_vals = df_grp['Budget_Val'].tolist()
         else:
-            # Structure visuelle minimale basée sur les axes stratégiques officiels
-            labels = ['Décarbonation', 'Numérique', 'Performance', 'Électrification']
-            r_vals = [40, 30, 20, 10]
+            labels = ['DATA', 'CLEFS', 'DOPING', 'Infra', 'E-Facts', 'UP', 'Idops']
+            r_vals = [100, 85, 65, 50, 35, 25, 15]
 
-        palette_couleurs = ['#6FA247', '#005A9C', '#E5004F', '#88C425', '#009688', '#FF6B00']
+        palette_couleurs = ['#2E1A72', '#3EA99F', '#0A7E3D', '#8C9E35', '#E3C16F', '#7A1C0B', '#CB6371', '#A0338A']
 
         fig_nightingale = go.Figure()
 
@@ -222,28 +217,22 @@ if not st.session_state.connecte:
                 marker_line_width=1.5,
                 opacity=0.95,
                 hoverinfo="text",
-                hovertext=f"<b>{labels[i]}</b><br>Budget R0: {r_vals[i]} K€"
+                hovertext=f"<b>Département : {labels[i]}</b>"  # Aucun chiffre au survol
             ))
 
         fig_nightingale.update_layout(
-            title=dict(
-                text="<b>Répartition Stratégique du Portefeuille</b>",
-                font=dict(size=15, color="#444444"),
-                x=0.5,
-                xanchor="center"
-            ),
             polar=dict(
                 radialaxis=dict(visible=False, showticklabels=False),
                 angularaxis=dict(
-                    tickfont=dict(size=12, color="#333333", family="Arial"),
+                    tickfont=dict(size=12, color="#444444", family="Arial"),
                     rotation=90,
                     direction="clockwise"
                 ),
                 bgcolor='rgba(0,0,0,0)'
             ),
             showlegend=False,
-            margin=dict(t=50, b=20, l=40, r=40),
-            height=420,
+            margin=dict(t=30, b=20, l=40, r=40),
+            height=430,
             paper_bgcolor='rgba(0,0,0,0)',
             plot_bgcolor='rgba(0,0,0,0)'
         )
@@ -252,7 +241,7 @@ if not st.session_state.connecte:
         
     # DROITE : Cadre de connexion
     with col_right:
-        with st.form("form_login_exact"):
+        with st.form("form_login_dept"):
             st.image(URL_LOGO_DALKIA, width=170)
             st.markdown("<h3 style='color: #61A814; font-weight: 700; margin-top: 10px; margin-bottom: 2px;'>Budget Participatif 2027</h3>", unsafe_allow_html=True)
             st.markdown("<p style='color: #666; font-size: 13px; margin-bottom: 20px;'>Espace d'Arbitrage & Suivi des CAPAs</p>", unsafe_allow_html=True)
