@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-import plotly.graph_objects as go
+import plotly.express as px
 import os
 import io
 from datetime import datetime
@@ -10,7 +10,7 @@ st.set_page_config(page_title="Portail Budget Participatif Dalkia 2027", layout=
 # --- LOGO OFFICIEL DALKIA GROUPE EDF ---
 URL_LOGO_DALKIA = "logo.png" if os.path.exists("logo.png") else "https://upload.wikimedia.org/wikipedia/commons/6/63/Dalkia_logo_2014.svg"
 
-# --- 1. DESIGN INFOGRAPHIC FULLSCREEN (CSS) ---
+# --- 1. DESIGN ET VISUEL OFFICIEL DALKIA (CSS & SVG VECTORIEL) ---
 st.markdown("""
     <style>
     #MainMenu {visibility: hidden;}
@@ -26,7 +26,7 @@ st.markdown("""
     }
 
     .stApp {
-        background-color: #F3F8EC !important;
+        background-color: #F8FAF6 !important;
     }
 
     .block-container {
@@ -38,18 +38,54 @@ st.markdown("""
         margin: auto !important;
     }
 
+    /* Boîte de présentation Dalkia à gauche (Inspirée de ton image) */
+    .dalkia-hero-card {
+        background: #FFFFFF;
+        border-radius: 24px;
+        padding: 40px;
+        border: 2px solid #E2E8F0;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.05);
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* Titres aux couleurs exactes Dalkia */
+    .title-dalkia-green {
+        color: #6FA247;
+        font-weight: 900;
+        font-size: 36px;
+        letter-spacing: -0.5px;
+        margin: 10px 0 0 0;
+        text-align: center;
+        line-height: 1.1;
+    }
+
+    .subtitle-dalkia-blue {
+        color: #002B49;
+        font-weight: 900;
+        font-size: 48px;
+        margin: 0;
+        text-align: center;
+        letter-spacing: -1px;
+    }
+
     /* Cadre de connexion à droite */
     div[data-testid="stForm"] {
         background: #FFFFFF !important;
         border-radius: 24px !important;
         padding: 35px 30px !important;
         border: 2px solid #D1E7B6 !important;
-        box-shadow: 0 12px 35px rgba(136, 196, 37, 0.15) !important;
+        box-shadow: 0 12px 35px rgba(111, 162, 71, 0.12) !important;
     }
 
     /* Bouton vert clair Dalkia */
     div[data-testid="stFormSubmitButton"] > button, .stButton > button {
-        background: linear-gradient(135deg, #88C425 0%, #61A814 100%) !important;
+        background: linear-gradient(135deg, #6FA247 0%, #4E7A2F 100%) !important;
         color: white !important;
         font-weight: 700 !important;
         font-size: 16px !important;
@@ -58,10 +94,10 @@ st.markdown("""
         width: 100%;
         padding: 12px 24px;
         transition: all 0.3s ease;
-        box-shadow: 0 6px 18px rgba(136, 196, 37, 0.35);
+        box-shadow: 0 6px 18px rgba(111, 162, 71, 0.35);
     }
     div[data-testid="stFormSubmitButton"] > button:hover, .stButton > button:hover {
-        background: linear-gradient(135deg, #71B012 0%, #4E8B0A 100%) !important;
+        background: linear-gradient(135deg, #5B8839 0%, #3D6223 100%) !important;
         transform: translateY(-2px);
     }
 
@@ -72,15 +108,15 @@ st.markdown("""
     }
 
     .cadre-creer {
-        background-color: #EEF7E6;
+        background-color: #F4F8F1;
         padding: 20px;
-        border-left: 6px solid #88C425;
+        border-left: 6px solid #6FA247;
         border-radius: 8px;
         margin-bottom: 20px;
     }
-    .titre-section-1 { color: #61A814; border-bottom: 2px solid #88C425; padding-bottom: 5px; margin-top: 15px; }
+    .titre-section-1 { color: #6FA247; border-bottom: 2px solid #6FA247; padding-bottom: 5px; margin-top: 15px; }
     .titre-section-2 { color: #005A9C; border-bottom: 2px solid #005A9C; padding-bottom: 5px; margin-top: 15px; }
-    .titre-section-3 { color: #88C425; border-bottom: 2px solid #88C425; padding-bottom: 5px; margin-top: 15px; }
+    .titre-section-3 { color: #6FA247; border-bottom: 2px solid #6FA247; padding-bottom: 5px; margin-top: 15px; }
     </style>
 """, unsafe_allow_html=True)
 
@@ -174,7 +210,7 @@ def ajouter_alertes(df):
 if 'projets' not in st.session_state:
     st.session_state.projets = charger_donnees()
 
-# --- 4. ACCUEIL : NIGHTINGALE PAR DÉPARTEMENT (SANS CHIFFRES) ---
+# --- 4. ACCUEIL : VISUEL INSTITUTIONNEL À GAUCHE, CONNEXION À DROITE ---
 if 'connecte' not in st.session_state:
     st.session_state.connecte = False
 
@@ -183,68 +219,35 @@ if not st.session_state.connecte:
     
     col_left, col_right = st.columns([1.3, 1], gap="large")
     
-    # GAUCHE : Graphique Nightingale par DÉPARTEMENT sans aucun chiffre
+    # GAUCHE : Composition visuelle officielle inspirée de l'image
     with col_left:
-        df_donnees = st.session_state.projets.copy()
-        
-        # Aggrégat par DÉPARTEMENT (au lieu d'Axe Stratégique)
-        if not df_donnees.empty and 'Département' in df_donnees.columns:
-            df_donnees['Budget_Val'] = pd.to_numeric(df_donnees['Budget R0 BP 2027 (K€)'], errors='coerce').fillna(10)
-            df_donnees = df_donnees[df_donnees['Département'].notnull()]
-            df_grp = df_donnees.groupby('Département')['Budget_Val'].sum().reset_index()
-        else:
-            df_grp = pd.DataFrame(columns=['Département', 'Budget_Val'])
+        st.markdown(f"""
+            <div class="dalkia-hero-card">
+                <!-- Étoile filante dorée en SVG vectoriel -->
+                <svg width="220" height="220" viewBox="0 0 200 200" style="position: absolute; left: -20px; top: 10px; opacity: 0.85;">
+                    <polygon points="100,10 125,70 190,75 140,120 155,185 100,150 45,185 60,120 10,75 75,70" 
+                             fill="none" stroke="#D4AF37" stroke-width="4" />
+                    <polygon points="90,20 112,72 170,77 126,117 139,173 90,140 41,173 54,117 10,77 68,72" 
+                             fill="none" stroke="#C0C0C0" stroke-width="2.5" opacity="0.6" />
+                </svg>
 
-        if not df_grp.empty and df_grp['Budget_Val'].sum() > 0:
-            df_grp = df_grp.sort_values(by='Budget_Val', ascending=False).reset_index(drop=True)
-            labels = df_grp['Département'].tolist()
-            r_vals = df_grp['Budget_Val'].tolist()
-        else:
-            labels = ['DATA', 'CLEFS', 'DOPING', 'Infra', 'E-Facts', 'UP', 'Idops']
-            r_vals = [100, 85, 65, 50, 35, 25, 15]
-
-        palette_couleurs = ['#2E1A72', '#3EA99F', '#0A7E3D', '#8C9E35', '#E3C16F', '#7A1C0B', '#CB6371', '#A0338A']
-
-        fig_nightingale = go.Figure()
-
-        for i in range(len(labels)):
-            fig_nightingale.add_trace(go.Barpolar(
-                r=[r_vals[i]],
-                theta=[labels[i]],
-                name=labels[i],
-                marker_color=palette_couleurs[i % len(palette_couleurs)],
-                marker_line_color="white",
-                marker_line_width=1.5,
-                opacity=0.95,
-                hoverinfo="text",
-                hovertext=f"<b>Département : {labels[i]}</b>"  # Aucun chiffre au survol
-            ))
-
-        fig_nightingale.update_layout(
-            polar=dict(
-                radialaxis=dict(visible=False, showticklabels=False),
-                angularaxis=dict(
-                    tickfont=dict(size=12, color="#444444", family="Arial"),
-                    rotation=90,
-                    direction="clockwise"
-                ),
-                bgcolor='rgba(0,0,0,0)'
-            ),
-            showlegend=False,
-            margin=dict(t=30, b=20, l=40, r=40),
-            height=430,
-            paper_bgcolor='rgba(0,0,0,0)',
-            plot_bgcolor='rgba(0,0,0,0)'
-        )
-
-        st.plotly_chart(fig_nightingale, use_container_width=True, config={'displayModeBar': False})
+                <div style="z-index: 2; text-align: right; width: 100%;">
+                    <img src="{URL_LOGO_DALKIA}" width="180" style="margin-bottom: 20px;">
+                </div>
+                
+                <div style="z-index: 2; text-align: center; margin-top: 10px;">
+                    <h1 class="title-dalkia-green">BUDGET PARTICIPATIF</h1>
+                    <h1 class="subtitle-dalkia-blue">2027</h1>
+                </div>
+            </div>
+        """, unsafe_allow_html=True)
         
     # DROITE : Cadre de connexion
     with col_right:
-        with st.form("form_login_dept"):
+        with st.form("form_login_official"):
             st.image(URL_LOGO_DALKIA, width=170)
-            st.markdown("<h3 style='color: #61A814; font-weight: 700; margin-top: 10px; margin-bottom: 2px;'>Budget Participatif 2027</h3>", unsafe_allow_html=True)
-            st.markdown("<p style='color: #666; font-size: 13px; margin-bottom: 20px;'>Espace d'Arbitrage & Suivi des CAPAs</p>", unsafe_allow_html=True)
+            st.markdown("<h3 style='color: #6FA247; font-weight: 700; margin-top: 10px; margin-bottom: 2px;'>Authentification</h3>", unsafe_allow_html=True)
+            st.markdown("<p style='color: #666; font-size: 13px; margin-bottom: 20px;'>Accès au portail de gestion des CAPAs</p>", unsafe_allow_html=True)
             
             identifiant = st.text_input("Identifiant", placeholder="ex: vmo ou nhachemi").lower()
             mdp = st.text_input("Mot de passe", type="password", placeholder="••••••••")
@@ -349,11 +352,11 @@ if menu == "📊 Tableau de bord BP 2027":
         g1, g2 = st.columns(2)
         with g1:
             if 'Département' in df_visible.columns and col_r0 in df_visible.columns:
-                fig_bar = px.bar(df_visible, x='Département', y=col_r0, color='Axe Stratégique', title="📊 Budget R0 par Département & Axe Stratégique", color_discrete_sequence=['#88C425', '#005A9C', '#E5004F', '#009688'])
+                fig_bar = px.bar(df_visible, x='Département', y=col_r0, color='Axe Stratégique', title="📊 Budget R0 par Département & Axe Stratégique", color_discrete_sequence=['#6FA247', '#005A9C', '#E5004F', '#009688'])
                 st.plotly_chart(fig_bar, use_container_width=True)
         with g2:
             if 'Priorité' in df_visible.columns and col_r0 in df_visible.columns:
-                fig_pie = px.pie(df_visible, names='Priorité', values=col_r0, title="🍩 Répartition par Priorité Calculée", hole=0.3, color_discrete_sequence=['#88C425', '#005A9C', '#E5004F'])
+                fig_pie = px.pie(df_visible, names='Priorité', values=col_r0, title="🍩 Répartition par Priorité Calculée", hole=0.3, color_discrete_sequence=['#6FA247', '#005A9C', '#E5004F'])
                 st.plotly_chart(fig_pie, use_container_width=True)
             
         st.markdown("### 🎯 Matrice de Priorisation (Identification des Quick Wins)")
@@ -412,7 +415,7 @@ elif menu in ["⚙️ Gestion des CAPAs", "⚙️ Mes CAPAs (Saisie & Suivi)"]:
     with tabs[0]:
         st.markdown("""
             <div class="cadre-creer">
-                <h3 style='margin-top: 0; color: #61A814;'>✨ Soumettre une nouvelle CAPA (Budget 2027)</h3>
+                <h3 style='margin-top: 0; color: #6FA247;'>✨ Soumettre une nouvelle CAPA (Budget 2027)</h3>
                 <p style='margin-bottom: 0;'>Renseignez les éléments ci-dessous. Dès validation, votre demande sera affichée en direct.</p>
             </div>
         """, unsafe_allow_html=True)
@@ -640,7 +643,7 @@ elif menu in ["🤖 Assistant NLP & Radar", "🤖 Mon Assistant NLP & Radar"]:
                 r=[c_conf, c_img, c_ope, c_eco],
                 theta=['Conformité', 'Image', 'Gain Opé.', 'Gain Éco.']))
             fig = px.line_polar(df_radar, r='r', theta='theta', line_close=True, range_r=[0,4])
-            fig.update_traces(fill='toself', line_color='#88C425')
+            fig.update_traces(fill='toself', line_color='#6FA247')
             st.plotly_chart(fig, use_container_width=True)
 
         with col_ia2:
