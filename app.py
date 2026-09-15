@@ -10,104 +10,211 @@ st.set_page_config(page_title="Portail Budget Participatif Dalkia 2027", layout=
 # --- LOGO OFFICIEL DALKIA GROUPE EDF ---
 URL_LOGO_DALKIA = "logo.png" if os.path.exists("logo.png") else "https://upload.wikimedia.org/wikipedia/commons/6/63/Dalkia_logo_2014.svg"
 
-# --- 1. DESIGN FULLSCREEN & CARTE FUSIONNÉE (CSS) ---
+# --- 1. ACCUEIL : DESIGN FULLSCREEN BORD À BORD (EXÉCUTÉ SEULEMENT SI DÉCONNECTÉ) ---
+if 'connecte' not in st.session_state:
+    st.session_state.connecte = False
+
+if not st.session_state.connecte:
+    st.markdown("""
+        <style>
+        /* Cacher les éléments natifs de Streamlit */
+        #MainMenu {visibility: hidden;}
+        footer {visibility: hidden;}
+        header {visibility: hidden;}
+        section[data-testid="stSidebar"] {display: none;}
+
+        /* Verrouillage strict de l'écran : ZÉRO scroll, 100% de la fenêtre */
+        html, body, [data-testid="stAppViewContainer"], .main {
+            overflow: hidden !important;
+            height: 100vh !important;
+            width: 100vw !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            background-color: #FFFFFF !important;
+        }
+
+        /* Suppression absolue de toutes les marges de la page Streamlit */
+        .block-container {
+            padding: 0 !important;
+            margin: 0 !important;
+            max-width: 100% !important;
+            height: 100vh !important;
+        }
+
+        /* Suppression de l'espacement automatique entre les blocs */
+        div[data-testid="stVerticalBlock"] {
+            gap: 0 !important;
+        }
+
+        /* BANDEAU HAUT (10% de l'écran) */
+        .top-banner {
+            height: 10vh;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 4vw;
+            background-color: #FFFFFF;
+            border-bottom: 1px solid #E2E8F0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            z-index: 10;
+        }
+
+        .title-dalkia {
+            font-weight: 900;
+            font-size: 28px;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+        }
+        .title-dalkia span.green { 
+            color: #6FA247; 
+            letter-spacing: 0.5px;
+        }
+        .title-dalkia span.badge { 
+            background: linear-gradient(135deg, #6FA247 0%, #4E7A2F 100%);
+            color: #FFF; 
+            padding: 4px 16px; 
+            border-radius: 8px; 
+            margin-left: 12px;
+            font-size: 24px;
+            box-shadow: 0 4px 10px rgba(111, 162, 71, 0.3);
+        }
+
+        /* BLOC SÉPARÉ EN DEUX : IMAGE + FORMULAIRE (90% de l'écran) */
+        div[data-testid="stHorizontalBlock"] {
+            height: 90vh !important;
+            gap: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            width: 100vw !important;
+        }
+        
+        div[data-testid="column"] {
+            padding: 0 !important;
+            height: 90vh !important;
+        }
+
+        /* Image à gauche (collée aux bords) */
+        .full-image-left {
+            background: url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1200&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            height: 90vh !important;
+            width: 100%;
+        }
+
+        /* Formulaire à droite */
+        div[data-testid="stForm"] {
+            background: #FFFFFF !important;
+            border: none !important;
+            box-shadow: none !important;
+            padding: 0 10vw !important; /* Espacement intérieur agréable */
+            height: 90vh !important;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            margin: 0 !important;
+            border-radius: 0 !important;
+        }
+
+        /* Bouton de connexion */
+        div[data-testid="stFormSubmitButton"] > button, .stButton > button {
+            background: linear-gradient(135deg, #6FA247 0%, #4E7A2F 100%) !important;
+            color: white !important;
+            font-weight: 700 !important;
+            font-size: 16px !important;
+            border-radius: 12px !important;
+            border: none !important;
+            width: 100%;
+            padding: 14px 24px;
+            transition: all 0.3s ease;
+        }
+        div[data-testid="stFormSubmitButton"] > button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(111, 162, 71, 0.35);
+        }
+
+        input {
+            border-radius: 10px !important;
+            border: 1.5px solid #E2E8F0 !important;
+            padding: 12px 14px !important;
+            background-color: #F8FAF6 !important;
+        }
+        input:focus {
+            border-color: #6FA247 !important;
+            background-color: #FFFFFF !important;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+
+    # --- BANDEAU HAUT ---
+    st.markdown(f"""
+        <div class="top-banner">
+            <h1 class="title-dalkia"><span class="green">BUDGET PARTICIPATIF</span> <span class="badge">2027</span></h1>
+            <img src="{URL_LOGO_DALKIA}" width="150" style="object-fit: contain;">
+        </div>
+    """, unsafe_allow_html=True)
+
+    # --- CORPS PLEIN ÉCRAN (IMAGE | FORMULAIRE) ---
+    col_left, col_right = st.columns([1.2, 1], gap="small")
+    
+    with col_left:
+        st.markdown('<div class="full-image-left"></div>', unsafe_allow_html=True)
+
+    with col_right:
+        with st.form("form_login_fullscreen"):
+            st.markdown("<h3 style='color: #6FA247; font-weight: 700; margin-bottom: 5px;'>Authentification</h3>", unsafe_allow_html=True)
+            st.markdown("<p style='color: #666; font-size: 14px; margin-bottom: 30px;'>Portail de Gouvernance & Valorisation des CAPAs</p>", unsafe_allow_html=True)
+            
+            identifiant = st.text_input("Identifiant", placeholder="ex: vmo ou nhachemi").lower()
+            mdp = st.text_input("Mot de passe", type="password", placeholder="••••••••")
+            
+            st.markdown("<br>", unsafe_allow_html=True)
+            submit_login = st.form_submit_button("Se connecter ➔")
+            
+            if submit_login:
+                # Vérification des identifiants (simulée ici par une logique simple, à remplacer par ta propre table Utilisateurs)
+                UTILISATEURS = {
+                    "vmo": {"mdp": "dalkia2027", "profil": "VMO", "nom": "Admin VMO"},
+                    "nhachemi": {"mdp": "user123", "profil": "BPO", "nom": "Nadjet Hachemi"},
+                    "mmontoneri": {"mdp": "user123", "profil": "RTE", "nom": "Mael Montoneri"},
+                    "stagiaire": {"mdp": "nlp", "profil": "Data", "nom": "Stagiaire NLP"}
+                }
+                if identifiant in UTILISATEURS and UTILISATEURS[identifiant]["mdp"] == mdp:
+                    st.session_state.connecte = True
+                    st.session_state.utilisateur = UTILISATEURS[identifiant]["nom"]
+                    st.session_state.profil = UTILISATEURS[identifiant]["profil"]
+                    st.rerun()
+                else:
+                    st.error("❌ Identifiants incorrects.")
+
+    st.stop()
+
+
+# ==============================================================================
+# ======================== PARTIE CONNECTÉE ====================================
+# ==============================================================================
+
+# Rétablissement du style par défaut avec marges et scroll pour l'application elle-même
 st.markdown("""
     <style>
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    header {visibility: hidden;}
-
-    /* Verrouillage strict de l'écran pour éviter tout scroll */
-    html, body, [data-testid="stAppViewContainer"] {
-        overflow: hidden !important;
-        height: 100vh !important;
-        margin: 0 !important;
-        padding: 0 !important;
+    html, body, [data-testid="stAppViewContainer"], .main {
+        overflow: auto !important;
+        height: auto !important;
+        max-height: none !important;
+        width: auto !important;
     }
-
-    .stApp {
-        background-color: #F4F7F2 !important;
-    }
-
-    /* Marge globale ajustée */
     .block-container {
-        padding-top: 3vh !important;
-        padding-bottom: 0rem !important;
-        padding-left: 5vw !important;
-        padding-right: 5vw !important;
-        max-width: 100% !important;
-        height: 100vh !important;
+        padding-top: 2rem !important;
+        padding-bottom: 2rem !important;
+        padding-left: 2rem !important;
+        padding-right: 2rem !important;
+        max-width: 1250px !important;
+        height: auto !important;
+        margin: auto !important;
     }
-
-    /* FUSION : Suppression totale de l'espace (gap) entre les 2 colonnes */
-    div[data-testid="stHorizontalBlock"] {
-        gap: 0 !important;
-        align-items: center !important;
-    }
-    [data-testid="column"]:nth-of-type(1) {
-        padding-right: 0 !important;
-    }
-    [data-testid="column"]:nth-of-type(2) {
-        padding-left: 0 !important;
-    }
-
-    /* Carte de gauche : Image (Coins arrondis à gauche seulement) */
-    .dalkia-cover-card {
-        background: url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1200&auto=format&fit=crop');
-        background-size: cover;
-        background-position: center;
-        border-radius: 24px 0 0 24px !important;
-        height: 80vh !important; 
-        width: 100%;
-        margin: 0;
-        box-shadow: -10px 15px 35px rgba(0, 0, 0, 0.08);
-    }
-
-    /* Formulaire à droite (Coins arrondis à droite seulement) */
-    div[data-testid="stForm"] {
-        background: #FFFFFF !important;
-        border-radius: 0 24px 24px 0 !important;
-        padding: 40px 50px !important;
-        border: none !important;
-        box-shadow: 10px 15px 35px rgba(0, 0, 0, 0.08) !important;
-        height: 80vh !important;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        box-sizing: border-box;
-        margin: 0 !important;
-    }
-
-    /* Bouton vert Dalkia */
-    div[data-testid="stFormSubmitButton"] > button, .stButton > button {
-        background: linear-gradient(135deg, #6FA247 0%, #4E7A2F 100%) !important;
-        color: white !important;
-        font-weight: 700 !important;
-        font-size: 16px !important;
-        border-radius: 12px !important;
-        border: none !important;
-        width: 100%;
-        padding: 14px 24px;
-        transition: all 0.3s ease;
-        box-shadow: 0 6px 18px rgba(111, 162, 71, 0.35);
-    }
-    div[data-testid="stFormSubmitButton"] > button:hover, .stButton > button:hover {
-        background: linear-gradient(135deg, #5B8839 0%, #3D6223 100%) !important;
-        transform: translateY(-2px);
-    }
-
-    input {
-        border-radius: 10px !important;
-        border: 1.5px solid #E2E8F0 !important;
-        padding: 12px 14px !important;
-        background-color: #F8FAF6 !important;
-    }
-    input:focus {
-        border-color: #6FA247 !important;
-        background-color: #FFFFFF !important;
-    }
-
-    /* Styles pour la partie connectée */
     .cadre-creer {
         background-color: #F4F8F1;
         padding: 20px;
@@ -121,15 +228,24 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# --- 2. BASE DE DONNÉES UTILISATEURS ---
-UTILISATEURS = {
-    "vmo": {"mdp": "dalkia2027", "profil": "VMO", "nom": "Admin VMO"},
-    "nhachemi": {"mdp": "user123", "profil": "BPO", "nom": "Nadjet Hachemi"},
-    "mmontoneri": {"mdp": "user123", "profil": "RTE", "nom": "Mael Montoneri"},
-    "stagiaire": {"mdp": "nlp", "profil": "Data", "nom": "Stagiaire NLP"}
-}
+st.sidebar.image(URL_LOGO_DALKIA, width=160)
+st.sidebar.success(f"Connecté : {st.session_state.utilisateur}\n\nProfil : {st.session_state.profil}")
 
-# --- 3. GESTION DU FICHIER EXCEL ET AUDIT TRAIL ---
+if st.sidebar.button("Se déconnecter"):
+    st.session_state.connecte = False
+    st.rerun()
+
+est_admin = (st.session_state.profil == "VMO")
+
+st.sidebar.markdown("---")
+
+if est_admin:
+    st.sidebar.markdown("### 👑 Menu VMO (Admin)")
+    menu = st.sidebar.radio("Navigation", ["📊 Tableau de bord BP 2027", "⚙️ Gestion des CAPAs", "🤖 Assistant NLP & Radar"])
+else:
+    st.sidebar.markdown("### 👤 Espace Saisie (BPO/RTE)")
+    menu = st.sidebar.radio("Navigation", ["⚙️ Mes CAPAs (Saisie & Suivi)", "🤖 Mon Assistant NLP & Radar"])
+
 FICHIER_EXCEL = 'Support de Valorisation des capabilités - Budget2025_2.xlsx'
 
 COLONNES = [
@@ -210,86 +326,6 @@ def ajouter_alertes(df):
 
 if 'projets' not in st.session_state:
     st.session_state.projets = charger_donnees()
-
-# --- 4. ACCUEIL : TITRE MODERNE + CARTE FUSIONNÉE (IMAGE/FORMULAIRE) ---
-if 'connecte' not in st.session_state:
-    st.session_state.connecte = False
-
-if not st.session_state.connecte:
-    st.markdown("""<style>section[data-testid="stSidebar"] {display: none;}</style>""", unsafe_allow_html=True)
-    
-    # TITRE MODERNE STYLÉ AU-DESSUS DE TOUT
-    st.markdown("""
-        <div style="display: flex; justify-content: center; align-items: center; margin-bottom: 3vh;">
-            <h1 style="color: #002B49; font-weight: 900; font-size: 38px; margin: 0; letter-spacing: 1px; font-family: Arial, sans-serif;">BUDGET PARTICIPATIF</h1>
-            <span style="background: linear-gradient(135deg, #6FA247 0%, #4E7A2F 100%); color: white; font-weight: 900; font-size: 34px; padding: 4px 22px; border-radius: 50px; margin-left: 15px; box-shadow: 0 4px 15px rgba(111,162,71,0.4);">2027</span>
-        </div>
-    """, unsafe_allow_html=True)
-
-    # LA CARTE FUSIONNÉE (Colonnes sans espace)
-    col_left, col_right = st.columns([1.2, 1])
-    
-    # GAUCHE : Image claire intégrée (arrondie à gauche)
-    with col_left:
-        st.markdown('<div class="dalkia-cover-card"></div>', unsafe_allow_html=True)
-
-    # DROITE : Formulaire encastré (arrondi à droite)
-    with col_right:
-        with st.form("form_login_merged"):
-            st.image(URL_LOGO_DALKIA, width=170)
-            st.markdown("<h3 style='color: #6FA247; font-weight: 700; margin-top: 15px; margin-bottom: 2px;'>Authentification</h3>", unsafe_allow_html=True)
-            st.markdown("<p style='color: #666; font-size: 13px; margin-bottom: 25px;'>Portail de Gouvernance & Valorisation des CAPAs</p>", unsafe_allow_html=True)
-            
-            identifiant = st.text_input("Identifiant", placeholder="ex: vmo ou nhachemi").lower()
-            mdp = st.text_input("Mot de passe", type="password", placeholder="••••••••")
-            
-            st.markdown("<br>", unsafe_allow_html=True)
-            submit_login = st.form_submit_button("Se connecter ➔")
-            
-            if submit_login:
-                if identifiant in UTILISATEURS and UTILISATEURS[identifiant]["mdp"] == mdp:
-                    st.session_state.connecte = True
-                    st.session_state.utilisateur = UTILISATEURS[identifiant]["nom"]
-                    st.session_state.profil = UTILISATEURS[identifiant]["profil"]
-                    st.rerun()
-                else:
-                    st.error("❌ Identifiants incorrects.")
-
-    st.stop()
-
-# --- 5. NAVIGATION & RÔLES CONNECTÉS (RETOUR DU SCROLL NORMAL) ---
-st.markdown("""
-    <style>
-    html, body, [data-testid="stAppViewContainer"], .main {
-        overflow: auto !important;
-        height: auto !important;
-        max-height: none !important;
-    }
-    .block-container {
-        padding-top: 2rem !important;
-        padding-bottom: 2rem !important;
-        height: auto !important;
-    }
-    </style>
-""", unsafe_allow_html=True)
-
-st.sidebar.image(URL_LOGO_DALKIA, width=160)
-st.sidebar.success(f"Connecté : {st.session_state.utilisateur}\n\nProfil : {st.session_state.profil}")
-
-if st.sidebar.button("Se déconnecter"):
-    st.session_state.connecte = False
-    st.rerun()
-
-est_admin = (st.session_state.profil == "VMO")
-
-st.sidebar.markdown("---")
-
-if est_admin:
-    st.sidebar.markdown("### 👑 Menu VMO (Admin)")
-    menu = st.sidebar.radio("Navigation", ["📊 Tableau de bord BP 2027", "⚙️ Gestion des CAPAs", "🤖 Assistant NLP & Radar"])
-else:
-    st.sidebar.markdown("### 👤 Espace Saisie (BPO/RTE)")
-    menu = st.sidebar.radio("Navigation", ["⚙️ Mes CAPAs (Saisie & Suivi)", "🤖 Mon Assistant NLP & Radar"])
 
 def obtenir_donnees_visibles():
     if est_admin or st.session_state.projets.empty:
