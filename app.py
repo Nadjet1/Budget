@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
+import numpy as np
 import os
 import io
 from datetime import datetime
@@ -11,15 +12,14 @@ st.set_page_config(page_title="Portail Budget Participatif Dalkia 2027", layout=
 # --- LOGO OFFICIEL DALKIA GROUPE EDF ---
 URL_LOGO_DALKIA = "logo.png" if os.path.exists("logo.png") else "https://upload.wikimedia.org/wikipedia/commons/6/63/Dalkia_logo_2014.svg"
 
-# --- 1. DESIGN SCHÉMATIQUE & VISUEL (CSS & GEOMETRIC STYLE) ---
+# --- 1. DESIGN INFOGRAPHIC INFRASTRUCTURE (CSS) ---
 st.markdown("""
     <style>
-    /* Masquer le menu natif Streamlit */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
 
-    /* Désactiver le scroll sur la page de login */
+    /* Page sans scroll au login */
     html, body, [data-testid="stAppViewContainer"] {
         overflow: hidden !important;
         height: 100vh !important;
@@ -32,7 +32,7 @@ st.markdown("""
     }
 
     .block-container {
-        padding-top: 2rem !important;
+        padding-top: 1.5rem !important;
         padding-bottom: 0rem !important;
         padding-left: 2rem !important;
         padding-right: 2rem !important;
@@ -40,7 +40,7 @@ st.markdown("""
         margin: auto !important;
     }
 
-    /* Formulaire de connexion à droite */
+    /* Cadre de connexion à droite */
     div[data-testid="stForm"] {
         background: #FFFFFF !important;
         border-radius: 24px !important;
@@ -176,7 +176,7 @@ def ajouter_alertes(df):
 if 'projets' not in st.session_state:
     st.session_state.projets = charger_donnees()
 
-# --- 4. ACCUEIL : INFOGRAPHIE DYNAMIQUE RÉELLE A GAUCHE, CONNEXION A DROITE ---
+# --- 4. ACCUEIL : GRAPHIQUE INFOGRAPHIQUE 3D DYNAMICTION À GAUCHE ---
 if 'connecte' not in st.session_state:
     st.session_state.connecte = False
 
@@ -185,56 +185,79 @@ if not st.session_state.connecte:
     
     col_left, col_right = st.columns([1.3, 1], gap="large")
     
-    # GAUCHE : Génération dynamique basée sur les vraies données Excel
+    # GAUCHE : Diagramme circulaire multi-couches style Infographic
     with col_left:
         df_donnees = st.session_state.projets.copy()
         
-        # S'assurer que le budget R0 est numérique
-        if 'Budget R0 BP 2027 (K€)' in df_donnees.columns:
+        # Récupération des axes et budgets réels
+        if not df_donnees.empty and 'Budget R0 BP 2027 (K€)' in df_donnees.columns:
             df_donnees['Budget_Val'] = pd.to_numeric(df_donnees['Budget R0 BP 2027 (K€)'], errors='coerce').fillna(10)
+            df_grp = df_donnees.groupby('Axe Stratégique')['Budget_Val'].sum().reset_index()
         else:
-            df_donnees['Budget_Val'] = 10
-            
-        # Nettoyage des libellés vides
-        df_donnees['Axe Stratégique'] = df_donnees['Axe Stratégique'].fillna('Axes Dalkia')
-        df_donnees['Département'] = df_donnees['Département'].fillna('Général')
-        
-        # Si la base est valide, générer le Sunburst dynamique à partir des données réelles
-        if not df_donnees.empty and df_donnees['Budget_Val'].sum() > 0:
-            fig_schema = px.sunburst(
-                df_donnees,
-                path=['Axe Stratégique', 'Département'],
-                values='Budget_Val',
-                title="<b>Vision Synthétique du Portefeuille BP 2027</b>",
-                color='Axe Stratégique',
-                color_discrete_sequence=['#88C425', '#005A9C', '#E5004F', '#009688', '#FF6B00']
-            )
-        else:
-            # Fallback visuel corporate si aucune donnée saisie
-            data_defaut = pd.DataFrame({
-                'Axe': ['Décarbonation', 'Numérique', 'Performance', 'Électrification'],
-                'Dept': ['DOPING', 'DATA', 'CLEFS', 'Infra'],
-                'Val': [40, 30, 20, 10]
+            df_grp = pd.DataFrame({
+                'Axe Stratégique': ['Décarbonation', 'Numérique', 'Performance', 'Électrification', 'Engagement'],
+                'Budget_Val': [75, 50, 30, 20, 10]
             })
-            fig_schema = px.sunburst(
-                data_defaut, path=['Axe', 'Dept'], values='Val',
-                title="<b>Structure de Répartition BP 2027</b>",
-                color_discrete_sequence=['#88C425', '#005A9C', '#E5004F', '#009688']
-            )
+            
+        total_val = df_grp['Budget_Val'].sum()
+        df_grp['Pct'] = (df_grp['Budget_Val'] / total_val * 100).round().astype(int)
+        
+        labels = df_grp['Axe Stratégique'].tolist()
+        pcts = df_grp['Pct'].tolist()
+        vals = df_grp['Budget_Val'].tolist()
+        
+        # Création du graphique polaire/Nightingale
+        couleurs = ['#88C425', '#00A86B', '#00A3E0', '#E5004F', '#FF5722', '#9C27B0']
+        
+        fig_infographic = go.Figure()
 
-        fig_schema.update_layout(
-            margin=dict(t=30, l=10, r=10, b=10),
-            height=390,
+        # Construction des arcs polaires ajustés
+        num_items = len(labels)
+        angles = np.linspace(0, 360, num_items, endpoint=False)
+        width = 360 / num_items
+
+        for i in range(num_items):
+            fig_infographic.add_trace(go.Barpolar(
+                r=[vals[i]],
+                theta=[angles[i]],
+                width=[width - 3],
+                marker_color=couleurs[i % len(couleurs)],
+                name=labels[i],
+                hoverinfo="text",
+                hovertext=f"<b>{labels[i]}</b><br>Budget: {vals[i]} K€ ({pcts[i]}%)",
+                text=[f"<b>{pcts[i]}%</b>"],
+                textposition='inside',
+                marker_line_color="white",
+                marker_line_width=2,
+                opacity=0.9
+            ))
+
+        fig_infographic.update_layout(
+            polar=dict(
+                radialaxis=dict(visible=False, showticklabels=False),
+                angularaxis=dict(visible=False, showticklabels=False),
+                bgcolor='rgba(0,0,0,0)'
+            ),
+            showlegend=True,
+            legend=dict(
+                orientation="h",
+                yanchor="bottom",
+                y=-0.15,
+                xanchor="center",
+                x=0.5,
+                font=dict(size=12, color="#333333")
+            ),
+            margin=dict(t=20, b=50, l=10, r=10),
+            height=410,
             paper_bgcolor='rgba(0,0,0,0)',
-            plot_bgcolor='rgba(0,0,0,0)',
-            title_font_size=16,
-            title_x=0.2
+            plot_bgcolor='rgba(0,0,0,0)'
         )
-        st.plotly_chart(fig_schema, use_container_width=True, config={'displayModeBar': False})
+        
+        st.plotly_chart(fig_infographic, use_container_width=True, config={'displayModeBar': False})
         
     # DROITE : Cadre de connexion
     with col_right:
-        with st.form("form_login_real"):
+        with st.form("form_login_infographic_real"):
             st.image(URL_LOGO_DALKIA, width=170)
             st.markdown("<h3 style='color: #61A814; font-weight: 700; margin-top: 10px; margin-bottom: 2px;'>Budget Participatif 2027</h3>", unsafe_allow_html=True)
             st.markdown("<p style='color: #666; font-size: 13px; margin-bottom: 20px;'>Espace d'Arbitrage & Suivi des CAPAs</p>", unsafe_allow_html=True)
