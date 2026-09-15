@@ -7,58 +7,62 @@ from datetime import datetime
 
 st.set_page_config(page_title="Portail Budget Participatif Dalkia 2027", layout="wide", initial_sidebar_state="expanded")
 
-# --- GESTION DU LOGO ---
+# --- LOGO OFFICIEL DALKIA GROUPE EDF ---
 URL_LOGO_DALKIA = "logo.png" if os.path.exists("logo.png") else "https://upload.wikimedia.org/wikipedia/commons/6/63/Dalkia_logo_2014.svg"
 
-# --- 1. DESIGN DYNAMIQUE DE LOGIN (STYLE APP MODERNE) ---
+# --- 1. DESIGN GLASSMORPHISM & MODERNE (CSS HIGH-END) ---
 st.markdown("""
     <style>
     /* Masquer la topbar Streamlit */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
-    
-    /* Bouton d'action principal moderne */
+
+    /* Fond principal avec dégradé subtil */
+    .stApp {
+        background: radial-gradient(circle at 10% 20%, rgba(111, 162, 71, 0.08) 0%, rgba(0, 90, 156, 0.05) 90%), #F4F6F8 !important;
+    }
+
+    /* Style du bouton d'action principal */
     div[data-testid="stFormSubmitButton"] > button, .stButton > button {
         background: linear-gradient(135deg, #6FA247 0%, #4E7A2F 100%) !important;
         color: white !important;
-        font-weight: bold !important;
-        font-size: 16px !important;
-        border-radius: 25px !important;
+        font-weight: 700 !important;
+        font-size: 15px !important;
+        border-radius: 30px !important;
         border: none !important;
         width: 100%;
-        padding: 12px 20px;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 15px rgba(111, 162, 71, 0.4);
+        padding: 12px 24px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 8px 20px rgba(111, 162, 71, 0.35);
     }
     div[data-testid="stFormSubmitButton"] > button:hover, .stButton > button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(111, 162, 71, 0.6);
+        transform: translateY(-2px) scale(1.01);
+        box-shadow: 0 12px 25px rgba(111, 162, 71, 0.5);
     }
-    
-    /* Style de la carte de connexion centrale */
-    .login-card-container {
-        background: white;
-        padding: 40px;
+
+    /* Carte de connexion flottante avec effet de flou (Glassmorphism) */
+    .glass-card {
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.6);
         border-radius: 24px;
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
-        border: 1px solid #EAEAEA;
-        text-align: center;
-        max-width: 450px;
-        margin: 0 auto;
+        padding: 40px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.06);
+        margin-top: 20px;
     }
-    
-    /* Bannière de fond dégradée style App */
-    .login-bg-banner {
+
+    /* En-tête minimaliste */
+    .hero-title {
         background: linear-gradient(135deg, #005A9C 0%, #6FA247 100%);
-        border-radius: 20px;
-        padding: 30px;
-        color: white;
-        text-align: center;
-        margin-bottom: -30px;
-        box-shadow: 0 10px 25px rgba(0,90,156,0.2);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-weight: 800;
+        font-size: 34px;
+        letter-spacing: -0.5px;
     }
-    
+
     .cadre-creer {
         background-color: #F4F8F1;
         padding: 20px;
@@ -162,32 +166,29 @@ def ajouter_alertes(df):
 if 'projets' not in st.session_state:
     st.session_state.projets = charger_donnees()
 
-# --- 4. AUTHENTIFICATION SÉCURISÉE (CARTE DE LOGIN MODERNE) ---
+# --- 4. ACCUEIL ET CONNEXION MODERN GLASSMORPHISM ---
 if 'connecte' not in st.session_state:
     st.session_state.connecte = False
 
 if not st.session_state.connecte:
-    # Masquer la sidebar au moment du login pour avoir un rendu centralisé
     st.markdown("""<style>section[data-testid="stSidebar"] {display: none;}</style>""", unsafe_allow_html=True)
     
-    col_l1, col_l2, col_l3 = st.columns([1, 2, 1])
+    _, col_center, _ = st.columns([1, 2.2, 1])
     
-    with col_l2:
+    with col_center:
         st.markdown("""
-            <div class="login-bg-banner">
-                <h2 style='margin:0; font-weight:700;'>Bienvenue !</h2>
-                <p style='margin:5px 0 0 0; opacity:0.9; font-size:14px;'>Budget Participatif 2027 • Dalkia Groupe EDF</p>
+            <div style='text-align: center; margin-top: 40px;'>
+                <h1 class="hero-title">Budget Participatif 2027</h1>
+                <p style='color: #666; font-size: 16px; margin-top: -10px;'>Portail d'Arbitrage & Valorisation des Capabilités – Dalkia Groupe EDF</p>
             </div>
         """, unsafe_allow_html=True)
         
-        st.markdown("<br>", unsafe_allow_html=True)
-        
-        with st.form("form_login"):
-            st.image(URL_LOGO_DALKIA, width=180)
-            st.markdown("<h4 style='text-align:center; color:#555; margin-bottom:20px;'>Connexion à votre espace</h4>", unsafe_allow_html=True)
+        with st.form("form_login_glass"):
+            st.image(URL_LOGO_DALKIA, width=190)
+            st.markdown("<h4 style='text-align:center; color:#444; margin-top:15px; margin-bottom:25px;'>Authentification</h4>", unsafe_allow_html=True)
             
-            identifiant = st.text_input("👤 Identifiant", placeholder="ex: vmo ou nhachemi").lower()
-            mdp = st.text_input("🔒 Mot de passe", type="password", placeholder="••••••••")
+            identifiant = st.text_input("Identifiant", placeholder="Nom d'utilisateur").lower()
+            mdp = st.text_input("Mot de passe", type="password", placeholder="••••••••")
             
             st.markdown("<br>", unsafe_allow_html=True)
             submit_login = st.form_submit_button("Se connecter")
@@ -203,7 +204,7 @@ if not st.session_state.connecte:
 
     st.stop()
 
-# --- 5. NAVIGATION & RÔLES UNE FOIS CONNECTÉ ---
+# --- 5. NAVIGATION & RÔLES CONNECTÉS ---
 st.sidebar.image(URL_LOGO_DALKIA, width=160)
 st.sidebar.success(f"Connecté : {st.session_state.utilisateur}\n\nProfil : {st.session_state.profil}")
 
