@@ -12,14 +12,14 @@ st.set_page_config(page_title="Portail Budget Participatif Dalkia 2027", layout=
 # --- LOGO OFFICIEL DALKIA GROUPE EDF ---
 URL_LOGO_DALKIA = "logo.png" if os.path.exists("logo.png") else "https://upload.wikimedia.org/wikipedia/commons/6/63/Dalkia_logo_2014.svg"
 
-# --- 1. DESIGN INFOGRAPHIC INFRASTRUCTURE (CSS) ---
+# --- 1. DESIGN INFOGRAPHIC FULLSCREEN (CSS) ---
 st.markdown("""
     <style>
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
 
-    /* Page sans scroll au login */
+    /* Page fixe sans scroll au moment du login */
     html, body, [data-testid="stAppViewContainer"] {
         overflow: hidden !important;
         height: 100vh !important;
@@ -49,7 +49,7 @@ st.markdown("""
         box-shadow: 0 12px 35px rgba(136, 196, 37, 0.15) !important;
     }
 
-    /* Bouton vert clair */
+    /* Bouton vert clair Dalkia */
     div[data-testid="stFormSubmitButton"] > button, .stButton > button {
         background: linear-gradient(135deg, #88C425 0%, #61A814 100%) !important;
         color: white !important;
@@ -176,7 +176,7 @@ def ajouter_alertes(df):
 if 'projets' not in st.session_state:
     st.session_state.projets = charger_donnees()
 
-# --- 4. ACCUEIL : GRAPHIQUE INFOGRAPHIQUE PUR À GAUCHE ---
+# --- 4. ACCUEIL : NIGHTINGALE POLAR CHART À GAUCHE, CONNEXION À DROITE ---
 if 'connecte' not in st.session_state:
     st.session_state.connecte = False
 
@@ -185,54 +185,87 @@ if not st.session_state.connecte:
     
     col_left, col_right = st.columns([1.3, 1], gap="large")
     
-    # GAUCHE : Graphique circulaire multi-couches sans affichage de chiffres/textes sur les parts
+    # GAUCHE : Graphique Nightingale / Polar Bar dynamique (reproduisant exactement ton image)
     with col_left:
         df_donnees = st.session_state.projets.copy()
         
+        # Aggrégat réel par Axe Stratégique
         if not df_donnees.empty and 'Budget R0 BP 2027 (K€)' in df_donnees.columns:
             df_donnees['Budget_Val'] = pd.to_numeric(df_donnees['Budget R0 BP 2027 (K€)'], errors='coerce').fillna(10)
             df_grp = df_donnees.groupby('Axe Stratégique')['Budget_Val'].sum().reset_index()
         else:
             df_grp = pd.DataFrame({
-                'Axe Stratégique': ['Décarbonation', 'Numérique', 'Performance', 'Électrification', 'Engagement'],
-                'Budget_Val': [75, 50, 30, 20, 10]
+                'Axe Stratégique': ['Décarbonation', 'Numérique', 'Performance', 'Électrification', 'Engagement', 'Innovation', 'Obsolescence', 'Cybersécurité'],
+                'Budget_Val': [120, 95, 65, 50, 40, 30, 25, 15]
             })
 
-        couleurs = ['#88C425', '#00A86B', '#00A3E0', '#E5004F', '#FF5722', '#9C27B0']
-        pull_list = [0.08, 0.05, 0.03, 0.02, 0.02, 0.02]
+        # Tri pour avoir un effet étagé fluide
+        df_grp = df_grp.sort_values(by='Budget_Val', ascending=False).reset_index(drop=True)
+        total_val = df_grp['Budget_Val'].sum()
+        df_grp['Pct'] = (df_grp['Budget_Val'] / total_val * 100).round(1)
 
-        fig_infographic = go.Figure(data=[go.Pie(
-            labels=df_grp['Axe Stratégique'],
-            values=df_grp['Budget_Val'],
-            hole=0.35,
-            pull=pull_list[:len(df_grp)],
-            marker_colors=couleurs[:len(df_grp)],
-            textinfo='none',  # Désactive les pourcentages et chiffres sur le graphique
-            hoverinfo='label', # Affiche uniquement le nom au survol
-            marker=dict(line=dict(color='#FFFFFF', width=3))
-        )])
+        labels = df_grp['Axe Stratégique'].tolist()
+        r_vals = df_grp['Budget_Val'].tolist()
+        pcts = df_grp['Pct'].tolist()
 
-        fig_infographic.update_layout(
-            showlegend=True,
-            legend=dict(
-                orientation="h",
-                yanchor="bottom",
-                y=-0.15,
-                xanchor="center",
+        # Palette de couleurs riches identique à ton image
+        palette_couleurs = [
+            '#2E1A72',  # Bleu nuit foncé (style "Bologna")
+            '#3EA99F',  # Vert turquoise (style "Hot Dogs")
+            '#0A7E3D',  # Vert profond (style "Cheese")
+            '#8C9E35',  # Vert olive (style "Pasta")
+            '#E3C16F',  # Jaune/Moutarde (style "Wine")
+            '#7A1C0B',  # Marron/Bordeaux (style "Sardines")
+            '#CB6371',  # Rose brique (style "Pizza")
+            '#A0338A'   # Violet/Magenta
+        ]
+
+        fig_nightingale = go.Figure()
+
+        num_items = len(labels)
+        thetas = [f"{labels[i]}" for i in range(num_items)]
+
+        for i in range(num_items):
+            fig_nightingale.add_trace(go.Barpolar(
+                r=[r_vals[i]],
+                theta=[thetas[i]],
+                name=labels[i],
+                marker_color=palette_couleurs[i % len(palette_couleurs)],
+                marker_line_color="white",
+                marker_line_width=1.5,
+                opacity=0.95,
+                hoverinfo="text",
+                hovertext=f"<b>{labels[i]}</b><br>Budget: {r_vals[i]} K€ ({pcts[i]}%)"
+            ))
+
+        fig_nightingale.update_layout(
+            title=dict(
+                text="<b>Ventilation par Axe Stratégique (BP 2027)</b>",
+                font=dict(size=15, color="#555555"),
                 x=0.5,
-                font=dict(size=13, color="#333333")
+                xanchor="center"
             ),
-            margin=dict(t=20, b=50, l=10, r=10),
-            height=410,
+            polar=dict(
+                radialaxis=dict(visible=False, showticklabels=False),
+                angularaxis=dict(
+                    tickfont=dict(size=12, color="#444444", family="Arial"),
+                    rotation=90,
+                    direction="clockwise"
+                ),
+                bgcolor='rgba(0,0,0,0)'
+            ),
+            showlegend=False,
+            margin=dict(t=50, b=20, l=40, r=40),
+            height=430,
             paper_bgcolor='rgba(0,0,0,0)',
             plot_bgcolor='rgba(0,0,0,0)'
         )
-        
-        st.plotly_chart(fig_infographic, use_container_width=True, config={'displayModeBar': False})
+
+        st.plotly_chart(fig_nightingale, use_container_width=True, config={'displayModeBar': False})
         
     # DROITE : Cadre de connexion
     with col_right:
-        with st.form("form_login_infographic_clean"):
+        with st.form("form_login_nightingale"):
             st.image(URL_LOGO_DALKIA, width=170)
             st.markdown("<h3 style='color: #61A814; font-weight: 700; margin-top: 10px; margin-bottom: 2px;'>Budget Participatif 2027</h3>", unsafe_allow_html=True)
             st.markdown("<p style='color: #666; font-size: 13px; margin-bottom: 20px;'>Espace d'Arbitrage & Suivi des CAPAs</p>", unsafe_allow_html=True)
