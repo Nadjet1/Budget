@@ -10,7 +10,7 @@ st.set_page_config(page_title="Portail Budget Participatif Dalkia 2027", layout=
 # --- LOGO OFFICIEL DALKIA GROUPE EDF ---
 URL_LOGO_DALKIA = "logo.png" if os.path.exists("logo.png") else "https://upload.wikimedia.org/wikipedia/commons/6/63/Dalkia_logo_2014.svg"
 
-# --- 1. DESIGN FULLSCREEN (IMAGE LUMINEUSE & BANDEAU GLASSMORPHISM) ---
+# --- 1. DESIGN FULLSCREEN & CORPORATE DALKIA (CSS) ---
 st.markdown("""
     <style>
     #MainMenu {visibility: hidden;}
@@ -29,6 +29,7 @@ st.markdown("""
         background-color: #F8FAF6 !important;
     }
 
+    /* Marge supérieure à 0px pour coller au bord */
     .block-container {
         padding-top: 0rem !important;
         padding-bottom: 0rem !important;
@@ -44,61 +45,29 @@ st.markdown("""
         align-items: center !important;
     }
 
-    /* Carte de gauche : Image d'architecture végétale ultra lumineuse (sans filtre sombre) */
-    .dalkia-cover-card {
-        background: url('https://images.unsplash.com/photo-1518005020951-eccb494ad742?q=80&w=1200&auto=format&fit=crop');
-        background-size: cover;
-        background-position: center;
+    /* Carte de gauche : Design Bleu Dalkia Pur */
+    .dalkia-pro-card {
+        background: linear-gradient(135deg, #002B49 0%, #001A2C 100%);
         border-radius: 24px;
-        padding: 25px;
+        padding: 40px;
         height: 95vh !important;
         display: flex;
         flex-direction: column;
-        justify-content: flex-start;
-        align-items: center;
-        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+        justify-content: space-between;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 15px 35px rgba(0, 43, 73, 0.2);
         box-sizing: border-box;
     }
 
-    /* Bandeau Effet Verre Dépoli en haut pour accueillir le titre et le logo proprement */
-    .glass-banner {
-        background: rgba(255, 255, 255, 0.9);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        padding: 15px 25px;
-        border-radius: 16px;
-        width: 100%;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-        border: 1px solid rgba(255, 255, 255, 0.5);
-    }
-
-    /* Conteneur du texte pour l'aligner sur une ligne */
-    .title-container {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        gap: 8px;
-    }
-
-    /* Style du titre (Vert et Orange Dalkia) */
+    /* Titre vert sur une seule ligne */
     .title-dalkia-green {
         color: #6FA247;
         font-weight: 900;
-        font-size: 26px;
+        font-size: 32px;
         letter-spacing: 0.5px;
         margin: 0;
-        text-transform: uppercase;
-        font-family: Arial, sans-serif;
-    }
-
-    .title-dalkia-orange {
-        color: #FF6B00;
-        font-weight: 900;
-        font-size: 26px;
-        margin: 0;
+        white-space: nowrap;
         font-family: Arial, sans-serif;
     }
 
@@ -243,7 +212,7 @@ def ajouter_alertes(df):
 if 'projets' not in st.session_state:
     st.session_state.projets = charger_donnees()
 
-# --- 4. ACCUEIL : PHOTO LUMINEUSE & BANDEAU VERRE DÉPOLI ---
+# --- 4. ACCUEIL : DESIGN CORPORATE PUR À GAUCHE & FORMULAIRE À DROITE ---
 if 'connecte' not in st.session_state:
     st.session_state.connecte = False
 
@@ -252,25 +221,29 @@ if not st.session_state.connecte:
     
     col_left, col_right = st.columns([1.1, 1], gap="medium")
     
-    # GAUCHE : Image claire avec bandeau d'en-tête (Titre gauche, Logo droite)
+    # GAUCHE : Pure identité visuelle Dalkia (Bleu nuit profond, Vagues subtiles et Titre Vert)
     with col_left:
         st.markdown(f"""
-            <div class="dalkia-cover-card">
-                <div class="glass-banner">
-                    <div class="title-container">
-                        <span class="title-dalkia-green">BUDGET PARTICIPATIF</span>
-                        <span class="title-dalkia-orange">2027</span>
-                    </div>
-                    <div>
-                        <img src="{URL_LOGO_DALKIA}" width="140">
-                    </div>
+            <div class="dalkia-pro-card">
+                <!-- Vagues abstraites en arrière-plan vectoriel -->
+                <svg viewBox="0 0 500 500" preserveAspectRatio="none" style="position: absolute; bottom: 0; left: 0; width: 100%; height: 50%; z-index: 0;">
+                    <path d="M0,250 C150,350 350,150 500,300 L500,500 L0,500 Z" fill="#6FA247" opacity="0.1"></path>
+                    <path d="M0,350 C200,450 400,250 500,400 L500,500 L0,500 Z" fill="#FF6B00" opacity="0.1"></path>
+                </svg>
+
+                <div style="z-index: 1; width: 100%; text-align: left;">
+                    <h1 class="title-dalkia-green">BUDGET PARTICIPATIF 2027</h1>
+                </div>
+
+                <div style="z-index: 1; width: 100%; text-align: left;">
+                    <img src="{URL_LOGO_DALKIA}" width="220" style="filter: brightness(0) invert(1);">
                 </div>
             </div>
         """, unsafe_allow_html=True)
 
     # DROITE : Formulaire de connexion
     with col_right:
-        with st.form("form_login_cover"):
+        with st.form("form_login_corporate"):
             st.image(URL_LOGO_DALKIA, width=170)
             st.markdown("<h3 style='color: #6FA247; font-weight: 700; margin-top: 15px; margin-bottom: 2px;'>Authentification</h3>", unsafe_allow_html=True)
             st.markdown("<p style='color: #666; font-size: 13px; margin-bottom: 25px;'>Portail de Gouvernance & Valorisation des CAPAs</p>", unsafe_allow_html=True)
