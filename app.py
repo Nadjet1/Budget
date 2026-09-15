@@ -100,7 +100,7 @@ def ajouter_alertes(df):
 if 'projets' not in st.session_state:
     st.session_state.projets = charger_donnees()
 
-# --- 4. ACCUEIL : INTERFACE CONNEXION SAAS ---
+# --- 4. ACCUEIL : INTERFACE CONNEXION SAAS ÉPURÉE ---
 if 'connecte' not in st.session_state:
     st.session_state.connecte = False
 
@@ -201,9 +201,8 @@ if not st.session_state.connecte:
         st.empty()
 
     with col_right:
-        st.image(URL_LOGO_DALKIA, width=150) # Fonction native Streamlit pour charger l'image garantie
-        
-        st.markdown("""
+        st.image(URL_LOGO_DALKIA, width=150)
+        st.markdown(f"""
             <div style="margin-top: 30px; margin-bottom: 35px;">
                 <span style="background-color: #EEF7E6; color: #6FA247; padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 700; letter-spacing: 0.5px;">
                     🎯 BUDGET PARTICIPATIF 2027
@@ -258,6 +257,23 @@ st.markdown("""
         display: block !important;
     }
 
+    /* Annulation des règles du Split-Screen du login */
+    div[data-testid="stHorizontalBlock"] {
+        background-color: transparent !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        width: 100% !important;
+        height: auto !important;
+        overflow: visible !important;
+        gap: 1.5rem !important;
+    }
+    div[data-testid="stColumn"] {
+        background: none !important;
+        width: auto !important;
+        padding: 0 !important;
+        display: block !important;
+    }
+
     /* --- SIDEBAR PROPRE --- */
     [data-testid="stSidebar"] {
         background-color: #FFFFFF !important;
@@ -303,24 +319,30 @@ st.markdown("""
         margin-bottom: 20px !important;
     }
     
-    /* Titres de sections dans les formulaires */
-    .titre-section { 
-        color: #002B49; 
-        font-size: 18px; 
-        font-weight: 700; 
-        border-bottom: 2px solid #F1F5F9; 
-        padding-bottom: 10px; 
-        margin-top: 25px; 
-        margin-bottom: 20px; 
+    /* --- NOUVEAU DESIGN DES ACCORDÉONS (ÉTAPES DU FORMULAIRE) --- */
+    div[data-testid="stExpander"] {
+        border: 1px solid #E2E8F0 !important;
+        border-radius: 10px !important;
+        background: #FFFFFF !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.02) !important;
+        margin-bottom: 15px !important;
+        overflow: hidden;
     }
-    .badge-green {
-        background-color: #EEF7E6;
-        color: #6FA247;
-        padding: 4px 10px;
-        border-radius: 12px;
-        font-size: 13px;
-        font-weight: 800;
-        margin-right: 10px;
+    div[data-testid="stExpander"] summary {
+        padding: 15px 20px !important;
+        background-color: #F8FAF6 !important;
+        color: #002B49 !important;
+        font-weight: 700 !important;
+        font-size: 16px !important;
+        border-bottom: 1px solid #E2E8F0 !important;
+        transition: all 0.2s ease;
+    }
+    div[data-testid="stExpander"] summary:hover {
+        background-color: #EEF7E6 !important;
+        color: #6FA247 !important;
+    }
+    div[data-testid="stExpander"] p {
+        font-weight: 600 !important;
     }
 
     /* --- TABS (ONGLETS) --- */
@@ -384,7 +406,6 @@ if 'message_succes' in st.session_state and st.session_state.message_succes:
 
 # --- VUE 1 : TABLEAU DE BORD (RÉSERVÉ VMO) ---
 if menu == "📊 Tableau de bord BP 2027":
-    # Header propre avec logo natif
     col_logo, col_titre = st.columns([1.5, 8], gap="small")
     with col_logo:
         st.image(URL_LOGO_DALKIA, width=120)
@@ -459,7 +480,8 @@ if menu == "📊 Tableau de bord BP 2027":
     if recherche_tb:
         df_tb_filtre = df_tb_filtre[
             df_tb_filtre['Nom CAPA'].astype(str).str.contains(recherche_tb, case=False, na=False) |
-            df_tb_filtre['EPIC'].astype(str).str.contains(recherche_tb, case=False, na=False)
+            df_tb_filtre['EPIC'].astype(str).str.contains(recherche_tb, case=False, na=False) |
+            df_tb_filtre['Auteur'].astype(str).str.contains(recherche_tb, case=False, na=False)
         ]
     
     cols_souhaitees = ['Alerte Budgétaire', 'Nom CAPA', 'EPIC', 'Département', 'Axe Stratégique', 'Budget R0 BP 2027 (K€)', 'Reste à engager (K€)', 'Prévisionnel R2 (K€)', 'Priorité', 'Statut Arbitrage', 'Etat']
@@ -469,7 +491,6 @@ if menu == "📊 Tableau de bord BP 2027":
 
 # --- VUE 2 : GESTION DES CAPAS ---
 elif menu in ["⚙️ Gestion des CAPAs", "⚙️ Mes CAPAs (Saisie & Suivi)"]:
-    # Header propre avec logo natif
     col_logo, col_titre = st.columns([1.5, 8], gap="small")
     with col_logo:
         st.image(URL_LOGO_DALKIA, width=120)
@@ -488,68 +509,86 @@ elif menu in ["⚙️ Gestion des CAPAs", "⚙️ Mes CAPAs (Saisie & Suivi)"]:
     tabs = st.tabs(["➕ Ajouter une CAPA", "✏️ Modifier une CAPA", "🗑️ Supprimer une CAPA"])
     
     with tabs[0]:
+        st.markdown("""
+            <div style="background-color: #FFFFFF; padding: 20px; border-radius: 8px; border: 1px solid #E2E8F0; margin-bottom: 20px;">
+                <h3 style='margin-top: 0; color: #6FA247; font-size: 20px;'>✨ Soumettre une nouvelle CAPA</h3>
+                <p style='margin-bottom: 0; color: #64748B;'>Suivez les 3 étapes ci-dessous. Dès validation, votre demande sera ajoutée au portefeuille.</p>
+            </div>
+        """, unsafe_allow_html=True)
+        
         with st.form("form_creation"):
-            st.markdown('<div class="titre-section"><span class="badge-green">1</span> Identification & Classification</div>', unsafe_allow_html=True)
-            c1, c2, c3 = st.columns(3)
-            sel_env = c1.selectbox("Enveloppe", ["2027", "HORScadrage", "AI", "PACHA", "Autre"])
-            enveloppe = c1.text_input("Précisez l'enveloppe :") if sel_env == "Autre" else sel_env
-            sel_dept = c2.selectbox("Département", ["DATA", "CLEFS", "DOPING", "Infra", "E-Facts", "UP", "Idops", "Autre"])
-            departement = c2.text_input("Précisez le département :") if sel_dept == "Autre" else sel_dept
-            domaine = c3.text_input("Domaine porteur (ex: DP, Clefs, Infra...)")
             
-            c4, c5 = st.columns(2)
-            sel_axe = c4.selectbox("Axe Stratégique", ["Numérique", "Engagement", "Décarbonation", "Performance", "Électrification", "Autre"])
-            axe = c4.text_input("Précisez l'axe :") if sel_axe == "Autre" else sel_axe
-            sel_ps = c5.selectbox("Projet Stratégique", ["Numérique - Cloud et Réseau", "Numérique - Cybersécurité", "DATA", "Referentiel", "Autre"])
-            projet_strat = c5.text_input("Précisez le projet :") if sel_ps == "Autre" else sel_ps
+            # ÉTAPE 1 (Ouverte par défaut)
+            with st.expander("📌 ÉTAPE 1 : Identification & Classification de la CAPA", expanded=True):
+                c1, c2, c3 = st.columns(3)
+                sel_env = c1.selectbox("Enveloppe", ["2027", "HORScadrage", "AI", "PACHA", "Autre"])
+                enveloppe = c1.text_input("Précisez l'enveloppe :") if sel_env == "Autre" else sel_env
+                sel_dept = c2.selectbox("Département", ["DATA", "CLEFS", "DOPING", "Infra", "E-Facts", "UP", "Idops", "Autre"])
+                departement = c2.text_input("Précisez le département :") if sel_dept == "Autre" else sel_dept
+                domaine = c3.text_input("Domaine porteur (ex: DP, Clefs, Infra...)")
+                
+                c4, c5 = st.columns(2)
+                sel_axe = c4.selectbox("Axe Stratégique", ["Numérique", "Engagement", "Décarbonation", "Performance", "Électrification", "Autre"])
+                axe = c4.text_input("Précisez l'axe :") if sel_axe == "Autre" else sel_axe
+                sel_ps = c5.selectbox("Projet Stratégique", ["Numérique - Cloud et Réseau", "Numérique - Cybersécurité", "DATA", "Referentiel", "Autre"])
+                projet_strat = c5.text_input("Précisez le projet :") if sel_ps == "Autre" else sel_ps
+                
+                c7, c8 = st.columns(2)
+                epic = c7.text_input("Intitulé de l'EPIC *")
+                id_jira_epic = c8.text_input("N° Ticket JIRA EPIC")
+                
+                c9, c10 = st.columns(2)
+                nom_capa = c9.text_input("Intitulé de la CAPA *")
+                id_jira_capa = c10.text_input("N° Ticket JIRA CAPA")
+                
+                c11, c12 = st.columns(2)
+                train_hors_train = c11.selectbox("Train / Hors train", ["Train", "Hors train"])
+                etat = c12.selectbox("État de la demande", ["En cours", "Prévu pour S2", "Reporté à 2027", "Abandonné", "Terminé"])
+                
+                features = st.text_area("Features (Besoins délivrés/traités)")
+                equipes_contrib = st.text_input("Équipes contributrices / Produits")
+                contexte = st.text_area("Contexte de la CAPA")
             
-            c7, c8, c9, c10 = st.columns(4)
-            epic = c7.text_input("Intitulé de l'EPIC *")
-            id_jira_epic = c8.text_input("N° Ticket JIRA EPIC")
-            nom_capa = c9.text_input("Intitulé de la CAPA *")
-            id_jira_capa = c10.text_input("N° Ticket JIRA CAPA")
+            # ÉTAPE 2 (Fermée)
+            with st.expander("💶 ÉTAPE 2 : Suivi Budgétaire (K€)", expanded=False):
+                st.info("Saisissez les montants en Kilo Euros (K€).")
+                b1, b2, b3 = st.columns(3)
+                budget_r0 = b1.number_input("Budget alloué BP 2027 (R0)", min_value=0.0, step=10.0)
+                budget_r1 = b2.number_input("Encouru (R1)", min_value=0.0, step=10.0)
+                budget_r2 = b3.number_input("Revue prévisionnelle (R2)", min_value=0.0, step=10.0)
             
-            c11, c12 = st.columns(2)
-            train_hors_train = c11.selectbox("Train / Hors train", ["Train", "Hors train"])
-            etat = c12.selectbox("État de la demande", ["En cours", "Prévu pour S2", "Reporté à 2027", "Abandonné", "Terminé"])
-            
-            features = st.text_area("Features (Besoins délivrés/traités)")
-            equipes_contrib = st.text_input("Équipes contributrices / Produits")
-            contexte = st.text_area("Contexte de la CAPA")
-            
-            st.markdown('<div class="titre-section"><span class="badge-green">2</span> Suivi Budgétaire (K€)</div>', unsafe_allow_html=True)
-            b1, b2, b3 = st.columns(3)
-            budget_r0 = b1.number_input("Budget alloué BP 2027 (R0)", min_value=0.0, step=10.0)
-            budget_r1 = b2.number_input("Encouru (R1)", min_value=0.0, step=10.0)
-            budget_r2 = b3.number_input("Revue prévisionnelle (R2)", min_value=0.0, step=10.0)
-            
-            st.markdown('<div class="titre-section"><span class="badge-green">3</span> Matrice de Valeur & Indicateurs</div>', unsafe_allow_html=True)
-            n1, n2, n3, n4 = st.columns(4)
-            n_conf = n1.number_input("Critère Conformité / Obsolescence", 1, 4, 1)
-            n_img = n2.number_input("Critère Image / Sat. Client", 1, 4, 1)
-            n_ope = n3.number_input("Critère Gain Opérationnel", 1, 4, 1)
-            n_eco = n4.number_input("Critère Gain Économique", 1, 4, 1)
-            
-            justif = st.text_area("Explications des notes")
-            
-            i1, i2, i3 = st.columns(3)
-            indicateur = i1.text_input("Indicateur de mesure")
-            valeur_date = i2.text_input("Valeur à date")
-            valeur_cible = i3.text_input("Valeur cible")
-            
+            # ÉTAPE 3 (Fermée)
+            with st.expander("🎯 ÉTAPE 3 : Matrice de Valeur & Indicateurs de ROI", expanded=False):
+                st.write("Évaluez l'impact de 1 (Faible) à 4 (Très Fort).")
+                n1, n2, n3, n4 = st.columns(4)
+                n_conf = n1.number_input("Conformité / Obsolescence", 1, 4, 1)
+                n_img = n2.number_input("Image / Sat. Client", 1, 4, 1)
+                n_ope = n3.number_input("Gain Opérationnel", 1, 4, 1)
+                n_eco = n4.number_input("Gain Économique", 1, 4, 1)
+                
+                justif = st.text_area("Explications des notes")
+                
+                i1, i2, i3 = st.columns(3)
+                indicateur = i1.text_input("Indicateur de mesure (KPI)")
+                valeur_date = i2.text_input("Valeur actuelle")
+                valeur_cible = i3.text_input("Valeur cible")
+
+            # ZONE ADMIN (VMO)
             commentaires_vmo = ""
             statut_arbitrage = "Soumis"
             if est_admin:
-                st.markdown("---")
-                statut_arbitrage = st.selectbox("Décision / Statut d'Arbitrage Comex", ["Soumis", "Validé Comex", "Ajustement requis", "Refusé"])
-                commentaires_vmo = st.text_area("✍️ Remarques / Décision de l'arbitrage VMO")
+                with st.expander("⚖️ ÉTAPE 4 : Arbitrage Comex (Réservé VMO)", expanded=False):
+                    statut_arbitrage = st.selectbox("Décision / Statut d'Arbitrage Comex", ["Soumis", "Validé Comex", "Ajustement requis", "Refusé"])
+                    commentaires_vmo = st.text_area("✍️ Remarques / Décision de l'arbitrage VMO")
             
             st.markdown("<br>", unsafe_allow_html=True)
-            soumettre = st.form_submit_button("💾 Enregistrer la demande CAPA")
+            
+            # BOUTON SUBMIT GLOBAL DU FORMULAIRE
+            soumettre = st.form_submit_button("💾 Enregistrer la demande CAPA", use_container_width=True)
             
             if soumettre:
                 if not epic or not nom_capa:
-                    st.error("⚠️ Les champs 'EPIC' et 'Nom de la CAPA' sont obligatoires.")
+                    st.error("⚠️ Les champs 'EPIC' et 'Nom de la CAPA' à l'étape 1 sont obligatoires.")
                 else:
                     delta_calcule = budget_r2 - budget_r0
                     reste_a_engager = budget_r0 - budget_r1
@@ -581,14 +620,14 @@ elif menu in ["⚙️ Gestion des CAPAs", "⚙️ Mes CAPAs (Saisie & Suivi)"]:
         if df_visible.empty:
             st.info("Vous n'avez pas encore soumis de CAPA.")
         else:
-            with st.expander("🔍 FILTRER LA LISTE DES CAPAs", expanded=True):
+            with st.expander("🔍 Filtres rapides de la liste", expanded=False):
                 c_f1, c_f2, c_f3, c_f4, c_f5 = st.columns(5)
                 f_dept_s = c_f1.selectbox("Département :", ["Tous"] + sorted([str(x) for x in df_visible['Département'].dropna().unique()])) if 'Département' in df_visible.columns else "Tous"
                 f_axe_s = c_f2.selectbox("Axe Stratégique :", ["Tous"] + sorted([str(x) for x in df_visible['Axe Stratégique'].dropna().unique()])) if 'Axe Stratégique' in df_visible.columns else "Tous"
-                f_prio_s = c_f3.selectbox("Priorité (Calculée) :", ["Toutes"] + sorted([str(x) for x in df_visible['Priorité'].dropna().unique()])) if 'Priorité' in df_visible.columns else "Toutes"
-                f_train_s = c_f4.selectbox("Train / Hors train :", ["Tous"] + sorted([str(x) for x in df_visible['Train / Hors train'].dropna().unique()])) if 'Train / Hors train' in df_visible.columns else "Tous"
+                f_prio_s = c_f3.selectbox("Priorité :", ["Toutes"] + sorted([str(x) for x in df_visible['Priorité'].dropna().unique()])) if 'Priorité' in df_visible.columns else "Toutes"
+                f_train_s = c_f4.selectbox("Train :", ["Tous"] + sorted([str(x) for x in df_visible['Train / Hors train'].dropna().unique()])) if 'Train / Hors train' in df_visible.columns else "Tous"
                 f_etat_s = c_f5.selectbox("État :", ["Tous"] + sorted([str(x) for x in df_visible['Etat'].dropna().unique()])) if 'Etat' in df_visible.columns else "Tous"
-                recherche_s = st.text_input("🔍 Recherche globale :")
+                recherche_s = st.text_input("🔍 Recherche par mot-clé (Nom CAPA, EPIC, Ticket JIRA) :")
             
             df_saisie_filtre = ajouter_alertes(df_visible)
             if f_dept_s != "Tous": df_saisie_filtre = df_saisie_filtre[df_saisie_filtre['Département'] == f_dept_s]
@@ -615,14 +654,15 @@ elif menu in ["⚙️ Gestion des CAPAs", "⚙️ Mes CAPAs (Saisie & Suivi)"]:
             idx = st.session_state.projets[st.session_state.projets['Nom CAPA'] == capa_a_modifier].index[0]
             
             with st.form("form_modification"):
-                st.markdown(f'<div class="titre-section">Édition de la CAPA : {capa_a_modifier}</div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="titre-section">Édition rapide : {capa_a_modifier}</div>', unsafe_allow_html=True)
                 val_r0 = float(st.session_state.projets.at[idx, 'Budget R0 BP 2027 (K€)']) if pd.notnull(st.session_state.projets.at[idx, 'Budget R0 BP 2027 (K€)']) else 0.0
                 val_r1 = float(st.session_state.projets.at[idx, 'Encouru R1 (K€)']) if 'Encouru R1 (K€)' in st.session_state.projets.columns and pd.notnull(st.session_state.projets.at[idx, 'Encouru R1 (K€)']) else 0.0
                 val_r2 = float(st.session_state.projets.at[idx, 'Prévisionnel R2 (K€)']) if pd.notnull(st.session_state.projets.at[idx, 'Prévisionnel R2 (K€)']) else 0.0
                 
-                new_r0 = st.number_input("Nouveau Budget R0 BP 2027", value=val_r0)
-                new_r1 = st.number_input("Nouveau Encouru R1", value=val_r1)
-                new_r2 = st.number_input("Nouveau Prévisionnel R2", value=val_r2)
+                c1, c2, c3 = st.columns(3)
+                new_r0 = c1.number_input("Nouveau Budget R0 BP 2027", value=val_r0)
+                new_r1 = c2.number_input("Nouveau Encouru R1", value=val_r1)
+                new_r2 = c3.number_input("Nouveau Prévisionnel R2", value=val_r2)
                 
                 new_etat = st.selectbox("Mettre à jour l'état", ["En cours", "Prévu pour S2", "Reporté à 2027", "Abandonné", "Terminé"])
                 
@@ -632,6 +672,7 @@ elif menu in ["⚙️ Gestion des CAPAs", "⚙️ Mes CAPAs (Saisie & Suivi)"]:
                     new_statut_arb = st.selectbox("Décision / Statut d'Arbitrage Comex", ["Soumis", "Validé Comex", "Ajustement requis", "Refusé"])
                     new_comm = st.text_area("Commentaires VMO / Arbitrage", value=str(st.session_state.projets.at[idx, 'Commentaires VMO'] or ''))
                 
+                st.markdown("<br>", unsafe_allow_html=True)
                 if st.form_submit_button("💾 Enregistrer la modification"):
                     st.session_state.projets.at[idx, 'Budget R0 BP 2027 (K€)'] = new_r0
                     st.session_state.projets.at[idx, 'Encouru R1 (K€)'] = new_r1
@@ -654,7 +695,7 @@ elif menu in ["⚙️ Gestion des CAPAs", "⚙️ Mes CAPAs (Saisie & Suivi)"]:
             st.warning("Aucune CAPA disponible à supprimer.")
         else:
             capa_a_supprimer = st.selectbox("Sélectionnez la CAPA à supprimer :", df_visible['Nom CAPA'].tolist())
-            if st.button("🗑️ Supprimer définitivement cette CAPA"):
+            if st.button("🗑️ Supprimer définitivement cette CAPA", type="primary"):
                 st.session_state.projets = st.session_state.projets[st.session_state.projets['Nom CAPA'] != capa_a_supprimer]
                 sauvegarder_donnees(st.session_state.projets)
                 st.session_state.message_succes = f"✅ La CAPA '{capa_a_supprimer}' a été supprimée."
@@ -662,7 +703,6 @@ elif menu in ["⚙️ Gestion des CAPAs", "⚙️ Mes CAPAs (Saisie & Suivi)"]:
 
 # --- VUE 3 : IA & NLP ---
 elif menu in ["🤖 Assistant NLP & Radar", "🤖 Mon Assistant NLP & Radar"]:
-    # Header propre avec logo natif
     col_logo, col_titre = st.columns([1.5, 8], gap="small")
     with col_logo:
         st.image(URL_LOGO_DALKIA, width=120)
