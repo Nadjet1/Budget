@@ -100,7 +100,7 @@ def ajouter_alertes(df):
 if 'projets' not in st.session_state:
     st.session_state.projets = charger_donnees()
 
-# --- 4. ACCUEIL : INTERFACE CONNEXION SAAS ÉPURÉE (TITRE À DROITE, IMAGE CLAIRE) ---
+# --- 4. ACCUEIL : INTERFACE CONNEXION SAAS ÉPURÉE ---
 if 'connecte' not in st.session_state:
     st.session_state.connecte = False
 
@@ -156,7 +156,7 @@ if not st.session_state.connecte:
         div[data-testid="stColumn"]:nth-of-type(2) {
             width: 50% !important;
             min-width: 50% !important;
-            padding: 50px 70px !important;
+            padding: 50px 80px !important;
             display: flex !important;
             flex-direction: column !important;
             justify-content: center !important;
@@ -209,26 +209,27 @@ if not st.session_state.connecte:
     
     col_left, col_right = st.columns([1, 1])
     
-    # GAUCHE : On laisse complètement vide pour que l'image s'affiche purement via le CSS
+    # GAUCHE : On laisse vide (image affichée via CSS)
     with col_left:
         st.empty()
 
-    # DROITE : Logo + Titre Budget Participatif + Formulaire
+    # DROITE : Logo + Titres allégés + Formulaire
     with col_right:
-        # CORRECTION : Le logo est ajouté via la fonction native Streamlit pour qu'il ne disparaisse pas
-        st.image(URL_LOGO_DALKIA, width=170)
+        st.image(URL_LOGO_DALKIA, width=150)
         
-        st.markdown(f"""
-            <div style="margin-bottom: 30px; margin-top: 10px;">
-                <h1 style="color: #6FA247; font-weight: 900; font-size: 32px; margin: 0; line-height: 1.2; font-family: Arial, sans-serif; text-transform: uppercase;">
-                    BUDGET PARTICIPATIF <span style="color: #002B49;">2027</span>
-                </h1>
-                <p style="color: #64748B; font-size: 15px; margin-top: 5px; font-family: Arial, sans-serif;">
-                    Gouvernance et arbitrage stratégique des capacités.
+        # Design allégé : Un badge stylé pour "Budget Participatif", et "Bienvenue" en titre principal
+        st.markdown("""
+            <div style="margin-top: 30px; margin-bottom: 35px;">
+                <span style="background-color: #EEF7E6; color: #6FA247; padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 700; letter-spacing: 0.5px;">
+                    🎯 BUDGET PARTICIPATIF 2027
+                </span>
+                <h2 style="color: #002B49; font-weight: 900; font-size: 32px; margin: 20px 0 8px 0; font-family: Arial, sans-serif;">
+                    Bienvenue 👋
+                </h2>
+                <p style="color: #64748B; font-size: 15px; margin: 0; font-family: Arial, sans-serif; line-height: 1.5;">
+                    Connectez-vous pour accéder à l'espace de gouvernance et d'arbitrage stratégique.
                 </p>
             </div>
-            <div style="color: #002B49; font-weight: 800; font-size: 24px; margin-bottom: 5px; font-family: Arial, sans-serif;">Bienvenue 👋</div>
-            <div style="color: #64748B; font-size: 14px; margin-bottom: 25px; font-family: Arial, sans-serif;">Veuillez saisir vos identifiants pour continuer.</div>
         """, unsafe_allow_html=True)
         
         with st.form("form_login_pro"):
