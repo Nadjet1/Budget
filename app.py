@@ -10,7 +10,7 @@ st.set_page_config(page_title="Portail Budget Participatif Dalkia 2027", layout=
 # --- LOGO OFFICIEL DALKIA GROUPE EDF ---
 URL_LOGO_DALKIA = "logo.png" if os.path.exists("logo.png") else "https://upload.wikimedia.org/wikipedia/commons/6/63/Dalkia_logo_2014.svg"
 
-# --- 1. DESIGN 100% FIXE SANS SCROLL (CSS FULLSCREEN) ---
+# --- 1. DESIGN SPLIT-SCREEN FULLSCREEN (CSS ADVANCED) ---
 st.markdown("""
     <style>
     /* Masquer le menu natif Streamlit */
@@ -18,7 +18,7 @@ st.markdown("""
     footer {visibility: hidden;}
     header {visibility: hidden;}
 
-    /* Désactiver tout le scroll de la page au moment de la connexion */
+    /* Désactiver le scroll sur l'écran de connexion */
     html, body, [data-testid="stAppViewContainer"] {
         overflow: hidden !important;
         height: 100vh !important;
@@ -26,34 +26,44 @@ st.markdown("""
         padding: 0 !important;
     }
 
-    /* Arrière-plan vert clair doux et reposant */
+    /* Arrière-plan global */
     .stApp {
-        background-color: #F3F8EC !important;
-        display: flex !important;
-        justify-content: center !important;
-        align-items: center !important;
+        background-color: #F8FAF6 !important;
     }
 
-    /* Suppression des marges internes Streamlit */
+    /* Ajustement des marges internes Streamlit */
     .block-container {
-        padding-top: 0rem !important;
+        padding-top: 3rem !important;
         padding-bottom: 0rem !important;
-        padding-left: 1rem !important;
-        padding-right: 1rem !important;
-        max-width: 100% !important;
+        padding-left: 2rem !important;
+        padding-right: 2rem !important;
+        max-width: 1200px !important;
+        margin: auto !important;
     }
 
-    /* Style du formulaire de connexion vert clair parfaitement dimensionné */
+    /* Carte de gauche (Visuel / Identité) */
+    .hero-left-box {
+        background: linear-gradient(135deg, #005A9C 0%, #6FA247 100%);
+        border-radius: 20px;
+        padding: 40px 30px;
+        color: white;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        box-shadow: 0 15px 30px rgba(0, 90, 156, 0.2);
+    }
+
+    /* Formulaire de connexion à droite */
     div[data-testid="stForm"] {
         background: #FFFFFF !important;
         border-radius: 20px !important;
-        padding: 30px 40px !important;
+        padding: 35px 30px !important;
         border: 2px solid #D1E7B6 !important;
         box-shadow: 0 12px 35px rgba(136, 196, 37, 0.15) !important;
-        margin: 0 auto !important;
     }
 
-    /* Bouton d'action principal Vert Clair dynamique */
+    /* Bouton vert clair Dalkia */
     div[data-testid="stFormSubmitButton"] > button, .stButton > button {
         background: linear-gradient(135deg, #88C425 0%, #61A814 100%) !important;
         color: white !important;
@@ -69,21 +79,15 @@ st.markdown("""
     div[data-testid="stFormSubmitButton"] > button:hover, .stButton > button:hover {
         background: linear-gradient(135deg, #71B012 0%, #4E8B0A 100%) !important;
         transform: translateY(-2px);
-        box-shadow: 0 10px 22px rgba(136, 196, 37, 0.5);
     }
 
-    /* Inputs modernes avec bordure vert clair au focus */
+    /* Inputs personnalisés */
     input {
         border-radius: 10px !important;
         border: 1.5px solid #C1E19F !important;
         padding: 10px 14px !important;
     }
-    input:focus {
-        border-color: #88C425 !important;
-        box-shadow: 0 0 8px rgba(136, 196, 37, 0.4) !important;
-    }
 
-    /* Style des cartes et sections une fois connecté */
     .cadre-creer {
         background-color: #EEF7E6;
         padding: 20px;
@@ -187,20 +191,36 @@ def ajouter_alertes(df):
 if 'projets' not in st.session_state:
     st.session_state.projets = charger_donnees()
 
-# --- 4. ACCUEIL VERT CLAIR & CONNEXION CENTRÉE SANS SCROLL ---
+# --- 4. ACCUEIL EN SPLIT SCREEN (VISUEL À GAUCHE, FORMULAIRE À DROITE) ---
 if 'connecte' not in st.session_state:
     st.session_state.connecte = False
 
 if not st.session_state.connecte:
     st.markdown("""<style>section[data-testid="stSidebar"] {display: none;}</style>""", unsafe_allow_html=True)
     
-    _, col_center, _ = st.columns([1, 1.2, 1])
+    col_left, col_right = st.columns([1.1, 1], gap="large")
     
-    with col_center:
-        with st.form("form_login_green"):
-            st.image(URL_LOGO_DALKIA, width=180)
-            st.markdown("<h3 style='color: #61A814; font-weight: 700; margin-top: 10px; margin-bottom: 2px; text-align: center;'>Budget Participatif 2027</h3>", unsafe_allow_html=True)
-            st.markdown("<p style='color: #555555; font-size: 13px; margin-bottom: 20px; text-align: center;'>Portail d'Arbitrage & Valorisation des Capabilités</p>", unsafe_allow_html=True)
+    # GAUCHE : Visuel d'accueil dynamique
+    with col_left:
+        st.markdown("""
+            <div class="hero-left-box">
+                <h1 style='font-size: 30px; font-weight: 800; margin-bottom: 5px; color: white;'>⚡ Budget Participatif 2027</h1>
+                <p style='font-size: 15px; opacity: 0.9; margin-top: 0;'>Portail d'Arbitrage & Valorisation des Capabilités – Dalkia Groupe EDF</p>
+                <hr style='border-color: rgba(255,255,255,0.25); margin: 15px 0;'>
+                <ul style='font-size: 14px; line-height: 1.8; opacity: 0.95; padding-left: 20px;'>
+                    <li>🎯 <b>Priorisation Automatique :</b> Calcul instantané selon la matrice de valeur.</li>
+                    <li>📊 <b>Suivi Budgétaire R0 / R2 :</b> Alertes automatiques en cas de variation.</li>
+                    <li>🤖 <b>IA Embarquée :</b> Détection de doublons sémantiques et synthèses Comex.</li>
+                </ul>
+            </div>
+        """, unsafe_allow_html=True)
+        
+    # DROITE : Cadre de connexion
+    with col_right:
+        with st.form("form_login_split"):
+            st.image(URL_LOGO_DALKIA, width=170)
+            st.markdown("<h3 style='color: #61A814; font-weight: 700; margin-top: 10px; margin-bottom: 2px;'>Authentification</h3>", unsafe_allow_html=True)
+            st.markdown("<p style='color: #666; font-size: 13px; margin-bottom: 20px;'>Connectez-vous pour accéder à votre espace.</p>", unsafe_allow_html=True)
             
             identifiant = st.text_input("Identifiant", placeholder="ex: vmo ou nhachemi").lower()
             mdp = st.text_input("Mot de passe", type="password", placeholder="••••••••")
@@ -219,10 +239,9 @@ if not st.session_state.connecte:
 
     st.stop()
 
-# --- 5. NAVIGATION & RÔLES CONNECTÉS (RÉTABLISSEMENT DU SCROLL NORMAL) ---
+# --- 5. NAVIGATION & RÔLES CONNECTÉS (RETOUR DU SCROLL NORMAL) ---
 st.markdown("""
     <style>
-    /* Réactiver le scroll une fois connecté */
     html, body, [data-testid="stAppViewContainer"] {
         overflow: auto !important;
         height: auto !important;
