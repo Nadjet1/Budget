@@ -176,7 +176,7 @@ def ajouter_alertes(df):
 if 'projets' not in st.session_state:
     st.session_state.projets = charger_donnees()
 
-# --- 4. ACCUEIL : NIGHTINGALE POLAR CHART À GAUCHE, CONNEXION À DROITE ---
+# --- 4. ACCUEIL : GRAPH POLAIRE BASÉ SUR LES VRAIES DONNÉES EXCEL ---
 if 'connecte' not in st.session_state:
     st.session_state.connecte = False
 
@@ -185,70 +185,57 @@ if not st.session_state.connecte:
     
     col_left, col_right = st.columns([1.3, 1], gap="large")
     
-    # GAUCHE : Graphique Nightingale / Polar Bar dynamique (reproduisant exactement ton image)
+    # GAUCHE : Graphique Nightingale calculé à partir de la Base_CAPA réelle
     with col_left:
         df_donnees = st.session_state.projets.copy()
         
-        # Aggrégat réel par Axe Stratégique
-        if not df_donnees.empty and 'Budget R0 BP 2027 (K€)' in df_donnees.columns:
-            df_donnees['Budget_Val'] = pd.to_numeric(df_donnees['Budget R0 BP 2027 (K€)'], errors='coerce').fillna(10)
+        # Filtrage et agrégation des vraies données
+        if not df_donnees.empty and 'Axe Stratégique' in df_donnees.columns:
+            df_donnees['Budget_Val'] = pd.to_numeric(df_donnees['Budget R0 BP 2027 (K€)'], errors='coerce').fillna(0)
+            # Supprimer les lignes où l'axe est non renseigné
+            df_donnees = df_donnees[df_donnees['Axe Stratégique'].notnull()]
             df_grp = df_donnees.groupby('Axe Stratégique')['Budget_Val'].sum().reset_index()
         else:
-            df_grp = pd.DataFrame({
-                'Axe Stratégique': ['Décarbonation', 'Numérique', 'Performance', 'Électrification', 'Engagement', 'Innovation', 'Obsolescence', 'Cybersécurité'],
-                'Budget_Val': [120, 95, 65, 50, 40, 30, 25, 15]
-            })
+            df_grp = pd.DataFrame(columns=['Axe Stratégique', 'Budget_Val'])
 
-        # Tri pour avoir un effet étagé fluide
-        df_grp = df_grp.sort_values(by='Budget_Val', ascending=False).reset_index(drop=True)
-        total_val = df_grp['Budget_Val'].sum()
-        df_grp['Pct'] = (df_grp['Budget_Val'] / total_val * 100).round(1)
+        # Si le fichier contient des données d'axes réelles
+        if not df_grp.empty and df_grp['Budget_Val'].sum() > 0:
+            df_grp = df_grp.sort_values(by='Budget_Val', ascending=False).reset_index(drop=True)
+            labels = df_grp['Axe Stratégique'].tolist()
+            r_vals = df_grp['Budget_Val'].tolist()
+        else:
+            # Structure visuelle minimale basée sur les axes stratégiques officiels
+            labels = ['Décarbonation', 'Numérique', 'Performance', 'Électrification']
+            r_vals = [40, 30, 20, 10]
 
-        labels = df_grp['Axe Stratégique'].tolist()
-        r_vals = df_grp['Budget_Val'].tolist()
-        pcts = df_grp['Pct'].tolist()
-
-        # Palette de couleurs riches identique à ton image
-        palette_couleurs = [
-            '#2E1A72',  # Bleu nuit foncé (style "Bologna")
-            '#3EA99F',  # Vert turquoise (style "Hot Dogs")
-            '#0A7E3D',  # Vert profond (style "Cheese")
-            '#8C9E35',  # Vert olive (style "Pasta")
-            '#E3C16F',  # Jaune/Moutarde (style "Wine")
-            '#7A1C0B',  # Marron/Bordeaux (style "Sardines")
-            '#CB6371',  # Rose brique (style "Pizza")
-            '#A0338A'   # Violet/Magenta
-        ]
+        palette_couleurs = ['#6FA247', '#005A9C', '#E5004F', '#88C425', '#009688', '#FF6B00']
 
         fig_nightingale = go.Figure()
 
-        num_items = len(labels)
-        thetas = [f"{labels[i]}" for i in range(num_items)]
-
-        for i in range(num_items):
+        for i in range(len(labels)):
             fig_nightingale.add_trace(go.Barpolar(
                 r=[r_vals[i]],
-                theta=[thetas[i]],
+                theta=[labels[i]],
                 name=labels[i],
                 marker_color=palette_couleurs[i % len(palette_couleurs)],
                 marker_line_color="white",
                 marker_line_width=1.5,
                 opacity=0.95,
                 hoverinfo="text",
-                hovertext=f"<b>{labels[i]}</b><br>Budget: {r_vals[i]} K€ ({pcts[i]}%)"
+                hovertext=f"<b>{labels[i]}</b><br>Budget R0: {r_vals[i]} K€"
             ))
 
         fig_nightingale.update_layout(
             title=dict(
-                text="<b>Ventilation par Axe Stratégique (BP 2027)</b>",
-                font=dict(size=15, color="#555555"),
+                text="<b>Répartition Stratégique du Portefeuille</b>",
+                font=dict(size=15, color="#444444"),
                 x=0.5,
                 xanchor="center"
             ),
             polar=dict(
                 radialaxis=dict(visible=False, showticklabels=False),
                 angularaxis=dict(
-                    tickfont=dict(size=12, color="#444444", family="Arial"),
+                    tickfont=dict(size=12, color="#333333", family="Arial"),
                     rotation=90,
                     direction="clockwise"
                 ),
@@ -256,7 +243,7 @@ if not st.session_state.connecte:
             ),
             showlegend=False,
             margin=dict(t=50, b=20, l=40, r=40),
-            height=430,
+            height=420,
             paper_bgcolor='rgba(0,0,0,0)',
             plot_bgcolor='rgba(0,0,0,0)'
         )
@@ -265,7 +252,7 @@ if not st.session_state.connecte:
         
     # DROITE : Cadre de connexion
     with col_right:
-        with st.form("form_login_nightingale"):
+        with st.form("form_login_exact"):
             st.image(URL_LOGO_DALKIA, width=170)
             st.markdown("<h3 style='color: #61A814; font-weight: 700; margin-top: 10px; margin-bottom: 2px;'>Budget Participatif 2027</h3>", unsafe_allow_html=True)
             st.markdown("<p style='color: #666; font-size: 13px; margin-bottom: 20px;'>Espace d'Arbitrage & Suivi des CAPAs</p>", unsafe_allow_html=True)
