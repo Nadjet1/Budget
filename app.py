@@ -100,7 +100,7 @@ def ajouter_alertes(df):
 if 'projets' not in st.session_state:
     st.session_state.projets = charger_donnees()
 
-# --- 4. ACCUEIL : INTERFACE CONNEXION SAAS ÉPURÉE ---
+# --- 4. ACCUEIL : INTERFACE CONNEXION SAAS ---
 if 'connecte' not in st.session_state:
     st.session_state.connecte = False
 
@@ -120,14 +120,14 @@ if not st.session_state.connecte:
             justify-content: center !important;
             align-items: center !important;
             height: 100vh !important;
-            max-width: 1250px !important;
+            max-width: 1300px !important; 
         }
 
         div[data-testid="stHorizontalBlock"] {
             background-color: #FFFFFF !important;
             border-radius: 20px !important;
             box-shadow: 0 25px 50px -12px rgba(0, 43, 73, 0.25) !important;
-            height: 85vh !important;
+            height: 88vh !important; 
             min-height: 600px !important;
             width: 100% !important;
             overflow: hidden !important;
@@ -148,7 +148,7 @@ if not st.session_state.connecte:
         div[data-testid="stColumn"]:nth-of-type(2) {
             width: 50% !important;
             min-width: 50% !important;
-            padding: 50px 70px !important;
+            padding: 50px 80px !important;
             display: flex !important;
             flex-direction: column !important;
             justify-content: center !important;
@@ -185,7 +185,7 @@ if not st.session_state.connecte:
             border: none !important;
             width: 100%;
             padding: 14px !important;
-            margin-top: 10px !important;
+            margin-top: 15px !important;
             transition: all 0.3s ease !important;
         }
         div[data-testid="stFormSubmitButton"] > button:hover {
@@ -201,19 +201,15 @@ if not st.session_state.connecte:
         st.empty()
 
     with col_right:
-        st.image(URL_LOGO_DALKIA, width=150)
+        st.image(URL_LOGO_DALKIA, width=170)
         st.markdown(f"""
             <div style="margin-top: 30px; margin-bottom: 35px;">
-                <span style="background-color: #EEF7E6; color: #6FA247; padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 700; letter-spacing: 0.5px;">
-                    🎯 BUDGET PARTICIPATIF 2027
-                </span>
-                <h2 style="color: #002B49; font-weight: 900; font-size: 32px; margin: 20px 0 8px 0; font-family: Arial, sans-serif;">
-                    Bienvenue 👋
-                </h2>
-                <p style="color: #64748B; font-size: 15px; margin: 0; font-family: Arial, sans-serif; line-height: 1.5;">
-                    Connectez-vous pour accéder à l'espace de gouvernance et d'arbitrage stratégique.
-                </p>
+                <h1 style="color: #6FA247; font-weight: 900; font-size: 32px; margin: 0; line-height: 1.2; font-family: Arial, sans-serif; text-transform: uppercase;">
+                    BUDGET PARTICIPATIF <span style="color: #002B49;">2027</span>
+                </h1>
             </div>
+            <div style="color: #002B49; font-weight: 800; font-size: 28px; margin-bottom: 5px; font-family: Arial, sans-serif;">Bienvenue 👋</div>
+            <div style="color: #64748B; font-size: 15px; margin-bottom: 30px; font-family: Arial, sans-serif;">Veuillez saisir vos identifiants pour continuer.</div>
         """, unsafe_allow_html=True)
         
         with st.form("form_login_pro"):
@@ -235,19 +231,14 @@ if not st.session_state.connecte:
 # --- 5. NAVIGATION & RÔLES CONNECTÉS (INTÉRIEUR SAAS PREMIUM) ---
 st.markdown("""
     <style>
-    /* Rétablit le comportement normal de l'app */
     html, body, [data-testid="stAppViewContainer"], .main {
         overflow: auto !important;
         height: auto !important;
         max-height: none !important;
     }
-    
-    /* Fond de l'application connectée */
     .stApp {
         background-color: #F8FAFC !important;
     }
-    
-    /* Conteneur principal */
     .block-container {
         padding-top: 2.5rem !important;
         padding-bottom: 3rem !important;
@@ -257,7 +248,6 @@ st.markdown("""
         display: block !important;
     }
 
-    /* Annulation des règles du Split-Screen du login */
     div[data-testid="stHorizontalBlock"] {
         background-color: transparent !important;
         border-radius: 0 !important;
@@ -274,13 +264,11 @@ st.markdown("""
         display: block !important;
     }
 
-    /* --- SIDEBAR PROPRE --- */
     [data-testid="stSidebar"] {
         background-color: #FFFFFF !important;
         border-right: 1px solid #E2E8F0 !important;
     }
     
-    /* Carte Utilisateur dans la sidebar */
     .user-profile-card {
         background: #F1F5F9;
         border: 1px solid #E2E8F0;
@@ -294,7 +282,6 @@ st.markdown("""
     .user-name { font-weight: 700; color: #002B49; font-size: 15px; }
     .user-role { color: #64748B; font-size: 13px; margin-top: 4px; }
 
-    /* --- EN-TÊTE DE PAGE (HEADER) --- */
     .app-title {
         color: #002B49;
         font-weight: 800;
@@ -309,7 +296,6 @@ st.markdown("""
         margin-top: 5px;
     }
 
-    /* --- FORMULAIRES & CARTES --- */
     div[data-testid="stForm"] {
         background: #FFFFFF !important;
         border: 1px solid #E2E8F0 !important;
@@ -319,7 +305,6 @@ st.markdown("""
         margin-bottom: 20px !important;
     }
     
-    /* --- NOUVEAU DESIGN DES ACCORDÉONS (ÉTAPES DU FORMULAIRE) --- */
     div[data-testid="stExpander"] {
         border: 1px solid #E2E8F0 !important;
         border-radius: 10px !important;
@@ -341,11 +326,7 @@ st.markdown("""
         background-color: #EEF7E6 !important;
         color: #6FA247 !important;
     }
-    div[data-testid="stExpander"] p {
-        font-weight: 600 !important;
-    }
 
-    /* --- TABS (ONGLETS) --- */
     .stTabs [data-baseweb="tab-list"] {
         gap: 15px;
         border-bottom: 1px solid #E2E8F0;
@@ -365,7 +346,6 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# Logo natif Streamlit en haut de la sidebar
 col_side1, col_side2, col_side3 = st.sidebar.columns([1, 4, 1])
 with col_side2:
     st.image(URL_LOGO_DALKIA, use_container_width=True)
@@ -506,20 +486,37 @@ elif menu in ["⚙️ Gestion des CAPAs", "⚙️ Mes CAPAs (Saisie & Suivi)"]:
         st.download_button(label="📥 Exporter en Excel", data=excel_saisie_data, file_name='Extraction_CAPA_BP2027.xlsx', mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', use_container_width=True)
     
     st.markdown("<br>", unsafe_allow_html=True)
-    tabs = st.tabs(["➕ Ajouter une CAPA", "✏️ Modifier une CAPA", "🗑️ Supprimer une CAPA"])
+    tabs = st.tabs(["➕ Déclarer un EPIC / CAPA", "✏️ Modifier une CAPA", "🗑️ Supprimer une CAPA"])
     
     with tabs[0]:
         st.markdown("""
             <div style="background-color: #FFFFFF; padding: 20px; border-radius: 8px; border: 1px solid #E2E8F0; margin-bottom: 20px;">
-                <h3 style='margin-top: 0; color: #6FA247; font-size: 20px;'>✨ Soumettre une nouvelle CAPA</h3>
-                <p style='margin-bottom: 0; color: #64748B;'>Suivez les 3 étapes ci-dessous. Dès validation, votre demande sera ajoutée au portefeuille.</p>
+                <h3 style='margin-top: 0; color: #6FA247; font-size: 20px;'>✨ Déclarer un nouveau besoin</h3>
+                <p style='margin-bottom: 0; color: #64748B;'>Remplissez les informations ci-dessous de façon séquentielle.</p>
             </div>
         """, unsafe_allow_html=True)
         
         with st.form("form_creation"):
             
-            # ÉTAPE 1 (Ouverte par défaut)
-            with st.expander("📌 ÉTAPE 1 : Identification & Classification de la CAPA", expanded=True):
+            # ÉTAPE 1 : HIÉRARCHIE EPIC & CAPA
+            with st.expander("📌 ÉTAPE 1 : Hiérarchie du Projet (EPIC ➔ CAPA)", expanded=True):
+                st.markdown('<div style="color:#002B49; font-weight:bold; font-size:16px; margin-bottom:10px;">🏗️ NIVEAU 1 : LE GRAND PROJET (EPIC)</div>', unsafe_allow_html=True)
+                
+                c7, c8 = st.columns(2)
+                epic = c7.text_input("Intitulé du Grand Projet (EPIC) *", placeholder="Ex: Refonte SI Facturation")
+                id_jira_epic = c8.text_input("N° Ticket JIRA de l'EPIC", placeholder="Ex: EPIC-123")
+                
+                st.markdown('<hr style="margin: 15px 0; border-color: #E2E8F0;">', unsafe_allow_html=True)
+                
+                st.markdown('<div style="color:#6FA247; font-weight:bold; font-size:16px; margin-bottom:10px;">🎯 NIVEAU 2 : LE SOUS-PROJET (CAPA)</div>', unsafe_allow_html=True)
+                
+                c9, c10 = st.columns(2)
+                nom_capa = c9.text_input("Intitulé du Sous-Projet (CAPA) *", placeholder="Ex: Automatisation des factures fournisseurs")
+                id_jira_capa = c10.text_input("N° Ticket JIRA de la CAPA", placeholder="Ex: CAPA-456")
+
+                st.markdown('<hr style="margin: 15px 0; border-color: #E2E8F0;">', unsafe_allow_html=True)
+                st.markdown('<div style="color:#64748B; font-weight:bold; font-size:14px; margin-bottom:10px;">🏷️ CLASSIFICATION DE LA CAPA</div>', unsafe_allow_html=True)
+
                 c1, c2, c3 = st.columns(3)
                 sel_env = c1.selectbox("Enveloppe", ["2027", "HORScadrage", "AI", "PACHA", "Autre"])
                 enveloppe = c1.text_input("Précisez l'enveloppe :") if sel_env == "Autre" else sel_env
@@ -533,33 +530,25 @@ elif menu in ["⚙️ Gestion des CAPAs", "⚙️ Mes CAPAs (Saisie & Suivi)"]:
                 sel_ps = c5.selectbox("Projet Stratégique", ["Numérique - Cloud et Réseau", "Numérique - Cybersécurité", "DATA", "Referentiel", "Autre"])
                 projet_strat = c5.text_input("Précisez le projet :") if sel_ps == "Autre" else sel_ps
                 
-                c7, c8 = st.columns(2)
-                epic = c7.text_input("Intitulé de l'EPIC *")
-                id_jira_epic = c8.text_input("N° Ticket JIRA EPIC")
-                
-                c9, c10 = st.columns(2)
-                nom_capa = c9.text_input("Intitulé de la CAPA *")
-                id_jira_capa = c10.text_input("N° Ticket JIRA CAPA")
-                
                 c11, c12 = st.columns(2)
                 train_hors_train = c11.selectbox("Train / Hors train", ["Train", "Hors train"])
                 etat = c12.selectbox("État de la demande", ["En cours", "Prévu pour S2", "Reporté à 2027", "Abandonné", "Terminé"])
                 
                 features = st.text_area("Features (Besoins délivrés/traités)")
                 equipes_contrib = st.text_input("Équipes contributrices / Produits")
-                contexte = st.text_area("Contexte de la CAPA")
+                contexte = st.text_area("Contexte du sous-projet")
             
-            # ÉTAPE 2 (Fermée)
+            # ÉTAPE 2 : BUDGET
             with st.expander("💶 ÉTAPE 2 : Suivi Budgétaire (K€)", expanded=False):
-                st.info("Saisissez les montants en Kilo Euros (K€).")
+                st.info("Saisissez les montants alloués à la CAPA en Kilo Euros (K€).")
                 b1, b2, b3 = st.columns(3)
                 budget_r0 = b1.number_input("Budget alloué BP 2027 (R0)", min_value=0.0, step=10.0)
                 budget_r1 = b2.number_input("Encouru (R1)", min_value=0.0, step=10.0)
                 budget_r2 = b3.number_input("Revue prévisionnelle (R2)", min_value=0.0, step=10.0)
             
-            # ÉTAPE 3 (Fermée)
+            # ÉTAPE 3 : VALEUR
             with st.expander("🎯 ÉTAPE 3 : Matrice de Valeur & Indicateurs de ROI", expanded=False):
-                st.write("Évaluez l'impact de 1 (Faible) à 4 (Très Fort).")
+                st.write("Évaluez l'impact de la CAPA de 1 (Faible) à 4 (Très Fort).")
                 n1, n2, n3, n4 = st.columns(4)
                 n_conf = n1.number_input("Conformité / Obsolescence", 1, 4, 1)
                 n_img = n2.number_input("Image / Sat. Client", 1, 4, 1)
@@ -584,7 +573,7 @@ elif menu in ["⚙️ Gestion des CAPAs", "⚙️ Mes CAPAs (Saisie & Suivi)"]:
             st.markdown("<br>", unsafe_allow_html=True)
             
             # BOUTON SUBMIT GLOBAL DU FORMULAIRE
-            soumettre = st.form_submit_button("💾 Enregistrer la demande CAPA", use_container_width=True)
+            soumettre = st.form_submit_button("💾 Enregistrer la demande EPIC / CAPA", use_container_width=True)
             
             if soumettre:
                 if not epic or not nom_capa:
@@ -611,7 +600,7 @@ elif menu in ["⚙️ Gestion des CAPAs", "⚙️ Mes CAPAs (Saisie & Suivi)"]:
                     }])
                     st.session_state.projets = pd.concat([st.session_state.projets, nouvelle_ligne], ignore_index=True)
                     sauvegarder_donnees(st.session_state.projets)
-                    st.session_state.message_succes = f"✅ La CAPA '{nom_capa}' a bien été enregistrée !"
+                    st.session_state.message_succes = f"✅ La CAPA '{nom_capa}' rattachée à l'EPIC '{epic}' a bien été enregistrée !"
                     st.rerun()
 
         st.markdown("---")
@@ -641,7 +630,7 @@ elif menu in ["⚙️ Gestion des CAPAs", "⚙️ Mes CAPAs (Saisie & Suivi)"]:
                     df_saisie_filtre['EPIC'].astype(str).str.contains(recherche_s, case=False, na=False)
                 ]
                 
-            cols_saisie_souhaitees = ['Alerte Budgétaire', 'Nom CAPA', 'EPIC', 'Département', 'Budget R0 BP 2027 (K€)', 'Reste à engager (K€)', 'Prévisionnel R2 (K€)', 'Priorité', 'Statut Arbitrage', 'Etat']
+            cols_saisie_souhaitees = ['Alerte Budgétaire', 'EPIC', 'Nom CAPA', 'Département', 'Budget R0 BP 2027 (K€)', 'Reste à engager (K€)', 'Prévisionnel R2 (K€)', 'Priorité', 'Statut Arbitrage', 'Etat']
             cols_saisie_existantes = [c for c in cols_saisie_souhaitees if c in df_saisie_filtre.columns]
             
             st.data_editor(df_saisie_filtre[cols_saisie_existantes], use_container_width=True, hide_index=True, disabled=True)
