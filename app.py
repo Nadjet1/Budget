@@ -7,8 +7,8 @@ from datetime import datetime
 
 st.set_page_config(page_title="Portail Budget Participatif Dalkia 2027", layout="wide", initial_sidebar_state="expanded")
 
-# --- LOGO OFFICIEL DALKIA GROUPE EDF ---
-URL_LOGO_DALKIA = "logo.png" if os.path.exists("logo.png") else "https://upload.wikimedia.org/wikipedia/commons/6/63/Dalkia_logo_2014.svg"
+# --- LOGO OFFICIEL DALKIA GROUPE EDF (URL Directe & Stable) ---
+URL_LOGO_DALKIA = "logo.png" if os.path.exists("logo.png") else "https://upload.wikimedia.org/wikipedia/commons/thumb/6/63/Dalkia_logo_2014.svg/800px-Dalkia_logo_2014.svg.png"
 
 # --- 1. DESIGN PROFESSIONAL SPLIT-SCREEN (50/50) ---
 st.markdown("""
@@ -28,7 +28,7 @@ st.markdown("""
     .brand-left-panel {
         background: linear-gradient(135deg, #003366 0%, #005A9C 50%, #6FA247 100%);
         border-radius: 20px;
-        padding: 60px 40px;
+        padding: 50px 30px;
         color: white;
         height: 100%;
         min-height: 480px;
@@ -200,9 +200,11 @@ if not st.session_state.connecte:
     with col_left_50:
         st.markdown(f"""
             <div class="brand-left-panel">
-                <img src="{URL_LOGO_DALKIA}" style="width: 240px; background: white; padding: 15px; border-radius: 16px; margin-bottom: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.15);">
-                <h1 style="font-size: 34px; font-weight: 800; color: white; margin-bottom: 10px;">Budget Participatif 2027</h1>
-                <p style="font-size: 16px; opacity: 0.9; color: #F1F5F9; max-width: 80%;">
+                <div style="background: white; padding: 15px 25px; border-radius: 16px; margin-bottom: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.15);">
+                    <img src="{URL_LOGO_DALKIA}" style="max-width: 220px; height: auto; display: block;">
+                </div>
+                <h1 style="font-size: 32px; font-weight: 800; color: white; margin-bottom: 10px;">Budget Participatif 2027</h1>
+                <p style="font-size: 15px; opacity: 0.92; color: #F1F5F9; max-width: 85%;">
                     Portail d'Arbitrage, Saisie & Valorisation des Capabilités – Dalkia Groupe EDF
                 </p>
             </div>
@@ -367,7 +369,7 @@ elif menu in ["⚙️ Gestion des CAPAs", "⚙️ Mes CAPAs (Saisie & Suivi)"]:
     with tabs[0]:
         st.markdown("""
             <div class="cadre-creer">
-                <h3 style='margin-top: 0; color: #6FA247;'>✨ Soumettre une nouvelle CAPA (Budget 2027)</h3>
+                <h3 style='margin-top: 0; color: #E5004F;'>✨ Soumettre une nouvelle CAPA (Budget 2027)</h3>
                 <p style='margin-bottom: 0;'>Renseignez les éléments ci-dessous. Dès validation, votre demande sera affichée en direct.</p>
             </div>
         """, unsafe_allow_html=True)
