@@ -201,18 +201,20 @@ if not st.session_state.connecte:
         st.empty()
 
     with col_right:
-        st.image(URL_LOGO_DALKIA, width=170)
-        st.markdown(f"""
-            <div style="margin-bottom: 30px; margin-top: 10px;">
-                <h1 style="color: #6FA247; font-weight: 900; font-size: 32px; margin: 0; line-height: 1.2; font-family: Arial, sans-serif; text-transform: uppercase;">
-                    BUDGET PARTICIPATIF <span style="color: #002B49;">2027</span>
-                </h1>
-                <p style="color: #64748B; font-size: 15px; margin-top: 5px; font-family: Arial, sans-serif;">
-                    Gouvernance et arbitrage stratégique des capacités.
+        st.image(URL_LOGO_DALKIA, width=150) # Fonction native Streamlit pour charger l'image garantie
+        
+        st.markdown("""
+            <div style="margin-top: 30px; margin-bottom: 35px;">
+                <span style="background-color: #EEF7E6; color: #6FA247; padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 700; letter-spacing: 0.5px;">
+                    🎯 BUDGET PARTICIPATIF 2027
+                </span>
+                <h2 style="color: #002B49; font-weight: 900; font-size: 32px; margin: 20px 0 8px 0; font-family: Arial, sans-serif;">
+                    Bienvenue 👋
+                </h2>
+                <p style="color: #64748B; font-size: 15px; margin: 0; font-family: Arial, sans-serif; line-height: 1.5;">
+                    Connectez-vous pour accéder à l'espace de gouvernance et d'arbitrage stratégique.
                 </p>
             </div>
-            <div style="color: #002B49; font-weight: 800; font-size: 24px; margin-bottom: 5px; font-family: Arial, sans-serif;">Bienvenue 👋</div>
-            <div style="color: #64748B; font-size: 14px; margin-bottom: 25px; font-family: Arial, sans-serif;">Veuillez saisir vos identifiants pour continuer.</div>
         """, unsafe_allow_html=True)
         
         with st.form("form_login_pro"):
@@ -256,23 +258,6 @@ st.markdown("""
         display: block !important;
     }
 
-    /* Annulation des règles du Split-Screen du login */
-    div[data-testid="stHorizontalBlock"] {
-        background-color: transparent !important;
-        border-radius: 0 !important;
-        box-shadow: none !important;
-        width: 100% !important;
-        height: auto !important;
-        overflow: visible !important;
-        gap: 1.5rem !important;
-    }
-    div[data-testid="stColumn"] {
-        background: none !important;
-        width: auto !important;
-        padding: 0 !important;
-        display: block !important;
-    }
-
     /* --- SIDEBAR PROPRE --- */
     [data-testid="stSidebar"] {
         background-color: #FFFFFF !important;
@@ -286,6 +271,7 @@ st.markdown("""
         border-left: 4px solid #6FA247;
         padding: 15px;
         border-radius: 8px;
+        margin-top: 15px;
         margin-bottom: 25px;
         box-shadow: 0 2px 4px rgba(0,0,0,0.02);
     }
@@ -293,19 +279,12 @@ st.markdown("""
     .user-role { color: #64748B; font-size: 13px; margin-top: 4px; }
 
     /* --- EN-TÊTE DE PAGE (HEADER) --- */
-    .app-header {
-        display: flex;
-        align-items: center;
-        gap: 20px;
-        margin-bottom: 30px;
-        padding-bottom: 20px;
-        border-bottom: 1px solid #E2E8F0;
-    }
     .app-title {
         color: #002B49;
         font-weight: 800;
         font-size: 30px;
         margin: 0;
+        padding-top: 10px;
         font-family: Arial, sans-serif;
     }
     .app-subtitle {
@@ -364,11 +343,12 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# Menu latéral personnalisé
+# Logo natif Streamlit en haut de la sidebar
+col_side1, col_side2, col_side3 = st.sidebar.columns([1, 4, 1])
+with col_side2:
+    st.image(URL_LOGO_DALKIA, use_container_width=True)
+
 st.sidebar.markdown(f"""
-    <div style="text-align: center; margin-bottom: 30px;">
-        <img src="{URL_LOGO_DALKIA}" width="140">
-    </div>
     <div class="user-profile-card">
         <div class="user-name">👤 {st.session_state.utilisateur}</div>
         <div class="user-role">Profil : {st.session_state.profil}</div>
@@ -404,15 +384,13 @@ if 'message_succes' in st.session_state and st.session_state.message_succes:
 
 # --- VUE 1 : TABLEAU DE BORD (RÉSERVÉ VMO) ---
 if menu == "📊 Tableau de bord BP 2027":
-    st.markdown(f"""
-        <div class="app-header">
-            <img src="{URL_LOGO_DALKIA}" width="110">
-            <div>
-                <h1 class="app-title">📊 Synthèse du Portefeuille</h1>
-                <div class="app-subtitle">Vision globale et arbitrage du Budget Participatif 2027</div>
-            </div>
-        </div>
-    """, unsafe_allow_html=True)
+    # Header propre avec logo natif
+    col_logo, col_titre = st.columns([1.5, 8], gap="small")
+    with col_logo:
+        st.image(URL_LOGO_DALKIA, width=120)
+    with col_titre:
+        st.markdown('<h1 class="app-title">📊 Synthèse du Portefeuille</h1><div class="app-subtitle">Vision globale et arbitrage du Budget Participatif 2027</div>', unsafe_allow_html=True)
+    st.markdown("<div style='border-bottom: 1px solid #E2E8F0; margin-bottom: 30px; margin-top: 15px;'></div>", unsafe_allow_html=True)
     
     col_exp1, col_exp2, col_exp3 = st.columns([1, 1, 1])
     with col_exp1:
@@ -491,15 +469,13 @@ if menu == "📊 Tableau de bord BP 2027":
 
 # --- VUE 2 : GESTION DES CAPAS ---
 elif menu in ["⚙️ Gestion des CAPAs", "⚙️ Mes CAPAs (Saisie & Suivi)"]:
-    st.markdown(f"""
-        <div class="app-header">
-            <img src="{URL_LOGO_DALKIA}" width="110">
-            <div>
-                <h1 class="app-title">⚙️ Espace de Saisie & Suivi</h1>
-                <div class="app-subtitle">Création, modification et gestion de vos demandes (CAPAs)</div>
-            </div>
-        </div>
-    """, unsafe_allow_html=True)
+    # Header propre avec logo natif
+    col_logo, col_titre = st.columns([1.5, 8], gap="small")
+    with col_logo:
+        st.image(URL_LOGO_DALKIA, width=120)
+    with col_titre:
+        st.markdown('<h1 class="app-title">⚙️ Espace de Saisie & Suivi</h1><div class="app-subtitle">Création, modification et gestion de vos demandes (CAPAs)</div>', unsafe_allow_html=True)
+    st.markdown("<div style='border-bottom: 1px solid #E2E8F0; margin-bottom: 30px; margin-top: 15px;'></div>", unsafe_allow_html=True)
     
     col_top1, col_top2 = st.columns([3, 1])
     with col_top1:
@@ -686,15 +662,13 @@ elif menu in ["⚙️ Gestion des CAPAs", "⚙️ Mes CAPAs (Saisie & Suivi)"]:
 
 # --- VUE 3 : IA & NLP ---
 elif menu in ["🤖 Assistant NLP & Radar", "🤖 Mon Assistant NLP & Radar"]:
-    st.markdown(f"""
-        <div class="app-header">
-            <img src="{URL_LOGO_DALKIA}" width="110">
-            <div>
-                <h1 class="app-title">🤖 Assistant Sémantique & IA</h1>
-                <div class="app-subtitle">Aide à la décision, détection de doublons et scoring</div>
-            </div>
-        </div>
-    """, unsafe_allow_html=True)
+    # Header propre avec logo natif
+    col_logo, col_titre = st.columns([1.5, 8], gap="small")
+    with col_logo:
+        st.image(URL_LOGO_DALKIA, width=120)
+    with col_titre:
+        st.markdown('<h1 class="app-title">🤖 Assistant Sémantique & IA</h1><div class="app-subtitle">Aide à la décision, détection de doublons et scoring</div>', unsafe_allow_html=True)
+    st.markdown("<div style='border-bottom: 1px solid #E2E8F0; margin-bottom: 30px; margin-top: 15px;'></div>", unsafe_allow_html=True)
     
     if df_visible.empty:
         st.warning("Aucune donnée disponible à analyser. Veuillez d'abord saisir une CAPA.")
