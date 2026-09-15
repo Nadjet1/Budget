@@ -10,82 +10,79 @@ st.set_page_config(page_title="Portail Budget Participatif Dalkia 2027", layout=
 # --- LOGO OFFICIEL DALKIA GROUPE EDF ---
 URL_LOGO_DALKIA = "logo.png" if os.path.exists("logo.png") else "https://upload.wikimedia.org/wikipedia/commons/6/63/Dalkia_logo_2014.svg"
 
-# --- 1. DESIGN VIBRANT, COLORÉ ET DYNAMIQUE (CSS HIGH-TECH) ---
+# --- 1. DESIGN PORTAIL MODERN (STYLE SPLIT LOGIN SCREEN) ---
 st.markdown("""
     <style>
-    /* Masquer le header et footer Streamlit */
+    /* Cache l'en-tête et footer Streamlit */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
 
-    /* Fond dynamique avec animation de dégradé coloré */
+    /* Arrière-plan global en dégradé vibrant */
     .stApp {
-        background: linear-gradient(-45deg, #003366, #005A9C, #6FA247, #E5004F) !important;
-        background-size: 400% 400% !important;
-        animation: gradientBG 12s ease infinite !important;
+        background: linear-gradient(135deg, #003366 0%, #005A9C 40%, #6FA247 100%) !important;
+        padding-top: 20px;
     }
 
-    @keyframes gradientBG {
-        0% { background-position: 0% 50%; }
-        50% { background-position: 100% 50%; }
-        100% { background-position: 0% 50%; }
+    /* Conteneur principal style Split Screen */
+    .main-login-container {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 24px;
+        padding: 40px;
+        box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+        margin: 20px auto;
+        max-width: 1100px;
     }
 
-    /* Carte de connexion ultra-moderne avec effet néon et transparence */
+    /* Carte de bienvenue visuelle (colonne gauche) */
+    .hero-box-left {
+        background: linear-gradient(135deg, #005A9C 0%, #002B49 100%);
+        border-radius: 20px;
+        padding: 40px 30px;
+        color: white;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        box-shadow: inset 0 0 20px rgba(0,0,0,0.2);
+    }
+
+    /* Style du Formulaire (colonne droite) */
     div[data-testid="stForm"] {
-        background: rgba(255, 255, 255, 0.92) !important;
-        backdrop-filter: blur(20px) !important;
-        -webkit-backdrop-filter: blur(20px) !important;
-        border-radius: 24px !important;
-        padding: 40px !important;
-        border: 2px solid rgba(255, 255, 255, 0.5) !important;
-        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3), 0 0 30px rgba(111, 162, 71, 0.3) !important;
+        background: #FFFFFF !important;
+        border-radius: 20px !important;
+        padding: 30px !important;
+        border: 1px solid #E2E8F0 !important;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.05) !important;
     }
 
-    /* Titres colorés */
-    .hero-title-vibrant {
-        color: #FFFFFF !important;
-        font-weight: 900 !important;
-        font-size: 38px !important;
-        text-shadow: 0 4px 15px rgba(0,0,0,0.4);
-        letter-spacing: -0.5px;
-    }
-
-    .subtitle-vibrant {
-        color: #F0F4F8 !important;
-        font-size: 18px !important;
-        text-shadow: 0 2px 8px rgba(0,0,0,0.3);
-        margin-top: -10px;
-        margin-bottom: 25px;
-    }
-
-    /* Bouton d'action vibrant */
+    /* Bouton d'action principal moderne */
     div[data-testid="stFormSubmitButton"] > button, .stButton > button {
-        background: linear-gradient(135deg, #E5004F 0%, #6FA247 100%) !important;
+        background: linear-gradient(135deg, #6FA247 0%, #4E7A2F 100%) !important;
         color: white !important;
         font-weight: 800 !important;
         font-size: 16px !important;
-        border-radius: 30px !important;
+        border-radius: 25px !important;
         border: none !important;
         width: 100%;
-        padding: 14px 28px;
-        transition: all 0.4s ease;
-        box-shadow: 0 8px 25px rgba(229, 0, 79, 0.4);
+        padding: 12px 20px;
+        transition: all 0.3s ease;
+        box-shadow: 0 6px 18px rgba(111, 162, 71, 0.35);
     }
     div[data-testid="stFormSubmitButton"] > button:hover, .stButton > button:hover {
-        transform: translateY(-3px) scale(1.02);
-        box-shadow: 0 12px 30px rgba(111, 162, 71, 0.6);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(111, 162, 71, 0.5);
     }
 
-    /* Stylisation des inputs */
+    /* Inputs personnalisés */
     input {
         border-radius: 12px !important;
-        border: 1px solid #CBD5E1 !important;
-        padding: 10px 15px !important;
+        border: 1.5px solid #CBD5E1 !important;
+        padding: 10px 14px !important;
     }
     input:focus {
         border-color: #6FA247 !important;
-        box-shadow: 0 0 10px rgba(111, 162, 71, 0.3) !important;
+        box-shadow: 0 0 0 3px rgba(111, 162, 71, 0.2) !important;
     }
 
     .cadre-creer {
@@ -191,32 +188,45 @@ def ajouter_alertes(df):
 if 'projets' not in st.session_state:
     st.session_state.projets = charger_donnees()
 
-# --- 4. ACCUEIL ET AUTHENTIFICATION DYNAMIQUE ---
+# --- 4. ACCUEIL ET AUTHENTIFICATION STYLE "SPLIT SAAS PORTAL" ---
 if 'connecte' not in st.session_state:
     st.session_state.connecte = False
 
 if not st.session_state.connecte:
     st.markdown("""<style>section[data-testid="stSidebar"] {display: none;}</style>""", unsafe_allow_html=True)
     
-    _, col_center, _ = st.columns([1, 2, 1])
+    # Structure 2 Colonnes
+    col_left, col_right = st.columns([1.1, 1], gap="medium")
     
-    with col_center:
+    # Colonne Gauche : Visuel & Présentation Dalkia
+    with col_left:
         st.markdown("""
-            <div style='text-align: center; margin-top: 30px;'>
-                <h1 class="hero-title-vibrant">⚡ Budget Participatif 2027</h1>
-                <p class="subtitle-vibrant">Portail d'Arbitrage Stratégique • Dalkia Groupe EDF</p>
+            <div class="hero-box-left">
+                <h2 style='font-size: 32px; font-weight: 800; margin-bottom: 10px; color: white;'>⚡ Bienvenue !</h2>
+                <h4 style='font-weight: 400; opacity: 0.9; color: #E2E8F0; margin-top: 0;'>Portail d'Arbitrage & Suivi Budgétaire BP 2027</h4>
+                <hr style='border-color: rgba(255,255,255,0.2); margin: 20px 0;'>
+                <p style='font-size: 15px; line-height: 1.6; opacity: 0.85;'>
+                    Plateforme centralisée pour la gouvernance des CAPAs, l'arbitrage VMO et l'évaluation de la valeur stratégique.
+                </p>
+                <div style='margin-top: 25px;'>
+                    <span style='background: rgba(255,255,255,0.15); padding: 8px 16px; border-radius: 20px; font-size: 13px;'>🌿 Éco-conçu</span>
+                    <span style='background: rgba(255,255,255,0.15); padding: 8px 16px; border-radius: 20px; font-size: 13px; margin-left: 8px;'>🔒 Espace Sécurisé</span>
+                </div>
             </div>
         """, unsafe_allow_html=True)
         
-        with st.form("form_login_vibrant"):
-            st.image(URL_LOGO_DALKIA, width=200)
-            st.markdown("<h3 style='text-align:center; color:#003366; font-weight:800; margin-top:15px; margin-bottom:20px;'>Espace Authentification</h3>", unsafe_allow_html=True)
+    # Colonne Droite : Formulaire de connexion
+    with col_right:
+        with st.form("form_login_saas"):
+            st.image(URL_LOGO_DALKIA, width=180)
+            st.markdown("<h3 style='color: #003366; font-weight: 700; margin-top: 10px; margin-bottom: 5px;'>Connexion</h3>", unsafe_allow_html=True)
+            st.markdown("<p style='color: #64748B; font-size: 14px; margin-bottom: 20px;'>Saisissez vos identifiants pour accéder au portail.</p>", unsafe_allow_html=True)
             
-            identifiant = st.text_input("👤 Identifiant", placeholder="ex: vmo ou nhachemi").lower()
-            mdp = st.text_input("🔒 Mot de passe", type="password", placeholder="••••••••")
+            identifiant = st.text_input("Identifiant", placeholder="ex: vmo ou nhachemi").lower()
+            mdp = st.text_input("Mot de passe", type="password", placeholder="••••••••")
             
             st.markdown("<br>", unsafe_allow_html=True)
-            submit_login = st.form_submit_button("🚀 Connexion")
+            submit_login = st.form_submit_button("Se connecter ➔")
             
             if submit_login:
                 if identifiant in UTILISATEURS and UTILISATEURS[identifiant]["mdp"] == mdp:
