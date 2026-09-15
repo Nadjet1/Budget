@@ -10,91 +10,60 @@ st.set_page_config(page_title="Portail Budget Participatif Dalkia 2027", layout=
 # --- LOGO OFFICIEL DALKIA GROUPE EDF ---
 URL_LOGO_DALKIA = "logo.png" if os.path.exists("logo.png") else "https://upload.wikimedia.org/wikipedia/commons/6/63/Dalkia_logo_2014.svg"
 
-# --- 1. DESIGN HIGH-END ULTRA-ATTIRANT (GLASSMORPHISM & 3D VIBE) ---
+# --- 1. DESIGN ÉPURÉ & PROFESSIONNEL (CLEAN UI) ---
 st.markdown("""
     <style>
-    /* Masquer le header et footer Streamlit */
+    /* Masquer le menu natif Streamlit */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
 
-    /* Fond animé en dégradé profond */
+    /* Fond clair et reposant */
     .stApp {
-        background: linear-gradient(125deg, #001F3F 0%, #003366 40%, #005A9C 70%, #4E7A2F 100%) !important;
-        background-size: 300% 300% !important;
-        animation: gradientAnimation 10s ease infinite !important;
+        background-color: #F8F9FA !important;
     }
 
-    @keyframes gradientAnimation {
-        0% { background-position: 0% 50%; }
-        50% { background-position: 100% 50%; }
-        100% { background-position: 0% 50%; }
-    }
-
-    /* Boîte de présentation à gauche */
-    .hero-3d-card {
-        background: rgba(255, 255, 255, 0.08);
-        backdrop-filter: blur(15px);
-        -webkit-backdrop-filter: blur(15px);
-        border: 1px solid rgba(255, 255, 255, 0.15);
-        border-radius: 28px;
-        padding: 40px;
-        color: white;
-        text-align: center;
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
-    }
-
-    /* Carte de connexion blanche style Glassmorphism */
+    /* Carte de connexion épurée */
     div[data-testid="stForm"] {
-        background: rgba(255, 255, 255, 0.96) !important;
-        backdrop-filter: blur(20px) !important;
-        -webkit-backdrop-filter: blur(20px) !important;
-        border-radius: 28px !important;
-        padding: 40px 35px !important;
-        border: 1px solid rgba(255, 255, 255, 0.8) !important;
-        box-shadow: 0 25px 60px rgba(0, 0, 0, 0.35), 0 0 40px rgba(111, 162, 71, 0.25) !important;
+        background: #FFFFFF !important;
+        border-radius: 16px !important;
+        padding: 40px !important;
+        border: 1px solid #E2E8F0 !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04) !important;
     }
 
-    /* Bouton vibrant étincelant */
+    /* Bouton principal aux couleurs Dalkia */
     div[data-testid="stFormSubmitButton"] > button, .stButton > button {
-        background: linear-gradient(135deg, #E5004F 0%, #6FA247 100%) !important;
+        background-color: #6FA247 !important;
         color: white !important;
-        font-weight: 800 !important;
-        font-size: 16px !important;
-        border-radius: 30px !important;
+        font-weight: 600 !important;
+        font-size: 15px !important;
+        border-radius: 8px !important;
         border: none !important;
         width: 100%;
-        padding: 14px 28px;
-        transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        box-shadow: 0 10px 25px rgba(229, 0, 79, 0.4);
+        padding: 10px 20px;
+        transition: background-color 0.2s ease;
     }
     div[data-testid="stFormSubmitButton"] > button:hover, .stButton > button:hover {
-        transform: translateY(-3px) scale(1.02);
-        box-shadow: 0 15px 35px rgba(111, 162, 71, 0.6);
+        background-color: #5B8839 !important;
     }
 
-    /* Inputs élégants */
+    /* Inputs modernes */
     input {
-        border-radius: 14px !important;
-        border: 1.5px solid #E2E8F0 !important;
-        padding: 12px 18px !important;
-        font-size: 15px !important;
-    }
-    input:focus {
-        border-color: #6FA247 !important;
-        box-shadow: 0 0 12px rgba(111, 162, 71, 0.3) !important;
+        border-radius: 8px !important;
+        border: 1px solid #CBD5E1 !important;
     }
 
     .cadre-creer {
-        background-color: #FFF0F5;
+        background-color: #F4F8F1;
         padding: 20px;
-        border-left: 6px solid #E5004F;
+        border-left: 6px solid #6FA247;
         border-radius: 8px;
         margin-bottom: 20px;
     }
-    .titre-section-1 { color: #E5004F; border-bottom: 2px solid #E5004F; padding-bottom: 5px; margin-top: 15px; }
+    .titre-section-1 { color: #6FA247; border-bottom: 2px solid #6FA247; padding-bottom: 5px; margin-top: 15px; }
     .titre-section-2 { color: #005A9C; border-bottom: 2px solid #005A9C; padding-bottom: 5px; margin-top: 15px; }
-    .titre-section-3 { color: #6FA247; border-bottom: 2px solid #6FA247; padding-bottom: 5px; margin-top: 15px; }
+    .titre-section-3 { color: #009688; border-bottom: 2px solid #009688; padding-bottom: 5px; margin-top: 15px; }
     </style>
 """, unsafe_allow_html=True)
 
@@ -188,38 +157,27 @@ def ajouter_alertes(df):
 if 'projets' not in st.session_state:
     st.session_state.projets = charger_donnees()
 
-# --- 4. ACCUEIL ET AUTHENTIFICATION STYLE 3D/SAAS MODERN ---
+# --- 4. ACCUEIL ÉPURÉ & CONNEXION ---
 if 'connecte' not in st.session_state:
     st.session_state.connecte = False
 
 if not st.session_state.connecte:
     st.markdown("""<style>section[data-testid="stSidebar"] {display: none;}</style>""", unsafe_allow_html=True)
     
-    st.markdown("<br>", unsafe_allow_html=True)
-    col_left, col_right = st.columns([1.2, 1], gap="large")
+    st.markdown("<br><br>", unsafe_allow_html=True)
+    _, col_center, _ = st.columns([1, 1.2, 1])
     
-    # Visuel 3D et Présentation (Gauche)
-    with col_left:
-        st.markdown("""
-            <div class="hero-3d-card">
-                <img src="https://cdni.iconscout.com/illustration/premium/thumb/data-analysis-illustration-download-in-svg-png-gif-file-formats--analytics-business-financial-growth-dashboard-pack-illustrations-3310061.png?f=webp" width="75%" style="margin-bottom: 20px;">
-                <h1 style="font-size: 32px; font-weight: 800; margin-bottom: 5px;">⚡ Budget Participatif 2027</h1>
-                <p style="font-size: 16px; opacity: 0.9; margin-top: 0;">Plateforme de Gouvernance & Valorisation des Capabilités – Dalkia Groupe EDF</p>
-            </div>
-        """, unsafe_allow_html=True)
-        
-    # Formulaire de Connexion (Droite)
-    with col_right:
-        with st.form("form_login_modern_3d"):
-            st.image(URL_LOGO_DALKIA, width=200)
-            st.markdown("<h3 style='color: #003366; font-weight: 800; margin-top: 10px; margin-bottom: 5px;'>Bienvenue !</h3>", unsafe_allow_html=True)
-            st.markdown("<p style='color: #64748B; font-size: 14px; margin-bottom: 25px;'>Veuillez vous authentifier pour accéder au portail.</p>", unsafe_allow_html=True)
+    with col_center:
+        with st.form("form_login_clean"):
+            st.image(URL_LOGO_DALKIA, width=180)
+            st.markdown("<h3 style='color: #003366; font-weight: 700; margin-top: 15px; margin-bottom: 5px;'>Budget Participatif 2027</h3>", unsafe_allow_html=True)
+            st.markdown("<p style='color: #64748B; font-size: 14px; margin-bottom: 25px;'>Portail d'Arbitrage & Valorisation des Capabilités</p>", unsafe_allow_html=True)
             
             identifiant = st.text_input("Identifiant", placeholder="ex: vmo ou nhachemi").lower()
             mdp = st.text_input("Mot de passe", type="password", placeholder="••••••••")
             
             st.markdown("<br>", unsafe_allow_html=True)
-            submit_login = st.form_submit_button("🚀 Connexion au Portail")
+            submit_login = st.form_submit_button("Se connecter")
             
             if submit_login:
                 if identifiant in UTILISATEURS and UTILISATEURS[identifiant]["mdp"] == mdp:
@@ -368,7 +326,7 @@ elif menu in ["⚙️ Gestion des CAPAs", "⚙️ Mes CAPAs (Saisie & Suivi)"]:
     with tabs[0]:
         st.markdown("""
             <div class="cadre-creer">
-                <h3 style='margin-top: 0; color: #E5004F;'>✨ Soumettre une nouvelle CAPA (Budget 2027)</h3>
+                <h3 style='margin-top: 0; color: #6FA247;'>✨ Soumettre une nouvelle CAPA (Budget 2027)</h3>
                 <p style='margin-bottom: 0;'>Renseignez les éléments ci-dessous. Dès validation, votre demande sera affichée en direct.</p>
             </div>
         """, unsafe_allow_html=True)
@@ -596,7 +554,7 @@ elif menu in ["🤖 Assistant NLP & Radar", "🤖 Mon Assistant NLP & Radar"]:
                 r=[c_conf, c_img, c_ope, c_eco],
                 theta=['Conformité', 'Image', 'Gain Opé.', 'Gain Éco.']))
             fig = px.line_polar(df_radar, r='r', theta='theta', line_close=True, range_r=[0,4])
-            fig.update_traces(fill='toself', line_color='#E5004F')
+            fig.update_traces(fill='toself', line_color='#6FA247')
             st.plotly_chart(fig, use_container_width=True)
 
         with col_ia2:
