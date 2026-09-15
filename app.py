@@ -176,7 +176,7 @@ def ajouter_alertes(df):
 if 'projets' not in st.session_state:
     st.session_state.projets = charger_donnees()
 
-# --- 4. ACCUEIL : GRAPHIQUE INFOGRAPHIQUE 3D DYNAMICTION À GAUCHE ---
+# --- 4. ACCUEIL : GRAPHIQUE INFOGRAPHIQUE STYLE IMAGE D'EXEMPLE A GAUCHE ---
 if 'connecte' not in st.session_state:
     st.session_state.connecte = False
 
@@ -185,11 +185,10 @@ if not st.session_state.connecte:
     
     col_left, col_right = st.columns([1.3, 1], gap="large")
     
-    # GAUCHE : Diagramme circulaire multi-couches style Infographic
+    # GAUCHE : Camembert découper / Donut infographique avec pourcentages
     with col_left:
         df_donnees = st.session_state.projets.copy()
         
-        # Récupération des axes et budgets réels
         if not df_donnees.empty and 'Budget R0 BP 2027 (K€)' in df_donnees.columns:
             df_donnees['Budget_Val'] = pd.to_numeric(df_donnees['Budget R0 BP 2027 (K€)'], errors='coerce').fillna(10)
             df_grp = df_donnees.groupby('Axe Stratégique')['Budget_Val'].sum().reset_index()
@@ -198,46 +197,26 @@ if not st.session_state.connecte:
                 'Axe Stratégique': ['Décarbonation', 'Numérique', 'Performance', 'Électrification', 'Engagement'],
                 'Budget_Val': [75, 50, 30, 20, 10]
             })
-            
-        total_val = df_grp['Budget_Val'].sum()
-        df_grp['Pct'] = (df_grp['Budget_Val'] / total_val * 100).round().astype(int)
-        
-        labels = df_grp['Axe Stratégique'].tolist()
-        pcts = df_grp['Pct'].tolist()
-        vals = df_grp['Budget_Val'].tolist()
-        
-        # Création du graphique polaire/Nightingale
+
         couleurs = ['#88C425', '#00A86B', '#00A3E0', '#E5004F', '#FF5722', '#9C27B0']
         
-        fig_infographic = go.Figure()
+        # Effet de découpage (pull) pour donner du relief comme sur l'image
+        pull_list = [0.08, 0.05, 0.03, 0.02, 0.02, 0.02]
 
-        # Construction des arcs polaires ajustés
-        num_items = len(labels)
-        angles = np.linspace(0, 360, num_items, endpoint=False)
-        width = 360 / num_items
-
-        for i in range(num_items):
-            fig_infographic.add_trace(go.Barpolar(
-                r=[vals[i]],
-                theta=[angles[i]],
-                width=[width - 3],
-                marker_color=couleurs[i % len(couleurs)],
-                name=labels[i],
-                hoverinfo="text",
-                hovertext=f"<b>{labels[i]}</b><br>Budget: {vals[i]} K€ ({pcts[i]}%)",
-                text=[f"<b>{pcts[i]}%</b>"],
-                textposition='inside',
-                marker_line_color="white",
-                marker_line_width=2,
-                opacity=0.9
-            ))
+        fig_infographic = go.Figure(data=[go.Pie(
+            labels=df_grp['Axe Stratégique'],
+            values=df_grp['Budget_Val'],
+            hole=0.35,
+            pull=pull_list[:len(df_grp)],
+            marker_colors=couleurs[:len(df_grp)],
+            textinfo='percent',
+            textfont_size=18,
+            textfont_color='white',
+            textfont_weight='bold',
+            marker=dict(line=dict(color='#FFFFFF', width=3))
+        )])
 
         fig_infographic.update_layout(
-            polar=dict(
-                radialaxis=dict(visible=False, showticklabels=False),
-                angularaxis=dict(visible=False, showticklabels=False),
-                bgcolor='rgba(0,0,0,0)'
-            ),
             showlegend=True,
             legend=dict(
                 orientation="h",
@@ -257,7 +236,7 @@ if not st.session_state.connecte:
         
     # DROITE : Cadre de connexion
     with col_right:
-        with st.form("form_login_infographic_real"):
+        with st.form("form_login_infographic_clean"):
             st.image(URL_LOGO_DALKIA, width=170)
             st.markdown("<h3 style='color: #61A814; font-weight: 700; margin-top: 10px; margin-bottom: 2px;'>Budget Participatif 2027</h3>", unsafe_allow_html=True)
             st.markdown("<p style='color: #666; font-size: 13px; margin-bottom: 20px;'>Espace d'Arbitrage & Suivi des CAPAs</p>", unsafe_allow_html=True)
