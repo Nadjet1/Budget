@@ -215,9 +215,11 @@ if not st.session_state.connecte:
 
     # DROITE : Logo + Titre Budget Participatif + Formulaire
     with col_right:
+        # CORRECTION : Le logo est ajouté via la fonction native Streamlit pour qu'il ne disparaisse pas
+        st.image(URL_LOGO_DALKIA, width=170)
+        
         st.markdown(f"""
-            <div style="margin-bottom: 30px;">
-                <img src="{URL_LOGO_DALKIA}" width="160" style="margin-bottom: 25px;">
+            <div style="margin-bottom: 30px; margin-top: 10px;">
                 <h1 style="color: #6FA247; font-weight: 900; font-size: 32px; margin: 0; line-height: 1.2; font-family: Arial, sans-serif; text-transform: uppercase;">
                     BUDGET PARTICIPATIF <span style="color: #002B49;">2027</span>
                 </h1>
