@@ -10,21 +10,49 @@ st.set_page_config(page_title="Portail Budget Participatif Dalkia 2027", layout=
 # --- GESTION DU LOGO (Local 'logo.png' ou Fallback URL) ---
 URL_LOGO_DALKIA = "logo.png" if os.path.exists("logo.png") else "https://upload.wikimedia.org/wikipedia/commons/6/63/Dalkia_logo_2014.svg"
 
-# --- 1. DESIGN CUSTOMISÉ (CSS) ---
+# --- 1. DESIGN CUSTOMISÉ & CHARTE GRAPHIQUE DALKIA (CSS ADVANCED) ---
 st.markdown("""
     <style>
-    div[data-testid="stFormSubmitButton"] > button {
+    /* Masquer le menu Streamlit par défaut et les boutons GitHub/Share pour un rendu 100% Pro */
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
+    
+    /* Bouton principal Dalkia */
+    div[data-testid="stFormSubmitButton"] > button, .stButton > button {
         background-color: #E5004F !important;
         color: white !important;
         font-weight: bold !important;
-        font-size: 16px !important;
-        border-radius: 5px !important;
+        font-size: 15px !important;
+        border-radius: 6px !important;
         border: none !important;
         width: 100%;
-        transition: 0.3s;
+        padding: 10px 20px;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 6px rgba(229, 0, 79, 0.2);
     }
-    div[data-testid="stFormSubmitButton"] > button:hover {
+    div[data-testid="stFormSubmitButton"] > button:hover, .stButton > button:hover {
         background-color: #B3003D !important;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(229, 0, 79, 0.3);
+    }
+    
+    /* Styles des cartes et conteneurs */
+    .hero-card {
+        background: linear-gradient(135deg, #005A9C 0%, #003366 100%);
+        color: white;
+        padding: 35px;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0, 90, 156, 0.25);
+        margin-bottom: 25px;
+    }
+    .info-card {
+        background-color: #FFFFFF;
+        padding: 25px;
+        border-radius: 10px;
+        border-top: 4px solid #E5004F;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        height: 100%;
     }
     .cadre-creer {
         background-color: #FFF0F5;
@@ -129,15 +157,16 @@ def ajouter_alertes(df):
 if 'projets' not in st.session_state:
     st.session_state.projets = charger_donnees()
 
-# --- 4. AUTHENTIFICATION SÉCURISÉE ---
+# --- 4. AUTHENTIFICATION SÉCURISÉE & ACCUEIL VISUEL ---
 if 'connecte' not in st.session_state:
     st.session_state.connecte = False
 
-st.sidebar.image(URL_LOGO_DALKIA, width=200)
+st.sidebar.image(URL_LOGO_DALKIA, width=180)
 st.sidebar.title("🔐 Espace Sécurisé")
 
 if not st.session_state.connecte:
-    st.sidebar.info("Veuillez vous authentifier pour accéder au BP 2027.")
+    # Formulaire dans la sidebar
+    st.sidebar.info("Veuillez vous authentifier pour accéder au Portail BP 2027.")
     identifiant = st.sidebar.text_input("Identifiant (ex: vmo ou nhachemi)").lower()
     mdp = st.sidebar.text_input("Mot de passe", type="password")
     
@@ -149,6 +178,45 @@ if not st.session_state.connecte:
             st.rerun()
         else:
             st.sidebar.error("❌ Identifiants incorrects.")
+            
+    # --- PAGE D'ACCUEIL INSTITUTIONNELLE DANS LA ZONE CENTRALE (NON VIDE) ---
+    st.markdown("""
+        <div class="hero-card">
+            <h1 style='color: white; margin-bottom: 10px;'>⚡ Portail Budget Participatif 2027</h1>
+            <h3 style='color: #F0F0F0; font-weight: 300; margin-top: 0;'>Plateforme d'Arbitrage & Saisie des CAPAs – Dalkia Groupe EDF</h3>
+            <p style='font-size: 16px; opacity: 0.9; margin-top: 15px;'>
+                Bienvenue sur l'outil centralisé de valorisation des capabilités et de suivi budgétaire. 
+                Veuillez utiliser le panneau d'authentification à gauche pour accéder à votre espace personnalisé.
+            </p>
+        </div>
+    """, unsafe_allow_html=True)
+    
+    col_acc1, col_acc2, col_acc3 = st.columns(3)
+    
+    with col_acc1:
+        st.markdown("""
+            <div class="info-card">
+                <h3 style='color: #005A9C;'>🎯 Alignement Stratégique</h3>
+                <p>Valorisation des projets autour des axes majeurs de Dalkia : Décarbonation, Performance Opérationnelle, Électrification et Numérique.</p>
+            </div>
+        """, unsafe_allow_html=True)
+        
+    with col_acc2:
+        st.markdown("""
+            <div class="info-card">
+                <h3 style='color: #E5004F;'>📊 Arbitrage & Comex</h3>
+                <p>Vision consolidée pour la VMO, matrice de priorisation instantanée (Quick Wins) et suivi du prévisionnel R2 par rapport aux allocations R0.</p>
+            </div>
+        """, unsafe_allow_html=True)
+        
+    with col_acc3:
+        st.markdown("""
+            <div class="info-card">
+                <h3 style='color: #009688;'>🤖 IA & NLP Embarqués</h3>
+                <p>Détection automatique des doublons sémantiques entre départements et génération de synthèses décisionnelles par Intelligence Artificielle.</p>
+            </div>
+        """, unsafe_allow_html=True)
+        
     st.stop()
 
 # --- 5. NAVIGATION & RÔLES ---
@@ -175,7 +243,6 @@ def obtenir_donnees_visibles():
 
 df_visible = obtenir_donnees_visibles()
 
-# --- GESTION DES MESSAGES DE CONFIRMATION VERT ---
 if 'message_succes' in st.session_state and st.session_state.message_succes:
     st.success(st.session_state.message_succes)
     st.toast(st.session_state.message_succes, icon="✅")
@@ -374,8 +441,6 @@ elif menu in ["⚙️ Gestion des CAPAs", "⚙️ Mes CAPAs (Saisie & Suivi)"]:
                     }])
                     st.session_state.projets = pd.concat([st.session_state.projets, nouvelle_ligne], ignore_index=True)
                     sauvegarder_donnees(st.session_state.projets)
-                    
-                    # Notification de succès en vert
                     st.session_state.message_succes = f"✅ La CAPA '{nom_capa}' a bien été enregistrée (Priorité calculée : {priorite_calculee}) !"
                     st.rerun()
 
@@ -450,8 +515,6 @@ elif menu in ["⚙️ Gestion des CAPAs", "⚙️ Mes CAPAs (Saisie & Suivi)"]:
                     st.session_state.projets.at[idx, 'Dernière_Modification_Date'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                     
                     sauvegarder_donnees(st.session_state.projets)
-                    
-                    # Notification de modification en vert
                     st.session_state.message_succes = f"✅ La CAPA '{capa_a_modifier}' a été mise à jour avec succès !"
                     st.rerun()
 
@@ -463,8 +526,6 @@ elif menu in ["⚙️ Gestion des CAPAs", "⚙️ Mes CAPAs (Saisie & Suivi)"]:
             if st.button("🗑️ Supprimer définitivement cette CAPA"):
                 st.session_state.projets = st.session_state.projets[st.session_state.projets['Nom CAPA'] != capa_a_supprimer]
                 sauvegarder_donnees(st.session_state.projets)
-                
-                # Notification de suppression en vert
                 st.session_state.message_succes = f"✅ La CAPA '{capa_a_supprimer}' a été supprimée de la base."
                 st.rerun()
 
@@ -548,5 +609,5 @@ elif menu in ["🤖 Assistant NLP & Radar", "🤖 Mon Assistant NLP & Radar"]:
                 budget = donnees_capa['Budget R0 BP 2027 (K€)']
                 prio = donnees_capa['Priorité'] if 'Priorité' in donnees_capa else "P2"
                 
-                st.success("✅ Synthèse générée avec succès.")
+                st.success("✅ Synthèse générée me succès.")
                 st.info(f"**Résumé pour Décideurs :**\n\nLe projet **{nom}**, porté par le département **{dept}**, s'inscrit directement dans l'axe stratégique de **{axe}**. Nécessitant un investissement initial de **{budget} K€**, cette initiative est classée en priorité **{prio}** car elle présente un fort score de gain opérationnel ({c_ope}/4) et économique ({c_eco}/4), justifiant un arbitrage favorable rapide.")
