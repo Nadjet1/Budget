@@ -100,7 +100,7 @@ def ajouter_alertes(df):
 if 'projets' not in st.session_state:
     st.session_state.projets = charger_donnees()
 
-# --- 4. ACCUEIL : INTERFACE CONNEXION SAAS ÉLARGIE ---
+# --- 4. ACCUEIL : INTERFACE CONNEXION SAAS ÉLARGIE & HAUTEUR MAXIMALE ---
 if 'connecte' not in st.session_state:
     st.session_state.connecte = False
 
@@ -118,22 +118,23 @@ if not st.session_state.connecte:
             background-color: #F1F5F9 !important; 
         }
         
-        /* Centrage parfait de la carte sur l'écran avec une largeur accrue */
+        /* Centrage parfait de la carte sur l'écran */
         .block-container {
             padding: 0 !important;
             display: flex !important;
             justify-content: center !important;
             align-items: center !important;
             height: 100vh !important;
-            max-width: 1300px !important; /* Carte beaucoup plus large */
+            max-width: 1400px !important; /* Carte encore plus large pour un ratio parfait */
         }
 
-        /* --- LA CARTE FUSIONNÉE --- */
+        /* --- LA CARTE FUSIONNÉE (AJUSTEMENT DE LA HAUTEUR) --- */
         div[data-testid="stHorizontalBlock"] {
             background-color: #FFFFFF !important;
             border-radius: 20px !important;
-            box-shadow: 0 20px 50px -10px rgba(0, 43, 73, 0.25) !important;
-            height: 600px !important; /* Carte plus haute pour compenser la largeur */
+            box-shadow: 0 25px 50px -12px rgba(0, 43, 73, 0.25) !important;
+            height: 88vh !important; /* <-- HAUTEUR AUGMENTÉE POUR SUPPRIMER LE VIDE */
+            min-height: 600px !important;
             width: 100% !important;
             overflow: hidden !important;
             gap: 0 !important;
@@ -158,7 +159,7 @@ if not st.session_state.connecte:
         div[data-testid="stColumn"]:nth-of-type(2) {
             width: 50% !important;
             min-width: 50% !important;
-            padding: 50px 80px !important; /* Espaces intérieurs agrandis */
+            padding: 50px 80px !important;
             display: flex !important;
             flex-direction: column !important;
             justify-content: center !important;
@@ -211,7 +212,7 @@ if not st.session_state.connecte:
     
     col_left, col_right = st.columns([1, 1])
     
-    # GAUCHE : Texte intégré directement sur l'image (Phrase supprimée)
+    # GAUCHE : Texte intégré directement sur l'image
     with col_left:
         st.markdown("""
             <div style="color: white; padding-bottom: 20px;">
