@@ -10,79 +10,79 @@ st.set_page_config(page_title="Portail Budget Participatif Dalkia 2027", layout=
 # --- LOGO OFFICIEL DALKIA GROUPE EDF ---
 URL_LOGO_DALKIA = "logo.png" if os.path.exists("logo.png") else "https://upload.wikimedia.org/wikipedia/commons/6/63/Dalkia_logo_2014.svg"
 
-# --- 1. DESIGN PORTAIL MODERN (STYLE SPLIT LOGIN SCREEN) ---
+# --- 1. DESIGN HIGH-END ULTRA-ATTIRANT (GLASSMORPHISM & 3D VIBE) ---
 st.markdown("""
     <style>
-    /* Cache l'en-tête et footer Streamlit */
+    /* Masquer le header et footer Streamlit */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
 
-    /* Arrière-plan global en dégradé vibrant */
+    /* Fond animé en dégradé profond */
     .stApp {
-        background: linear-gradient(135deg, #003366 0%, #005A9C 40%, #6FA247 100%) !important;
-        padding-top: 20px;
+        background: linear-gradient(125deg, #001F3F 0%, #003366 40%, #005A9C 70%, #4E7A2F 100%) !important;
+        background-size: 300% 300% !important;
+        animation: gradientAnimation 10s ease infinite !important;
     }
 
-    /* Conteneur principal style Split Screen */
-    .main-login-container {
-        background: rgba(255, 255, 255, 0.95);
-        border-radius: 24px;
+    @keyframes gradientAnimation {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    /* Boîte de présentation à gauche */
+    .hero-3d-card {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 28px;
         padding: 40px;
-        box-shadow: 0 25px 50px rgba(0,0,0,0.3);
-        margin: 20px auto;
-        max-width: 1100px;
-    }
-
-    /* Carte de bienvenue visuelle (colonne gauche) */
-    .hero-box-left {
-        background: linear-gradient(135deg, #005A9C 0%, #002B49 100%);
-        border-radius: 20px;
-        padding: 40px 30px;
         color: white;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        box-shadow: inset 0 0 20px rgba(0,0,0,0.2);
+        text-align: center;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
     }
 
-    /* Style du Formulaire (colonne droite) */
+    /* Carte de connexion blanche style Glassmorphism */
     div[data-testid="stForm"] {
-        background: #FFFFFF !important;
-        border-radius: 20px !important;
-        padding: 30px !important;
-        border: 1px solid #E2E8F0 !important;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.05) !important;
+        background: rgba(255, 255, 255, 0.96) !important;
+        backdrop-filter: blur(20px) !important;
+        -webkit-backdrop-filter: blur(20px) !important;
+        border-radius: 28px !important;
+        padding: 40px 35px !important;
+        border: 1px solid rgba(255, 255, 255, 0.8) !important;
+        box-shadow: 0 25px 60px rgba(0, 0, 0, 0.35), 0 0 40px rgba(111, 162, 71, 0.25) !important;
     }
 
-    /* Bouton d'action principal moderne */
+    /* Bouton vibrant étincelant */
     div[data-testid="stFormSubmitButton"] > button, .stButton > button {
-        background: linear-gradient(135deg, #6FA247 0%, #4E7A2F 100%) !important;
+        background: linear-gradient(135deg, #E5004F 0%, #6FA247 100%) !important;
         color: white !important;
         font-weight: 800 !important;
         font-size: 16px !important;
-        border-radius: 25px !important;
+        border-radius: 30px !important;
         border: none !important;
         width: 100%;
-        padding: 12px 20px;
-        transition: all 0.3s ease;
-        box-shadow: 0 6px 18px rgba(111, 162, 71, 0.35);
+        padding: 14px 28px;
+        transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        box-shadow: 0 10px 25px rgba(229, 0, 79, 0.4);
     }
     div[data-testid="stFormSubmitButton"] > button:hover, .stButton > button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 25px rgba(111, 162, 71, 0.5);
+        transform: translateY(-3px) scale(1.02);
+        box-shadow: 0 15px 35px rgba(111, 162, 71, 0.6);
     }
 
-    /* Inputs personnalisés */
+    /* Inputs élégants */
     input {
-        border-radius: 12px !important;
-        border: 1.5px solid #CBD5E1 !important;
-        padding: 10px 14px !important;
+        border-radius: 14px !important;
+        border: 1.5px solid #E2E8F0 !important;
+        padding: 12px 18px !important;
+        font-size: 15px !important;
     }
     input:focus {
         border-color: #6FA247 !important;
-        box-shadow: 0 0 0 3px rgba(111, 162, 71, 0.2) !important;
+        box-shadow: 0 0 12px rgba(111, 162, 71, 0.3) !important;
     }
 
     .cadre-creer {
@@ -188,45 +188,38 @@ def ajouter_alertes(df):
 if 'projets' not in st.session_state:
     st.session_state.projets = charger_donnees()
 
-# --- 4. ACCUEIL ET AUTHENTIFICATION STYLE "SPLIT SAAS PORTAL" ---
+# --- 4. ACCUEIL ET AUTHENTIFICATION STYLE 3D/SAAS MODERN ---
 if 'connecte' not in st.session_state:
     st.session_state.connecte = False
 
 if not st.session_state.connecte:
     st.markdown("""<style>section[data-testid="stSidebar"] {display: none;}</style>""", unsafe_allow_html=True)
     
-    # Structure 2 Colonnes
-    col_left, col_right = st.columns([1.1, 1], gap="medium")
+    st.markdown("<br>", unsafe_allow_html=True)
+    col_left, col_right = st.columns([1.2, 1], gap="large")
     
-    # Colonne Gauche : Visuel & Présentation Dalkia
+    # Visuel 3D et Présentation (Gauche)
     with col_left:
         st.markdown("""
-            <div class="hero-box-left">
-                <h2 style='font-size: 32px; font-weight: 800; margin-bottom: 10px; color: white;'>⚡ Bienvenue !</h2>
-                <h4 style='font-weight: 400; opacity: 0.9; color: #E2E8F0; margin-top: 0;'>Portail d'Arbitrage & Suivi Budgétaire BP 2027</h4>
-                <hr style='border-color: rgba(255,255,255,0.2); margin: 20px 0;'>
-                <p style='font-size: 15px; line-height: 1.6; opacity: 0.85;'>
-                    Plateforme centralisée pour la gouvernance des CAPAs, l'arbitrage VMO et l'évaluation de la valeur stratégique.
-                </p>
-                <div style='margin-top: 25px;'>
-                    <span style='background: rgba(255,255,255,0.15); padding: 8px 16px; border-radius: 20px; font-size: 13px;'>🌿 Éco-conçu</span>
-                    <span style='background: rgba(255,255,255,0.15); padding: 8px 16px; border-radius: 20px; font-size: 13px; margin-left: 8px;'>🔒 Espace Sécurisé</span>
-                </div>
+            <div class="hero-3d-card">
+                <img src="https://cdni.iconscout.com/illustration/premium/thumb/data-analysis-illustration-download-in-svg-png-gif-file-formats--analytics-business-financial-growth-dashboard-pack-illustrations-3310061.png?f=webp" width="75%" style="margin-bottom: 20px;">
+                <h1 style="font-size: 32px; font-weight: 800; margin-bottom: 5px;">⚡ Budget Participatif 2027</h1>
+                <p style="font-size: 16px; opacity: 0.9; margin-top: 0;">Plateforme de Gouvernance & Valorisation des Capabilités – Dalkia Groupe EDF</p>
             </div>
         """, unsafe_allow_html=True)
         
-    # Colonne Droite : Formulaire de connexion
+    # Formulaire de Connexion (Droite)
     with col_right:
-        with st.form("form_login_saas"):
-            st.image(URL_LOGO_DALKIA, width=180)
-            st.markdown("<h3 style='color: #003366; font-weight: 700; margin-top: 10px; margin-bottom: 5px;'>Connexion</h3>", unsafe_allow_html=True)
-            st.markdown("<p style='color: #64748B; font-size: 14px; margin-bottom: 20px;'>Saisissez vos identifiants pour accéder au portail.</p>", unsafe_allow_html=True)
+        with st.form("form_login_modern_3d"):
+            st.image(URL_LOGO_DALKIA, width=200)
+            st.markdown("<h3 style='color: #003366; font-weight: 800; margin-top: 10px; margin-bottom: 5px;'>Bienvenue !</h3>", unsafe_allow_html=True)
+            st.markdown("<p style='color: #64748B; font-size: 14px; margin-bottom: 25px;'>Veuillez vous authentifier pour accéder au portail.</p>", unsafe_allow_html=True)
             
             identifiant = st.text_input("Identifiant", placeholder="ex: vmo ou nhachemi").lower()
             mdp = st.text_input("Mot de passe", type="password", placeholder="••••••••")
             
             st.markdown("<br>", unsafe_allow_html=True)
-            submit_login = st.form_submit_button("Se connecter ➔")
+            submit_login = st.form_submit_button("🚀 Connexion au Portail")
             
             if submit_login:
                 if identifiant in UTILISATEURS and UTILISATEURS[identifiant]["mdp"] == mdp:
