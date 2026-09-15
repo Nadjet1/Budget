@@ -7,17 +7,18 @@ from datetime import datetime
 
 st.set_page_config(page_title="Portail Budget Participatif Dalkia 2027", layout="wide", initial_sidebar_state="expanded")
 
-# --- LOGO OFFICIEL DALKIA GROUPE EDF ---
+# --- LOGOS ET IMAGES INSTITUTIONNELLES ---
 URL_LOGO_DALKIA = "logo.png" if os.path.exists("logo.png") else "https://upload.wikimedia.org/wikipedia/commons/6/63/Dalkia_logo_2014.svg"
+IMAGE_TOUR_DALKIA = "bg_dalkia.jpg" if os.path.exists("bg_dalkia.jpg") else "https://raw.githubusercontent.com/streamlit/dalkia-assets/main/bg_dalkia.jpg"
 
-# --- 1. DESIGN SPLIT-SCREEN FULLSCREEN (CSS) ---
+# --- 1. DESIGN SPLIT-SCREEN IMMERSIF (STYLE BROCHURE DALKIA) ---
 st.markdown("""
     <style>
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
 
-    /* Page fixe sans scroll au login */
+    /* Page fixe sans scroll au moment du login */
     html, body, [data-testid="stAppViewContainer"] {
         overflow: hidden !important;
         height: 100vh !important;
@@ -38,32 +39,31 @@ st.markdown("""
         margin: auto !important;
     }
 
-    /* Conteneur gauche vectoriel */
-    .dalkia-pro-card {
-        background: #FFFFFF;
-        border-radius: 24px;
-        padding: 40px 30px;
-        border: 2px solid #E2E8F0;
-        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.04);
+    /* Carte de gauche avec image de fond style couverture rapport annuel */
+    .dalkia-cover-card {
+        background: linear-gradient(180deg, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.2) 50%, rgba(0, 0, 0, 0.75) 100%), 
+                    url('https://raw.githubusercontent.com/streamlit/dalkia-assets/main/bg_dalkia.jpg') center / cover no-repeat;
+        border-radius: 20px;
+        padding: 30px;
         height: 100%;
+        min-height: 480px;
         display: flex;
         flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        position: relative;
-        overflow: hidden;
+        justify-content: space-between;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        color: white;
     }
 
-    /* Cadre de connexion à droite */
+    /* Formulaire droit style Glassmorphism sobre */
     div[data-testid="stForm"] {
         background: #FFFFFF !important;
-        border-radius: 24px !important;
+        border-radius: 20px !important;
         padding: 35px 30px !important;
         border: 2px solid #D1E7B6 !important;
         box-shadow: 0 12px 35px rgba(111, 162, 71, 0.12) !important;
     }
 
-    /* Bouton vert Dalkia */
+    /* Bouton vert clair Dalkia */
     div[data-testid="stFormSubmitButton"] > button, .stButton > button {
         background: linear-gradient(135deg, #6FA247 0%, #4E7A2F 100%) !important;
         color: white !important;
@@ -190,51 +190,45 @@ def ajouter_alertes(df):
 if 'projets' not in st.session_state:
     st.session_state.projets = charger_donnees()
 
-# --- 4. ACCUEIL : DESIGN VECTORIEL INSTITUTIONNEL A GAUCHE, FORMULAIRE A DROITE ---
+# --- 4. ACCUEIL : PHOTO INSTITUTIONNELLE A GAUCHE, CONNEXION A DROITE ---
 if 'connecte' not in st.session_state:
     st.session_state.connecte = False
 
 if not st.session_state.connecte:
     st.markdown("""<style>section[data-testid="stSidebar"] {display: none;}</style>""", unsafe_allow_html=True)
     
-    col_left, col_right = st.columns([1.2, 1], gap="large")
+    col_left, col_right = st.columns([1.1, 1], gap="large")
     
-    # GAUCHE : Composition institutionnelle en SVG vectoriel natif (Zéro image externe)
+    # GAUCHE : Reproduction exacte du visuel de couverture avec la tour Dalkia
     with col_left:
-        svg_code = f"""
-        <div class="dalkia-pro-card">
-            <svg width="100%" height="220" viewBox="0 0 500 220" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <!-- Motif géométrique de fond aux couleurs Dalkia -->
-                <circle cx="250" cy="110" r="100" fill="#6FA247" fill-opacity="0.08" />
-                <circle cx="250" cy="110" r="70" fill="#005A9C" fill-opacity="0.08" />
-                <path d="M180 140 L250 60 L320 140 Z" fill="#FF6B00" fill-opacity="0.15" />
+        st.markdown(f"""
+            <div class="dalkia-cover-card">
+                <div>
+                    <span style="border-left: 3px solid #6FA247; padding-left: 8px; font-size: 11px; font-weight: 800; letter-spacing: 1px; color: #FFFFFF; text-transform: uppercase;">
+                        STRATÉGIE GROUPE EDF
+                    </span>
+                </div>
                 
-                <!-- Fleur Dalkia stylisée vectorielle -->
-                <g transform="translate(210, 30) scale(0.7)">
-                    <ellipse cx="40" cy="20" rx="18" ry="8" fill="#FF6B00" transform="rotate(-15 40 20)" />
-                    <ellipse cx="60" cy="35" rx="18" ry="8" fill="#FF6B00" transform="rotate(45 60 35)" />
-                    <ellipse cx="55" cy="60" rx="18" ry="8" fill="#FF6B00" transform="rotate(105 55 60)" />
-                    <ellipse cx="30" cy="65" rx="18" ry="8" fill="#FF6B00" transform="rotate(165 30 65)" />
-                    <ellipse cx="15" cy="45" rx="18" ry="8" fill="#FF6B00" transform="rotate(225 15 45)" />
-                </g>
-                
-                <!-- Titre institutionnel vectoriel -->
-                <text x="250" y="145" text-anchor="middle" fill="#6FA247" font-size="26" font-weight="900" font-family="Arial, sans-serif">BUDGET PARTICIPATIF</text>
-                <text x="250" y="185" text-anchor="middle" fill="#002B49" font-size="34" font-weight="900" font-family="Arial, sans-serif">2027</text>
-            </svg>
-            <div style="text-align: center; margin-top: 10px; color: #555555; font-size: 14px; font-weight: 600;">
-                Gouvernance & Valorisation des Capabilités – Dalkia Groupe EDF
+                <div style="margin-top: 180px;">
+                    <div style="font-size: 38px; font-weight: 900; letter-spacing: -1px; line-height: 1; color: white;">
+                        dalkia
+                    </div>
+                    <div style="font-size: 13px; font-weight: 700; letter-spacing: 2px; color: #E2E8F0; margin-bottom: 20px;">
+                        GROUPE <b>edf</b>
+                    </div>
+                    <p style="font-size: 13px; opacity: 0.9; margin: 0; line-height: 1.4; max-width: 90%;">
+                        Accompagner la transition énergétique et numérique à travers nos territoires.
+                    </p>
+                </div>
             </div>
-        </div>
-        """
-        st.components.v1.html(svg_code, height=400)
+        """, unsafe_allow_html=True)
 
     # DROITE : Formulaire de connexion
     with col_right:
-        with st.form("form_login_pro"):
+        with st.form("form_login_photo"):
             st.image(URL_LOGO_DALKIA, width=170)
-            st.markdown("<h3 style='color: #6FA247; font-weight: 700; margin-top: 15px; margin-bottom: 2px;'>Authentification</h3>", unsafe_allow_html=True)
-            st.markdown("<p style='color: #666; font-size: 13px; margin-bottom: 20px;'>Accès sécurisé au portail d'arbitrage</p>", unsafe_allow_html=True)
+            st.markdown("<h3 style='color: #6FA247; font-weight: 700; margin-top: 15px; margin-bottom: 2px;'>Budget Participatif 2027</h3>", unsafe_allow_html=True)
+            st.markdown("<p style='color: #666; font-size: 13px; margin-bottom: 20px;'>Accès au portail de gestion & arbitrage des CAPAs</p>", unsafe_allow_html=True)
             
             identifiant = st.text_input("Identifiant", placeholder="ex: vmo ou nhachemi").lower()
             mdp = st.text_input("Mot de passe", type="password", placeholder="••••••••")
