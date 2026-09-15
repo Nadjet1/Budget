@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+import plotly.graph_objects as go
 import os
 import io
 from datetime import datetime
@@ -10,15 +11,14 @@ st.set_page_config(page_title="Portail Budget Participatif Dalkia 2027", layout=
 # --- LOGO OFFICIEL DALKIA GROUPE EDF ---
 URL_LOGO_DALKIA = "logo.png" if os.path.exists("logo.png") else "https://upload.wikimedia.org/wikipedia/commons/6/63/Dalkia_logo_2014.svg"
 
-# --- 1. DESIGN SCHÉMATIQUE & VISUEL (CSS & GEOMETRIC STYLE) ---
+# --- 1. DESIGN SPLIT SCREEN FULLSCREEN ---
 st.markdown("""
     <style>
-    /* Masquer le menu natif Streamlit */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
 
-    /* Désactiver le scroll sur la page de login */
+    /* Fullscreen sans scroll */
     html, body, [data-testid="stAppViewContainer"] {
         overflow: hidden !important;
         height: 100vh !important;
@@ -27,7 +27,7 @@ st.markdown("""
     }
 
     .stApp {
-        background-color: #F3F8EC !important;
+        background-color: #F8FAF6 !important;
     }
 
     .block-container {
@@ -35,43 +35,14 @@ st.markdown("""
         padding-bottom: 0rem !important;
         padding-left: 2rem !important;
         padding-right: 2rem !important;
-        max-width: 1200px !important;
+        max-width: 1250px !important;
         margin: auto !important;
     }
 
-    /* Schéma graphique géométrique Dalkia à gauche */
-    .graphic-box-left {
-        background: radial-gradient(circle at 30% 30%, #FFF 0%, #E8F3D8 100%);
-        border: 2px solid #D1E7B6;
-        border-radius: 24px;
-        padding: 20px;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        position: relative;
-        overflow: hidden;
-        box-shadow: 0 10px 30px rgba(136, 196, 37, 0.12);
-    }
-
-    /* Badge géométrique central (Orange/Vert Dalkia) */
-    .badge-dalkia-3d {
-        background: linear-gradient(135deg, #FF6B00 0%, #E5004F 50%, #88C425 100%);
-        color: white;
-        padding: 40px 35px;
-        border-radius: 35px;
-        text-align: center;
-        font-weight: 900;
-        box-shadow: 0 15px 35px rgba(239, 108, 0, 0.3);
-        transform: rotate(-2deg);
-        z-index: 2;
-    }
-
-    /* Formulaire de connexion à droite */
+    /* Cadre de connexion à droite */
     div[data-testid="stForm"] {
         background: #FFFFFF !important;
-        border-radius: 24px !important;
+        border-radius: 20px !important;
         padding: 35px 30px !important;
         border: 2px solid #D1E7B6 !important;
         box-shadow: 0 12px 35px rgba(136, 196, 37, 0.15) !important;
@@ -204,33 +175,38 @@ def ajouter_alertes(df):
 if 'projets' not in st.session_state:
     st.session_state.projets = charger_donnees()
 
-# --- 4. ACCUEIL SCHÉMATIQUE A GAUCHE & FORMULAIRE A DROITE ---
+# --- 4. ACCUEIL : SCHÉMA GRAPHIQUE A GAUCHE, CONNEXION A DROITE ---
 if 'connecte' not in st.session_state:
     st.session_state.connecte = False
 
 if not st.session_state.connecte:
     st.markdown("""<style>section[data-testid="stSidebar"] {display: none;}</style>""", unsafe_allow_html=True)
     
-    col_left, col_right = st.columns([1.2, 1], gap="large")
+    col_left, col_right = st.columns([1.3, 1], gap="large")
     
-    # GAUCHE : Schéma visuel géométrique (Inspiré de l'image de référence)
+    # GAUCHE : Schéma d'Infographie Interactif (Visual Only)
     with col_left:
-        st.markdown("""
-            <div class="graphic-box-left">
-                <div class="badge-dalkia-3d">
-                    <span style="font-size: 18px; opacity: 0.9; font-weight: 500; display: block;">PORTEFEUILLE CAPA</span>
-                    <span style="font-size: 38px; display: block; margin: 5px 0;">BP 2027</span>
-                    <span style="font-size: 16px; opacity: 0.9; font-weight: 500; display: block;">DALKIA GROUPE EDF</span>
-                </div>
-            </div>
-        """, unsafe_allow_html=True)
+        # Création d'un graphique Sunburst / Donut dynamique "style bilan d'images"
+        fig_schema = go.Figure(go.Sunburst(
+            labels=["BP 2027", "Décarbonation", "Numérique", "Performance", "Électrification", "CAPA Infra", "CAPA Data", "Cybersécurité", "Process H2"],
+            parents=["", "BP 2027", "BP 2027", "BP 2027", "BP 2027", "Numérique", "Numérique", "Numérique", "Décarbonation"],
+            values=[100, 35, 30, 20, 15, 12, 10, 8, 35],
+            marker=dict(colors=['#FF6B00', '#6FA247', '#005A9C', '#E5004F', '#88C425', '#002B49', '#009688', '#B3003D', '#4E7A2F'])
+        ))
+        fig_schema.update_layout(
+            margin=dict(t=10, l=10, r=10, b=10),
+            height=380,
+            paper_bgcolor='rgba(0,0,0,0)',
+            plot_bgcolor='rgba(0,0,0,0)'
+        )
+        st.plotly_chart(fig_schema, use_container_width=True, config={'displayModeBar': False})
         
-    # DROITE : Formulaire de connexion
+    # DROITE : Cadre de connexion
     with col_right:
-        with st.form("form_login_schema"):
+        with st.form("form_login_infographie"):
             st.image(URL_LOGO_DALKIA, width=170)
-            st.markdown("<h3 style='color: #61A814; font-weight: 700; margin-top: 15px; margin-bottom: 5px;'>Authentification</h3>", unsafe_allow_html=True)
-            st.markdown("<p style='color: #666; font-size: 13px; margin-bottom: 20px;'>Accès sécurisé au portail d'arbitrage.</p>", unsafe_allow_html=True)
+            st.markdown("<h3 style='color: #61A814; font-weight: 700; margin-top: 10px; margin-bottom: 2px;'>Budget Participatif 2027</h3>", unsafe_allow_html=True)
+            st.markdown("<p style='color: #666; font-size: 13px; margin-bottom: 20px;'>Espace d'Arbitrage & Suivi des CAPAs</p>", unsafe_allow_html=True)
             
             identifiant = st.text_input("Identifiant", placeholder="ex: vmo ou nhachemi").lower()
             mdp = st.text_input("Mot de passe", type="password", placeholder="••••••••")
@@ -249,7 +225,7 @@ if not st.session_state.connecte:
 
     st.stop()
 
-# --- 5. NAVIGATION & RÔLES CONNECTÉS (RÉTABLISSEMENT DU SCROLL NORMAL) ---
+# --- 5. NAVIGATION & RÔLES CONNECTÉS (RETOUR DU SCROLL NORMAL) ---
 st.markdown("""
     <style>
     html, body, [data-testid="stAppViewContainer"] {
