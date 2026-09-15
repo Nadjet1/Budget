@@ -100,73 +100,71 @@ def ajouter_alertes(df):
 if 'projets' not in st.session_state:
     st.session_state.projets = charger_donnees()
 
-# --- 4. ACCUEIL : INTERFACE CONNEXION SAAS ---
+# --- 4. ACCUEIL : INTERFACE CONNEXION SAAS CORRIGÉE ---
 if 'connecte' not in st.session_state:
     st.session_state.connecte = False
 
 if not st.session_state.connecte:
-    # CSS SPÉCIFIQUE À LA PAGE DE LOGIN
     st.markdown("""
         <style>
-        /* Nettoyage de l'interface Streamlit */
+        /* Nettoyage total de l'interface */
         #MainMenu {visibility: hidden;}
         footer {visibility: hidden;}
         header {visibility: hidden;}
         section[data-testid="stSidebar"] {display: none;}
 
-        /* Page globale : fond gris-bleu clair ultra moderne */
+        /* Fond de la page */
         .stApp {
             background-color: #F1F5F9 !important; 
         }
         
-        /* Conteneur principal : Flexbox pour centrer parfaitement la carte */
+        /* Centrage parfait de la carte sur l'écran */
         .block-container {
             padding: 0 !important;
             display: flex !important;
             justify-content: center !important;
             align-items: center !important;
             height: 100vh !important;
-            max-width: 100% !important;
+            max-width: 1000px !important;
         }
 
         /* --- LA CARTE FUSIONNÉE --- */
         div[data-testid="stHorizontalBlock"] {
             background-color: #FFFFFF !important;
             border-radius: 20px !important;
-            box-shadow: 0 25px 50px -12px rgba(0, 43, 73, 0.25) !important;
-            width: 950px !important;
-            max-width: 95vw !important;
+            box-shadow: 0 20px 50px -10px rgba(0, 43, 73, 0.25) !important;
             height: 550px !important;
-            overflow: hidden !important; /* Coupe l'image selon les bords arrondis */
-            gap: 0 !important; /* Zéro espace entre l'image et le formulaire */
+            overflow: hidden !important;
+            gap: 0 !important; /* Retire l'espace blanc au milieu */
             margin: auto !important;
+            align-items: stretch !important;
         }
 
-        /* Colonne de gauche (Image + Texte intégré) */
-        div[data-testid="column"]:nth-child(1) {
-            background: linear-gradient(135deg, rgba(0,43,73,0.85) 0%, rgba(0,43,73,0.3) 100%), url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1200&auto=format&fit=crop');
-            background-size: cover;
-            background-position: center;
+        /* Moitié Gauche : Image et Texte (Sélecteur corrigé pour Streamlit) */
+        div[data-testid="stColumn"]:nth-of-type(1) {
+            background: linear-gradient(135deg, rgba(0,43,73,0.85) 0%, rgba(0,43,73,0.2) 100%), url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1200&auto=format&fit=crop');
+            background-size: cover !important;
+            background-position: center !important;
             width: 50% !important;
             min-width: 50% !important;
-            padding: 40px !important;
+            padding: 60px 40px !important;
             display: flex !important;
             flex-direction: column !important;
             justify-content: center !important;
-            align-items: flex-start !important;
         }
 
-        /* Colonne de droite (Formulaire) */
-        div[data-testid="column"]:nth-child(2) {
+        /* Moitié Droite : Formulaire */
+        div[data-testid="stColumn"]:nth-of-type(2) {
             width: 50% !important;
             min-width: 50% !important;
             padding: 50px 60px !important;
             display: flex !important;
             flex-direction: column !important;
             justify-content: center !important;
+            background-color: #FFFFFF !important;
         }
 
-        /* Retrait total des styles natifs du formulaire Streamlit */
+        /* Retire les bordures natives du formulaire Streamlit */
         div[data-testid="stForm"] {
             border: none !important;
             padding: 0 !important;
@@ -174,7 +172,7 @@ if not st.session_state.connecte:
             background: transparent !important;
         }
 
-        /* Inputs élégants */
+        /* Champs de saisie élégants */
         input {
             border-radius: 8px !important;
             border: 1px solid #CBD5E1 !important;
@@ -189,7 +187,7 @@ if not st.session_state.connecte:
             box-shadow: 0 0 0 2px rgba(111, 162, 71, 0.2) !important;
         }
 
-        /* Bouton principal */
+        /* Bouton de connexion */
         div[data-testid="stFormSubmitButton"] > button {
             background: #6FA247 !important;
             color: white !important;
@@ -210,26 +208,28 @@ if not st.session_state.connecte:
         </style>
     """, unsafe_allow_html=True)
     
-    # LA CARTE SPLIT (Les 2 colonnes s'intègrent dans le CSS stHorizontalBlock défini ci-dessus)
     col_left, col_right = st.columns([1, 1])
     
-    # GAUCHE : Texte intégré directement sur l'image
+    # GAUCHE : On utilise des balises <div> pour empêcher l'apparition de l'icône lien (🔗)
     with col_left:
         st.markdown("""
-            <div style="color: white; width: 100%;">
-                <h1 style="font-size: 40px; font-weight: 900; margin: 0; line-height: 1.1; letter-spacing: 0.5px; font-family: Arial, sans-serif;">BUDGET</h1>
-                <h1 style="font-size: 40px; font-weight: 900; margin: 0; line-height: 1.1; letter-spacing: 0.5px; font-family: Arial, sans-serif;">PARTICIPATIF</h1>
-                <h2 style="font-size: 50px; color: #88C425; font-weight: 900; margin: 10px 0 0 0; font-family: Arial, sans-serif;">2027</h2>
-                <div style="width: 40px; height: 4px; background-color: #88C425; margin: 25px 0;"></div>
-                <p style="font-size: 16px; font-weight: 300; opacity: 0.9; margin: 0;">Gouvernance, valorisation et arbitrage stratégique des capacités (CAPA).</p>
+            <div style="color: white; padding-bottom: 20px;">
+                <div style="font-size: 38px; font-weight: 900; margin: 0; line-height: 1.1; font-family: Arial, sans-serif;">BUDGET</div>
+                <div style="font-size: 38px; font-weight: 900; margin: 0; line-height: 1.1; font-family: Arial, sans-serif;">PARTICIPATIF</div>
+                <div style="font-size: 52px; color: #88C425; font-weight: 900; margin: 5px 0 0 0; font-family: Arial, sans-serif;">2027</div>
+                <div style="width: 45px; height: 5px; background-color: #88C425; margin: 25px 0; border-radius: 3px;"></div>
+                <div style="font-size: 15px; font-weight: 300; opacity: 0.95; margin: 0; line-height: 1.5; font-family: Arial, sans-serif;">
+                    Portail de Gouvernance, valorisation et arbitrage stratégique des capacités (CAPA).
+                </div>
             </div>
         """, unsafe_allow_html=True)
 
     # DROITE : Formulaire propre
     with col_right:
         st.image(URL_LOGO_DALKIA, width=150)
-        st.markdown("<h3 style='color: #002B49; font-weight: 800; margin-top: 25px; margin-bottom: 5px; font-size: 26px;'>Bienvenue 👋</h3>", unsafe_allow_html=True)
-        st.markdown("<p style='color: #64748B; font-size: 14px; margin-bottom: 25px;'>Veuillez saisir vos identifiants pour continuer.</p>", unsafe_allow_html=True)
+        # On remplace <h3> par <div> pour enlever l'icône (🔗)
+        st.markdown("<div style='color: #002B49; font-weight: 800; font-size: 26px; margin-top: 25px; margin-bottom: 5px; font-family: Arial, sans-serif;'>Bienvenue 👋</div>", unsafe_allow_html=True)
+        st.markdown("<div style='color: #64748B; font-size: 14px; margin-bottom: 25px; font-family: Arial, sans-serif;'>Veuillez saisir vos identifiants pour continuer.</div>", unsafe_allow_html=True)
         
         with st.form("form_login_pro"):
             identifiant = st.text_input("Identifiant", placeholder="ex: vmo ou nhachemi").lower()
@@ -247,10 +247,10 @@ if not st.session_state.connecte:
 
     st.stop()
 
-# --- 5. NAVIGATION & RÔLES CONNECTÉS (CSS NORMAL RÉTABLI) ---
+# --- 5. NAVIGATION & RÔLES CONNECTÉS (RÉTABLISSEMENT DU CSS NORMAL APRÈS CONNEXION) ---
 st.markdown("""
     <style>
-    /* Rétablissement du scroll et des marges pour l'application une fois connecté */
+    /* Rétablit le comportement normal de défilement de la plateforme une fois connecté */
     html, body, [data-testid="stAppViewContainer"], .main {
         overflow: auto !important;
         height: auto !important;
@@ -268,7 +268,7 @@ st.markdown("""
         height: auto !important;
         display: block !important;
     }
-    /* Restauration de la grille Streamlit standard (annulation du mode carte) */
+    /* Restauration de la grille Streamlit standard pour le contenu */
     div[data-testid="stHorizontalBlock"] {
         background-color: transparent !important;
         border-radius: 0 !important;
@@ -279,7 +279,7 @@ st.markdown("""
         overflow: visible !important;
         gap: 1rem !important;
     }
-    div[data-testid="column"]:nth-child(1), div[data-testid="column"]:nth-child(2) {
+    div[data-testid="stColumn"]:nth-of-type(1), div[data-testid="stColumn"]:nth-of-type(2) {
         background: none !important;
         width: auto !important;
         padding: 0 !important;
