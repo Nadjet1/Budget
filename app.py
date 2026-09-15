@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+import plotly.graph_objects as go
 import os
 import io
 from datetime import datetime
@@ -10,63 +11,51 @@ st.set_page_config(page_title="Portail Budget Participatif Dalkia 2027", layout=
 # --- LOGO OFFICIEL DALKIA GROUPE EDF ---
 URL_LOGO_DALKIA = "logo.png" if os.path.exists("logo.png") else "https://upload.wikimedia.org/wikipedia/commons/6/63/Dalkia_logo_2014.svg"
 
-# --- 1. DESIGN ÉCO-CONÇU & CHARTE VERTE DALKIA (CSS CUSTOM) ---
+# --- 1. DESIGN MODERNE, DYNAMIQUE & ÉPURÉ (CSS ADVANCED) ---
 st.markdown("""
     <style>
-    /* Masquer l'en-tête Streamlit par défaut */
+    /* Masquer l'en-tête et footer par défaut Streamlit */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
     
-    /* Arrière-plan général écru / sobrieté numérique */
+    /* Fond épuré */
     .stApp {
-        background-color: #F8F7EE !important;
+        background-color: #F8F9FA !important;
     }
     
-    /* Sidebar style Dalkia Eco */
+    /* Sidebar moderne */
     section[data-testid="stSidebar"] {
-        background-color: #F0EFE3 !important;
-        border-right: 1px solid #E2E1D0;
+        background-color: #FFFFFF !important;
+        border-right: 1px solid #E9ECEF;
     }
     
-    /* Bouton vert éco-conçu Dalkia */
+    /* Bouton principal Dalkia */
     div[data-testid="stFormSubmitButton"] > button, .stButton > button {
         background-color: #6FA247 !important;
         color: white !important;
-        font-weight: 600 !important;
+        font-weight: bold !important;
         font-size: 15px !important;
-        border-radius: 6px !important;
+        border-radius: 8px !important;
         border: none !important;
         width: 100%;
-        padding: 10px 20px;
+        padding: 12px 20px;
         transition: all 0.3s ease;
+        box-shadow: 0 4px 10px rgba(111, 162, 71, 0.2);
     }
     div[data-testid="stFormSubmitButton"] > button:hover, .stButton > button:hover {
         background-color: #5B8839 !important;
-        transform: translateY(-1px);
+        transform: translateY(-2px);
     }
     
-    /* En-tête vert façon dalkia.com */
-    .header-dalkia-eco {
-        background-color: #6FA247;
+    /* Hero Banner épurée */
+    .hero-banner-clean {
+        background: linear-gradient(135deg, #005A9C 0%, #002B49 100%);
+        border-radius: 12px;
+        padding: 25px 35px;
         color: white;
-        padding: 20px 30px;
-        border-radius: 10px;
         margin-bottom: 25px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        box-shadow: 0 4px 10px rgba(111, 162, 71, 0.15);
-    }
-    
-    /* Cartes visuelles de présentation */
-    .card-eco {
-        background: #FFFFFF;
-        border: 1px solid #E5E4D4;
-        border-radius: 8px;
-        padding: 20px;
-        text-align: center;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+        box-shadow: 0 8px 20px rgba(0, 90, 156, 0.15);
     }
     
     .cadre-creer {
@@ -172,18 +161,18 @@ def ajouter_alertes(df):
 if 'projets' not in st.session_state:
     st.session_state.projets = charger_donnees()
 
-# --- 4. AUTHENTIFICATION SÉCURISÉE & ACCUEIL INTERFACE ÉCO-DESIGN ---
+# --- 4. AUTHENTIFICATION SÉCURISÉE & ACCUEIL DYNAMIQUE ---
 if 'connecte' not in st.session_state:
     st.session_state.connecte = False
 
 st.sidebar.image(URL_LOGO_DALKIA, width=170)
-st.sidebar.markdown("<p style='text-align: center; color: #6FA247; font-weight: bold;'>🌿 Portail Éco-Conçu</p>", unsafe_allow_html=True)
+st.sidebar.markdown("<h3 style='text-align:center; color:#005A9C; margin-top:10px;'>Authentification</h3>", unsafe_allow_html=True)
 
 if not st.session_state.connecte:
     identifiant = st.sidebar.text_input("Identifiant (ex: vmo ou nhachemi)").lower()
     mdp = st.sidebar.text_input("Mot de passe", type="password")
     
-    if st.sidebar.button("Se connecter"):
+    if st.sidebar.button("🔐 Se connecter"):
         if identifiant in UTILISATEURS and UTILISATEURS[identifiant]["mdp"] == mdp:
             st.session_state.connecte = True
             st.session_state.utilisateur = UTILISATEURS[identifiant]["nom"]
@@ -192,47 +181,50 @@ if not st.session_state.connecte:
         else:
             st.sidebar.error("❌ Identifiants incorrects.")
             
-    # --- PAGE D'ACCUEIL STYLE DALKIA.COM (VERT & ÉCRU VISUEL) ---
+    # --- VUE CENTRALE : BANNIÈRE + GRAPHIQUES DYNAMIQUES INTERACTIFS ---
     st.markdown("""
-        <div class="header-dalkia-eco">
-            <div>
-                <h2 style='margin:0;'>🌱 Budget Participatif 2027</h2>
-                <span style='opacity:0.9;'>Portail de Gouvernance & Valorisation des Capabilités – Dalkia Groupe EDF</span>
-            </div>
-            <div style='background-color: white; color: #6FA247; padding: 6px 12px; border-radius: 20px; font-weight: bold; font-size: 13px;'>
-                🌱 Website consumes less ↘
-            </div>
+        <div class="hero-banner-clean">
+            <h1 style='margin:0; font-size:28px;'>⚡ Budget Participatif 2027</h1>
+            <p style='margin:5px 0 0 0; opacity:0.85; font-size:15px;'>Portail d'Arbitrage et Valorisation des CAPAs – Dalkia Groupe EDF</p>
         </div>
     """, unsafe_allow_html=True)
     
-    # Blocs d'Indicateurs Visuels Épurés
-    m1, m2, m3, m4 = st.columns(4)
-    with m1:
-        st.markdown("<div class='card-eco'><h5 style='color:#666;margin:0;'>Exercice</h5><h2 style='color:#6FA247;margin:5px 0;'>BP 2027</h2></div>", unsafe_allow_html=True)
-    with m2:
-        st.markdown("<div class='card-eco'><h5 style='color:#666;margin:0;'>Axe Majeur</h5><h2 style='color:#005A9C;margin:5px 0;'>Décarbonation</h2></div>", unsafe_allow_html=True)
-    with m3:
-        st.markdown("<div class='card-eco'><h5 style='color:#666;margin:0;'>Gouvernance</h5><h2 style='color:#E5004F;margin:5px 0;'>VMO / Comex</h2></div>", unsafe_allow_html=True)
-    with m4:
-        st.markdown("<div class='card-eco'><h5 style='color:#666;margin:0;'>Intelligence</h5><h2 style='color:#009688;margin:5px 0;'>NLP & Radar</h2></div>", unsafe_allow_html=True)
-
-    st.markdown("<br>", unsafe_allow_html=True)
-    
-    # Visualisations Graphiques avec la palette éco Dalkia
     if not st.session_state.projets.empty:
-        g_col1, g_col2 = st.columns(2)
-        with g_col1:
-            fig_eco1 = px.pie(st.session_state.projets, names='Axe Stratégique', title="🌱 Répartition des CAPAs par Axe Stratégique", hole=0.4, color_discrete_sequence=['#6FA247', '#005A9C', '#E5004F', '#009688'])
-            fig_eco1.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)')
-            st.plotly_chart(fig_eco1, use_container_width=True)
-        with g_col2:
-            fig_eco2 = px.bar(st.session_state.projets, x='Département', y='Budget R0 BP 2027 (K€)', title="📊 Allocation Budgétaire R0 par Département (K€)", color_discrete_sequence=['#6FA247'])
-            fig_eco2.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)')
-            st.plotly_chart(fig_eco2, use_container_width=True)
+        # Métriques dynamiques en haut (en grand)
+        col_m1, col_m2, col_m3 = st.columns(3)
+        total_b = pd.to_numeric(st.session_state.projets['Budget R0 BP 2027 (K€)'], errors='coerce').sum()
+        nb_capas = len(st.session_state.projets)
+        nb_depts = st.session_state.projets['Département'].nunique()
+        
+        col_m1.metric("💰 Portefeuille Total", f"{total_b:,.0f} K€")
+        col_m2.metric("📋 Demandes CAPA", f"{nb_capas} projets")
+        col_m3.metric("🏢 Départements", f"{nb_depts} enregistrés")
+        
+        st.markdown("<br>", unsafe_allow_html=True)
+        
+        # 2 GRAPHIQUES INTERACTIFS DYNAMIQUES
+        c_g1, c_g2 = st.columns(2)
+        with c_g1:
+            fig1 = px.pie(
+                st.session_state.projets, names='Axe Stratégique', values='Budget R0 BP 2027 (K€)',
+                title="🎯 Ventilation Budgétaire par Axe Stratégique", hole=0.45,
+                color_discrete_sequence=['#6FA247', '#005A9C', '#E5004F', '#009688', '#FF9800']
+            )
+            fig1.update_layout(margin=dict(t=40, b=10, l=10, r=10))
+            st.plotly_chart(fig1, use_container_width=True)
+            
+        with c_g2:
+            fig2 = px.bar(
+                st.session_state.projets, x='Département', y='Budget R0 BP 2027 (K€)', color='Priorité',
+                title="📊 Répartition par Département & Priorité",
+                color_discrete_sequence=['#6FA247', '#005A9C', '#E5004F']
+            )
+            fig2.update_layout(margin=dict(t=40, b=10, l=10, r=10))
+            st.plotly_chart(fig2, use_container_width=True)
 
     st.stop()
 
-# --- 5. NAVIGATION & RÔLES ---
+# --- 5. NAVIGATION & RÔLES CONNECTÉS ---
 st.sidebar.success(f"Connecté : {st.session_state.utilisateur}\n\nProfil : {st.session_state.profil}")
 if st.sidebar.button("Se déconnecter"):
     st.session_state.connecte = False
@@ -304,12 +296,10 @@ if menu == "📊 Tableau de bord BP 2027":
         with g1:
             if 'Département' in df_visible.columns and col_r0 in df_visible.columns:
                 fig_bar = px.bar(df_visible, x='Département', y=col_r0, color='Axe Stratégique', title="📊 Budget R0 par Département & Axe Stratégique", color_discrete_sequence=['#6FA247', '#005A9C', '#E5004F', '#009688'])
-                fig_bar.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)')
                 st.plotly_chart(fig_bar, use_container_width=True)
         with g2:
             if 'Priorité' in df_visible.columns and col_r0 in df_visible.columns:
                 fig_pie = px.pie(df_visible, names='Priorité', values=col_r0, title="🍩 Répartition par Priorité Calculée", hole=0.3, color_discrete_sequence=['#6FA247', '#005A9C', '#E5004F'])
-                fig_pie.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)')
                 st.plotly_chart(fig_pie, use_container_width=True)
             
         st.markdown("### 🎯 Matrice de Priorisation (Identification des Quick Wins)")
@@ -319,7 +309,6 @@ if menu == "📊 Tableau de bord BP 2027":
             df_quick, x=col_r0, y='Score Valeur (Gains)', color='Priorité' if 'Priorité' in df_quick.columns else None, 
             hover_name='Nom CAPA' if 'Nom CAPA' in df_quick.columns else None, size_max=60, title="Matrice Valeur vs Coût : Les projets 'Quick Wins' se trouvent en haut à gauche."
         )
-        fig_scatter.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)')
         st.plotly_chart(fig_scatter, use_container_width=True)
         st.markdown("---")
     
@@ -598,7 +587,6 @@ elif menu in ["🤖 Assistant NLP & Radar", "🤖 Mon Assistant NLP & Radar"]:
                 theta=['Conformité', 'Image', 'Gain Opé.', 'Gain Éco.']))
             fig = px.line_polar(df_radar, r='r', theta='theta', line_close=True, range_r=[0,4])
             fig.update_traces(fill='toself', line_color='#6FA247')
-            fig.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)')
             st.plotly_chart(fig, use_container_width=True)
 
         with col_ia2:
@@ -627,4 +615,4 @@ elif menu in ["🤖 Assistant NLP & Radar", "🤖 Mon Assistant NLP & Radar"]:
                 prio = donnees_capa['Priorité'] if 'Priorité' in donnees_capa else "P2"
                 
                 st.success("✅ Synthèse générée avec succès.")
-                st.info(f"**Résumé pour Décideurs :**\n\nLe projet **{nom}**, porté par le département **{dept}**, s'inscrit directement dans l'axe stratégique de **{axe}**. Nécessitant un investissement initial de **{budget} K€**, cette initiative est classée en priorité **{prio}** car elle présente un fort score de gain opérationnel ({c_ope}/4) et économique ({c_eco}/4), justifiant un arbitrage favorable rapide.")
+                st.info(f"**Résumé pour Décideurs :**\n\nLe projet **{nom}**, porté par le département **{dept}**, s'inscrit directement dans l'axe stratégique de **{axe}**. Nécessitant un investissement initial de **{budget} K€**, cette initiative est classée en priorité **{prio}** car elle présente un fort score de gain operational ({c_ope}/4) et économique ({c_eco}/4), justifiant un arbitrage favorable rapide.")
