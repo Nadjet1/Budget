@@ -10,17 +10,18 @@ st.set_page_config(page_title="Portail Budget Participatif Dalkia 2027", layout=
 # --- LOGO OFFICIEL DALKIA GROUPE EDF ---
 URL_LOGO_DALKIA = "logo.png" if os.path.exists("logo.png") else "https://upload.wikimedia.org/wikipedia/commons/6/63/Dalkia_logo_2014.svg"
 
-# --- 1. DESIGN FULLSCREEN (IMAGE CLAIRE & TITRE HORS IMAGE) ---
+# --- 1. DESIGN FULLSCREEN EXACT (CSS VERROUILLÉ) ---
 st.markdown("""
     <style>
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
 
-    /* Verrouillage strict de la hauteur et suppression totale de la marge haute */
-    html, body, [data-testid="stAppViewContainer"] {
+    /* Verrouillage strict de la hauteur et blocage absolu du scroll */
+    html, body, [data-testid="stAppViewContainer"], .main {
         overflow: hidden !important;
         height: 100vh !important;
+        max-height: 100vh !important;
         margin: 0 !important;
         padding: 0 !important;
     }
@@ -29,57 +30,60 @@ st.markdown("""
         background-color: #F8FAF6 !important;
     }
 
-    /* Marge supérieure mise à 0px pour coller au bord haut de l'écran */
+    /* Marge du container calculée pour remplir l'écran sans déborder */
     .block-container {
-        padding-top: 0rem !important;
-        padding-bottom: 0rem !important;
-        padding-left: 1.5rem !important;
-        padding-right: 1.5rem !important;
+        padding: 3vh 3vw 0 3vw !important;
         max-width: 100% !important;
         height: 100vh !important;
+        box-sizing: border-box !important;
+        overflow: hidden !important;
     }
 
-    /* Alignment vertical de la grille */
-    div[data-testid="stHorizontalBlock"] {
-        height: 98vh !important;
-        align-items: center !important;
+    /* Suppression des espaces vides natifs de Streamlit */
+    div[data-testid="stVerticalBlock"] {
+        gap: 0 !important;
     }
 
-    /* Carte de gauche : Image 100% claire, sans filtre sombre */
+    /* Image claire de gauche ajustée exactement à l'écran */
     .dalkia-cover-card {
         background: url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1200&auto=format&fit=crop');
         background-size: cover;
         background-position: center;
         border-radius: 24px;
-        height: 86vh !important; /* Ajusté pour laisser la place au titre au-dessus */
+        height: 87vh !important; 
         box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
         width: 100%;
     }
 
-    /* Style du titre placé en haut hors de l'image */
+    /* Titre vert sur une seule ligne */
     .title-dalkia-single-line {
         color: #6FA247;
         font-weight: 900;
-        font-size: 30px;
+        font-size: 32px;
         letter-spacing: 0.5px;
-        margin: 0;
+        margin: 0 0 2vh 0 !important;
+        padding: 0 !important;
         white-space: nowrap;
         text-transform: uppercase;
         font-family: Arial, sans-serif;
+        height: 5vh;
+        display: flex;
+        align-items: flex-end;
     }
 
-    /* Formulaire de connexion à droite */
+    /* Formulaire de connexion aligné sur la même hauteur exacte */
     div[data-testid="stForm"] {
         background: #FFFFFF !important;
         border-radius: 24px !important;
         padding: 40px 35px !important;
         border: 2px solid #D1E7B6 !important;
         box-shadow: 0 12px 35px rgba(111, 162, 71, 0.12) !important;
-        height: 95vh !important;
+        height: 94vh !important; /* 5vh (titre) + 2vh (marge) + 87vh (image) = 94vh total */
         display: flex;
         flex-direction: column;
         justify-content: center;
         box-sizing: border-box;
+        margin: 0 !important;
     }
 
     /* Bouton vert Dalkia */
@@ -106,6 +110,7 @@ st.markdown("""
         padding: 12px 14px !important;
     }
 
+    /* Design intérieur des pages connectées */
     .cadre-creer {
         background-color: #F4F8F1;
         padding: 20px;
@@ -209,7 +214,7 @@ def ajouter_alertes(df):
 if 'projets' not in st.session_state:
     st.session_state.projets = charger_donnees()
 
-# --- 4. ACCUEIL : TITRE HORS IMAGE & IMAGE TRÈS CLAIRE À GAUCHE ---
+# --- 4. ACCUEIL : INTERFACE VERROUILLÉE SANS SCROLL ---
 if 'connecte' not in st.session_state:
     st.session_state.connecte = False
 
@@ -218,18 +223,16 @@ if not st.session_state.connecte:
     
     col_left, col_right = st.columns([1.1, 1], gap="medium")
     
-    # GAUCHE : Titre vert au-dessus + Image claire sans texte
+    # GAUCHE : Titre vert au-dessus + Image claire
     with col_left:
         st.markdown(f"""
-            <div style="margin-bottom: 20px; margin-left: 10px;">
-                <h1 class="title-dalkia-single-line">BUDGET PARTICIPATIF 2027</h1>
-            </div>
+            <h1 class="title-dalkia-single-line">BUDGET PARTICIPATIF 2027</h1>
             <div class="dalkia-cover-card"></div>
         """, unsafe_allow_html=True)
 
-    # DROITE : Formulaire de connexion
+    # DROITE : Formulaire de connexion aligné en hauteur
     with col_right:
-        with st.form("form_login_cover"):
+        with st.form("form_login_exact"):
             st.image(URL_LOGO_DALKIA, width=170)
             st.markdown("<h3 style='color: #6FA247; font-weight: 700; margin-top: 15px; margin-bottom: 2px;'>Authentification</h3>", unsafe_allow_html=True)
             st.markdown("<p style='color: #666; font-size: 13px; margin-bottom: 25px;'>Portail de Gouvernance & Valorisation des CAPAs</p>", unsafe_allow_html=True)
@@ -251,16 +254,19 @@ if not st.session_state.connecte:
 
     st.stop()
 
-# --- 5. NAVIGATION & RÔLES CONNECTÉS (RETOUR DU SCROLL NORMAL) ---
+# --- 5. NAVIGATION & RÔLES CONNECTÉS (RÉACTIVATION DU SCROLL POUR L'APPLICATION) ---
 st.markdown("""
     <style>
-    html, body, [data-testid="stAppViewContainer"] {
+    /* Rétablit le comportement normal de défilement une fois l'utilisateur connecté */
+    html, body, [data-testid="stAppViewContainer"], .main {
         overflow: auto !important;
         height: auto !important;
+        max-height: none !important;
     }
     .block-container {
         padding-top: 2rem !important;
         padding-bottom: 2rem !important;
+        height: auto !important;
     }
     </style>
 """, unsafe_allow_html=True)
