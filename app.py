@@ -10,7 +10,7 @@ st.set_page_config(page_title="Portail Budget Participatif Dalkia 2027", layout=
 # --- LOGO OFFICIEL DALKIA GROUPE EDF ---
 URL_LOGO_DALKIA = "logo.png" if os.path.exists("logo.png") else "https://upload.wikimedia.org/wikipedia/commons/6/63/Dalkia_logo_2014.svg"
 
-# --- 1. DESIGN VERT CLAIR MODERNE & DYNAMIQUE (CSS CUSTOM) ---
+# --- 1. DESIGN 100% FIXE SANS SCROLL (CSS FULLSCREEN) ---
 st.markdown("""
     <style>
     /* Masquer le menu natif Streamlit */
@@ -18,18 +18,39 @@ st.markdown("""
     footer {visibility: hidden;}
     header {visibility: hidden;}
 
-    /* Arrière-plan doux en vert très clair pastel */
-    .stApp {
-        background-color: #F3F8EC !important;
+    /* Désactiver tout le scroll de la page au moment de la connexion */
+    html, body, [data-testid="stAppViewContainer"] {
+        overflow: hidden !important;
+        height: 100vh !important;
+        margin: 0 !important;
+        padding: 0 !important;
     }
 
-    /* Style du formulaire de connexion vert clair */
+    /* Arrière-plan vert clair doux et reposant */
+    .stApp {
+        background-color: #F3F8EC !important;
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+    }
+
+    /* Suppression des marges internes Streamlit */
+    .block-container {
+        padding-top: 0rem !important;
+        padding-bottom: 0rem !important;
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+        max-width: 100% !important;
+    }
+
+    /* Style du formulaire de connexion vert clair parfaitement dimensionné */
     div[data-testid="stForm"] {
         background: #FFFFFF !important;
         border-radius: 20px !important;
-        padding: 40px !important;
+        padding: 30px 40px !important;
         border: 2px solid #D1E7B6 !important;
         box-shadow: 0 12px 35px rgba(136, 196, 37, 0.15) !important;
+        margin: 0 auto !important;
     }
 
     /* Bouton d'action principal Vert Clair dynamique */
@@ -62,7 +83,7 @@ st.markdown("""
         box-shadow: 0 0 8px rgba(136, 196, 37, 0.4) !important;
     }
 
-    /* Style des cartes et sections */
+    /* Style des cartes et sections une fois connecté */
     .cadre-creer {
         background-color: #EEF7E6;
         padding: 20px;
@@ -166,21 +187,20 @@ def ajouter_alertes(df):
 if 'projets' not in st.session_state:
     st.session_state.projets = charger_donnees()
 
-# --- 4. ACCUEIL VERT CLAIR & CONNEXION ---
+# --- 4. ACCUEIL VERT CLAIR & CONNEXION CENTRÉE SANS SCROLL ---
 if 'connecte' not in st.session_state:
     st.session_state.connecte = False
 
 if not st.session_state.connecte:
     st.markdown("""<style>section[data-testid="stSidebar"] {display: none;}</style>""", unsafe_allow_html=True)
     
-    st.markdown("<br><br>", unsafe_allow_html=True)
     _, col_center, _ = st.columns([1, 1.2, 1])
     
     with col_center:
         with st.form("form_login_green"):
             st.image(URL_LOGO_DALKIA, width=180)
-            st.markdown("<h3 style='color: #61A814; font-weight: 700; margin-top: 15px; margin-bottom: 5px;'>Budget Participatif 2027</h3>", unsafe_allow_html=True)
-            st.markdown("<p style='color: #555555; font-size: 14px; margin-bottom: 25px;'>Portail d'Arbitrage & Valorisation des Capabilités</p>", unsafe_allow_html=True)
+            st.markdown("<h3 style='color: #61A814; font-weight: 700; margin-top: 10px; margin-bottom: 2px; text-align: center;'>Budget Participatif 2027</h3>", unsafe_allow_html=True)
+            st.markdown("<p style='color: #555555; font-size: 13px; margin-bottom: 20px; text-align: center;'>Portail d'Arbitrage & Valorisation des Capabilités</p>", unsafe_allow_html=True)
             
             identifiant = st.text_input("Identifiant", placeholder="ex: vmo ou nhachemi").lower()
             mdp = st.text_input("Mot de passe", type="password", placeholder="••••••••")
@@ -199,7 +219,21 @@ if not st.session_state.connecte:
 
     st.stop()
 
-# --- 5. NAVIGATION & RÔLES CONNECTÉS ---
+# --- 5. NAVIGATION & RÔLES CONNECTÉS (RÉTABLISSEMENT DU SCROLL NORMAL) ---
+st.markdown("""
+    <style>
+    /* Réactiver le scroll une fois connecté */
+    html, body, [data-testid="stAppViewContainer"] {
+        overflow: auto !important;
+        height: auto !important;
+    }
+    .block-container {
+        padding-top: 2rem !important;
+        padding-bottom: 2rem !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
 st.sidebar.image(URL_LOGO_DALKIA, width=160)
 st.sidebar.success(f"Connecté : {st.session_state.utilisateur}\n\nProfil : {st.session_state.profil}")
 
