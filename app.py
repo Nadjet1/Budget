@@ -10,7 +10,7 @@ st.set_page_config(page_title="Portail Budget Participatif Dalkia 2027", layout=
 # --- LOGO OFFICIEL DALKIA GROUPE EDF ---
 URL_LOGO_DALKIA = "logo.png" if os.path.exists("logo.png") else "https://upload.wikimedia.org/wikipedia/commons/6/63/Dalkia_logo_2014.svg"
 
-# --- 1. DESIGN SPLIT-SCREEN ÉPURÉ & MODERNE (CSS) ---
+# --- 1. DESIGN SPLIT-SCREEN FULLSCREEN (CSS) ---
 st.markdown("""
     <style>
     #MainMenu {visibility: hidden;}
@@ -30,41 +30,42 @@ st.markdown("""
     }
 
     .block-container {
-        padding-top: 2rem !important;
+        padding-top: 1.5rem !important;
         padding-bottom: 0rem !important;
         padding-left: 2rem !important;
         padding-right: 2rem !important;
-        max-width: 1200px !important;
+        max-width: 1250px !important;
         margin: auto !important;
     }
 
-    /* Carte visuelle gauche */
-    .left-hero-card {
+    /* Conteneur gauche vectoriel */
+    .dalkia-pro-card {
         background: #FFFFFF;
-        border-radius: 20px;
-        padding: 30px;
-        border: 1px solid #E2E8F0;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
-        text-align: center;
+        border-radius: 24px;
+        padding: 40px 30px;
+        border: 2px solid #E2E8F0;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.04);
         height: 100%;
         display: flex;
         flex-direction: column;
-        align-items: center;
         justify-content: center;
+        align-items: center;
+        position: relative;
+        overflow: hidden;
     }
 
-    /* Formulaire droit */
+    /* Cadre de connexion à droite */
     div[data-testid="stForm"] {
         background: #FFFFFF !important;
-        border-radius: 20px !important;
+        border-radius: 24px !important;
         padding: 35px 30px !important;
         border: 2px solid #D1E7B6 !important;
-        box-shadow: 0 10px 30px rgba(111, 162, 71, 0.1) !important;
+        box-shadow: 0 12px 35px rgba(111, 162, 71, 0.12) !important;
     }
 
     /* Bouton vert Dalkia */
     div[data-testid="stFormSubmitButton"] > button, .stButton > button {
-        background: linear-gradient(135deg, #88C425 0%, #61A814 100%) !important;
+        background: linear-gradient(135deg, #6FA247 0%, #4E7A2F 100%) !important;
         color: white !important;
         font-weight: 700 !important;
         font-size: 16px !important;
@@ -73,9 +74,10 @@ st.markdown("""
         width: 100%;
         padding: 12px 24px;
         transition: all 0.3s ease;
+        box-shadow: 0 6px 18px rgba(111, 162, 71, 0.35);
     }
     div[data-testid="stFormSubmitButton"] > button:hover, .stButton > button:hover {
-        background: linear-gradient(135deg, #71B012 0%, #4E8B0A 100%) !important;
+        background: linear-gradient(135deg, #5B8839 0%, #3D6223 100%) !important;
         transform: translateY(-2px);
     }
 
@@ -86,15 +88,15 @@ st.markdown("""
     }
 
     .cadre-creer {
-        background-color: #EEF7E6;
+        background-color: #F4F8F1;
         padding: 20px;
-        border-left: 6px solid #88C425;
+        border-left: 6px solid #6FA247;
         border-radius: 8px;
         margin-bottom: 20px;
     }
-    .titre-section-1 { color: #61A814; border-bottom: 2px solid #88C425; padding-bottom: 5px; margin-top: 15px; }
+    .titre-section-1 { color: #6FA247; border-bottom: 2px solid #6FA247; padding-bottom: 5px; margin-top: 15px; }
     .titre-section-2 { color: #005A9C; border-bottom: 2px solid #005A9C; padding-bottom: 5px; margin-top: 15px; }
-    .titre-section-3 { color: #88C425; border-bottom: 2px solid #88C425; padding-bottom: 5px; margin-top: 15px; }
+    .titre-section-3 { color: #6FA247; border-bottom: 2px solid #6FA247; padding-bottom: 5px; margin-top: 15px; }
     </style>
 """, unsafe_allow_html=True)
 
@@ -188,7 +190,7 @@ def ajouter_alertes(df):
 if 'projets' not in st.session_state:
     st.session_state.projets = charger_donnees()
 
-# --- 4. ACCUEIL : ILLUSTRATION MODERNE À GAUCHE, CONNEXION À DROITE ---
+# --- 4. ACCUEIL : DESIGN VECTORIEL INSTITUTIONNEL A GAUCHE, FORMULAIRE A DROITE ---
 if 'connecte' not in st.session_state:
     st.session_state.connecte = False
 
@@ -197,17 +199,42 @@ if not st.session_state.connecte:
     
     col_left, col_right = st.columns([1.2, 1], gap="large")
     
-    # GAUCHE : Visuel clean avec illustration 3D & titre épuré
+    # GAUCHE : Composition institutionnelle en SVG vectoriel natif (Zéro image externe)
     with col_left:
-        st.image("https://img.freepik.com/free-vector/financial-data-analysis-landing-page_23-2148283833.jpg?w=826", use_container_width=True)
-        st.markdown("<h2 style='text-align: center; color: #002B49; font-weight: 800; margin-top: 10px;'>Budget Participatif 2027</h2>", unsafe_allow_html=True)
+        svg_code = f"""
+        <div class="dalkia-pro-card">
+            <svg width="100%" height="220" viewBox="0 0 500 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <!-- Motif géométrique de fond aux couleurs Dalkia -->
+                <circle cx="250" cy="110" r="100" fill="#6FA247" fill-opacity="0.08" />
+                <circle cx="250" cy="110" r="70" fill="#005A9C" fill-opacity="0.08" />
+                <path d="M180 140 L250 60 L320 140 Z" fill="#FF6B00" fill-opacity="0.15" />
+                
+                <!-- Fleur Dalkia stylisée vectorielle -->
+                <g transform="translate(210, 30) scale(0.7)">
+                    <ellipse cx="40" cy="20" rx="18" ry="8" fill="#FF6B00" transform="rotate(-15 40 20)" />
+                    <ellipse cx="60" cy="35" rx="18" ry="8" fill="#FF6B00" transform="rotate(45 60 35)" />
+                    <ellipse cx="55" cy="60" rx="18" ry="8" fill="#FF6B00" transform="rotate(105 55 60)" />
+                    <ellipse cx="30" cy="65" rx="18" ry="8" fill="#FF6B00" transform="rotate(165 30 65)" />
+                    <ellipse cx="15" cy="45" rx="18" ry="8" fill="#FF6B00" transform="rotate(225 15 45)" />
+                </g>
+                
+                <!-- Titre institutionnel vectoriel -->
+                <text x="250" y="145" text-anchor="middle" fill="#6FA247" font-size="26" font-weight="900" font-family="Arial, sans-serif">BUDGET PARTICIPATIF</text>
+                <text x="250" y="185" text-anchor="middle" fill="#002B49" font-size="34" font-weight="900" font-family="Arial, sans-serif">2027</text>
+            </svg>
+            <div style="text-align: center; margin-top: 10px; color: #555555; font-size: 14px; font-weight: 600;">
+                Gouvernance & Valorisation des Capabilités – Dalkia Groupe EDF
+            </div>
+        </div>
+        """
+        st.components.v1.html(svg_code, height=400)
 
     # DROITE : Formulaire de connexion
     with col_right:
-        with st.form("form_login_clean"):
+        with st.form("form_login_pro"):
             st.image(URL_LOGO_DALKIA, width=170)
-            st.markdown("<h3 style='color: #61A814; font-weight: 700; margin-top: 15px; margin-bottom: 2px;'>Connexion</h3>", unsafe_allow_html=True)
-            st.markdown("<p style='color: #666; font-size: 13px; margin-bottom: 20px;'>Portail de gestion & arbitrage des CAPAs</p>", unsafe_allow_html=True)
+            st.markdown("<h3 style='color: #6FA247; font-weight: 700; margin-top: 15px; margin-bottom: 2px;'>Authentification</h3>", unsafe_allow_html=True)
+            st.markdown("<p style='color: #666; font-size: 13px; margin-bottom: 20px;'>Accès sécurisé au portail d'arbitrage</p>", unsafe_allow_html=True)
             
             identifiant = st.text_input("Identifiant", placeholder="ex: vmo ou nhachemi").lower()
             mdp = st.text_input("Mot de passe", type="password", placeholder="••••••••")
@@ -312,11 +339,11 @@ if menu == "📊 Tableau de bord BP 2027":
         g1, g2 = st.columns(2)
         with g1:
             if 'Département' in df_visible.columns and col_r0 in df_visible.columns:
-                fig_bar = px.bar(df_visible, x='Département', y=col_r0, color='Axe Stratégique', title="📊 Budget R0 par Département & Axe Stratégique", color_discrete_sequence=['#88C425', '#005A9C', '#E5004F', '#009688'])
+                fig_bar = px.bar(df_visible, x='Département', y=col_r0, color='Axe Stratégique', title="📊 Budget R0 par Département & Axe Stratégique", color_discrete_sequence=['#6FA247', '#005A9C', '#E5004F', '#009688'])
                 st.plotly_chart(fig_bar, use_container_width=True)
         with g2:
             if 'Priorité' in df_visible.columns and col_r0 in df_visible.columns:
-                fig_pie = px.pie(df_visible, names='Priorité', values=col_r0, title="🍩 Répartition par Priorité Calculée", hole=0.3, color_discrete_sequence=['#88C425', '#005A9C', '#E5004F'])
+                fig_pie = px.pie(df_visible, names='Priorité', values=col_r0, title="🍩 Répartition par Priorité Calculée", hole=0.3, color_discrete_sequence=['#6FA247', '#005A9C', '#E5004F'])
                 st.plotly_chart(fig_pie, use_container_width=True)
             
         st.markdown("### 🎯 Matrice de Priorisation (Identification des Quick Wins)")
@@ -375,7 +402,7 @@ elif menu in ["⚙️ Gestion des CAPAs", "⚙️ Mes CAPAs (Saisie & Suivi)"]:
     with tabs[0]:
         st.markdown("""
             <div class="cadre-creer">
-                <h3 style='margin-top: 0; color: #61A814;'>✨ Soumettre une nouvelle CAPA (Budget 2027)</h3>
+                <h3 style='margin-top: 0; color: #6FA247;'>✨ Soumettre une nouvelle CAPA (Budget 2027)</h3>
                 <p style='margin-bottom: 0;'>Renseignez les éléments ci-dessous. Dès validation, votre demande sera affichée en direct.</p>
             </div>
         """, unsafe_allow_html=True)
@@ -603,7 +630,7 @@ elif menu in ["🤖 Assistant NLP & Radar", "🤖 Mon Assistant NLP & Radar"]:
                 r=[c_conf, c_img, c_ope, c_eco],
                 theta=['Conformité', 'Image', 'Gain Opé.', 'Gain Éco.']))
             fig = px.line_polar(df_radar, r='r', theta='theta', line_close=True, range_r=[0,4])
-            fig.update_traces(fill='toself', line_color='#88C425')
+            fig.update_traces(fill='toself', line_color='#6FA247')
             st.plotly_chart(fig, use_container_width=True)
 
         with col_ia2:
