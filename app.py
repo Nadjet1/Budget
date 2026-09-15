@@ -10,14 +10,14 @@ st.set_page_config(page_title="Portail Budget Participatif Dalkia 2027", layout=
 # --- LOGO OFFICIEL DALKIA GROUPE EDF ---
 URL_LOGO_DALKIA = "logo.png" if os.path.exists("logo.png") else "https://upload.wikimedia.org/wikipedia/commons/6/63/Dalkia_logo_2014.svg"
 
-# --- 1. DESIGN FULLSCREEN & CORPORATE DALKIA (CSS) ---
+# --- 1. DESIGN FULLSCREEN & CORRECTIFS VISUELS (CSS) ---
 st.markdown("""
     <style>
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
 
-    /* Verrouillage strict de la hauteur et suppression totale de la marge haute */
+    /* Verrouillage strict sans scroll */
     html, body, [data-testid="stAppViewContainer"] {
         overflow: hidden !important;
         height: 100vh !important;
@@ -29,9 +29,8 @@ st.markdown("""
         background-color: #F8FAF6 !important;
     }
 
-    /* Marge supérieure à 0px pour coller au bord */
     .block-container {
-        padding-top: 0rem !important;
+        padding-top: 1rem !important;
         padding-bottom: 0rem !important;
         padding-left: 1.5rem !important;
         padding-right: 1.5rem !important;
@@ -39,36 +38,51 @@ st.markdown("""
         height: 100vh !important;
     }
 
-    /* Alignment vertical de la grille */
     div[data-testid="stHorizontalBlock"] {
-        height: 98vh !important;
+        height: 96vh !important;
         align-items: center !important;
     }
 
-    /* Carte de gauche : Design Bleu Dalkia Pur */
-    .dalkia-pro-card {
-        background: linear-gradient(135deg, #002B49 0%, #001A2C 100%);
+    /* Carte de gauche corrigée */
+    .dalkia-cover-card {
+        background: linear-gradient(180deg, rgba(0, 30, 60, 0.75) 0%, rgba(0, 43, 73, 0.85) 100%), url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1200&auto=format&fit=crop');
+        background-size: cover;
+        background-position: center;
         border-radius: 24px;
-        padding: 40px;
-        height: 95vh !important;
+        padding: 35px;
+        height: 92vh !important;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        position: relative;
-        overflow: hidden;
-        box-shadow: 0 15px 35px rgba(0, 43, 73, 0.2);
+        align-items: flex-start;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
         box-sizing: border-box;
     }
 
-    /* Titre vert sur une seule ligne */
+    /* Titre vert Dalkia ultra lisible */
+    .title-banner {
+        background: rgba(255, 255, 255, 0.92);
+        padding: 12px 20px;
+        border-radius: 12px;
+        border-left: 5px solid #6FA247;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+
     .title-dalkia-green {
         color: #6FA247;
         font-weight: 900;
-        font-size: 32px;
+        font-size: 24px;
         letter-spacing: 0.5px;
         margin: 0;
-        white-space: nowrap;
+        text-transform: uppercase;
         font-family: Arial, sans-serif;
+    }
+
+    .subtitle-dalkia-dark {
+        color: #002B49;
+        font-weight: 900;
+        font-size: 24px;
+        margin: 0;
     }
 
     /* Formulaire de connexion à droite */
@@ -78,7 +92,7 @@ st.markdown("""
         padding: 40px 35px !important;
         border: 2px solid #D1E7B6 !important;
         box-shadow: 0 12px 35px rgba(111, 162, 71, 0.12) !important;
-        height: 95vh !important;
+        height: 92vh !important;
         display: flex;
         flex-direction: column;
         justify-content: center;
@@ -212,7 +226,7 @@ def ajouter_alertes(df):
 if 'projets' not in st.session_state:
     st.session_state.projets = charger_donnees()
 
-# --- 4. ACCUEIL : DESIGN CORPORATE PUR À GAUCHE & FORMULAIRE À DROITE ---
+# --- 4. ACCUEIL : TITRE SUR BANDEAU NET EN HAUT & LOGO PROPRE EN BAS ---
 if 'connecte' not in st.session_state:
     st.session_state.connecte = False
 
@@ -221,29 +235,23 @@ if not st.session_state.connecte:
     
     col_left, col_right = st.columns([1.1, 1], gap="medium")
     
-    # GAUCHE : Pure identité visuelle Dalkia (Bleu nuit profond, Vagues subtiles et Titre Vert)
+    # GAUCHE : Composition visuelle réajustée
     with col_left:
         st.markdown(f"""
-            <div class="dalkia-pro-card">
-                <!-- Vagues abstraites en arrière-plan vectoriel -->
-                <svg viewBox="0 0 500 500" preserveAspectRatio="none" style="position: absolute; bottom: 0; left: 0; width: 100%; height: 50%; z-index: 0;">
-                    <path d="M0,250 C150,350 350,150 500,300 L500,500 L0,500 Z" fill="#6FA247" opacity="0.1"></path>
-                    <path d="M0,350 C200,450 400,250 500,400 L500,500 L0,500 Z" fill="#FF6B00" opacity="0.1"></path>
-                </svg>
-
-                <div style="z-index: 1; width: 100%; text-align: left;">
-                    <h1 class="title-dalkia-green">BUDGET PARTICIPATIF 2027</h1>
+            <div class="dalkia-cover-card">
+                <div class="title-banner">
+                    <span class="title-dalkia-green">BUDGET PARTICIPATIF </span>
+                    <span class="subtitle-dalkia-dark">2027</span>
                 </div>
-
-                <div style="z-index: 1; width: 100%; text-align: left;">
-                    <img src="{URL_LOGO_DALKIA}" width="220" style="filter: brightness(0) invert(1);">
+                <div style="width: 100%; text-align: left; padding-bottom: 10px;">
+                    <img src="{URL_LOGO_DALKIA}" width="160" style="filter: brightness(0) invert(1); opacity: 0.95;">
                 </div>
             </div>
         """, unsafe_allow_html=True)
 
     # DROITE : Formulaire de connexion
     with col_right:
-        with st.form("form_login_corporate"):
+        with st.form("form_login_cover"):
             st.image(URL_LOGO_DALKIA, width=170)
             st.markdown("<h3 style='color: #6FA247; font-weight: 700; margin-top: 15px; margin-bottom: 2px;'>Authentification</h3>", unsafe_allow_html=True)
             st.markdown("<p style='color: #666; font-size: 13px; margin-bottom: 25px;'>Portail de Gouvernance & Valorisation des CAPAs</p>", unsafe_allow_html=True)
