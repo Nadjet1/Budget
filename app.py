@@ -100,7 +100,7 @@ def ajouter_alertes(df):
 if 'projets' not in st.session_state:
     st.session_state.projets = charger_donnees()
 
-# --- 4. ACCUEIL : INTERFACE CONNEXION SAAS CORRIGÉE ---
+# --- 4. ACCUEIL : INTERFACE CONNEXION SAAS ÉLARGIE ---
 if 'connecte' not in st.session_state:
     st.session_state.connecte = False
 
@@ -118,14 +118,14 @@ if not st.session_state.connecte:
             background-color: #F1F5F9 !important; 
         }
         
-        /* Centrage parfait de la carte sur l'écran */
+        /* Centrage parfait de la carte sur l'écran avec une largeur accrue */
         .block-container {
             padding: 0 !important;
             display: flex !important;
             justify-content: center !important;
             align-items: center !important;
             height: 100vh !important;
-            max-width: 1000px !important;
+            max-width: 1300px !important; /* Carte beaucoup plus large */
         }
 
         /* --- LA CARTE FUSIONNÉE --- */
@@ -133,21 +133,22 @@ if not st.session_state.connecte:
             background-color: #FFFFFF !important;
             border-radius: 20px !important;
             box-shadow: 0 20px 50px -10px rgba(0, 43, 73, 0.25) !important;
-            height: 550px !important;
+            height: 600px !important; /* Carte plus haute pour compenser la largeur */
+            width: 100% !important;
             overflow: hidden !important;
-            gap: 0 !important; /* Retire l'espace blanc au milieu */
+            gap: 0 !important;
             margin: auto !important;
             align-items: stretch !important;
         }
 
-        /* Moitié Gauche : Image et Texte (Sélecteur corrigé pour Streamlit) */
+        /* Moitié Gauche : Image et Texte */
         div[data-testid="stColumn"]:nth-of-type(1) {
             background: linear-gradient(135deg, rgba(0,43,73,0.85) 0%, rgba(0,43,73,0.2) 100%), url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1200&auto=format&fit=crop');
             background-size: cover !important;
             background-position: center !important;
             width: 50% !important;
             min-width: 50% !important;
-            padding: 60px 40px !important;
+            padding: 60px 50px !important;
             display: flex !important;
             flex-direction: column !important;
             justify-content: center !important;
@@ -157,7 +158,7 @@ if not st.session_state.connecte:
         div[data-testid="stColumn"]:nth-of-type(2) {
             width: 50% !important;
             min-width: 50% !important;
-            padding: 50px 60px !important;
+            padding: 50px 80px !important; /* Espaces intérieurs agrandis */
             display: flex !important;
             flex-direction: column !important;
             justify-content: center !important;
@@ -176,7 +177,7 @@ if not st.session_state.connecte:
         input {
             border-radius: 8px !important;
             border: 1px solid #CBD5E1 !important;
-            padding: 12px 16px !important;
+            padding: 14px 16px !important;
             font-size: 15px !important;
             background-color: #F8FAFC !important;
             color: #1E293B !important;
@@ -196,7 +197,7 @@ if not st.session_state.connecte:
             border-radius: 8px !important;
             border: none !important;
             width: 100%;
-            padding: 12px !important;
+            padding: 14px !important;
             margin-top: 15px !important;
             transition: all 0.3s ease !important;
         }
@@ -210,26 +211,22 @@ if not st.session_state.connecte:
     
     col_left, col_right = st.columns([1, 1])
     
-    # GAUCHE : On utilise des balises <div> pour empêcher l'apparition de l'icône lien (🔗)
+    # GAUCHE : Texte intégré directement sur l'image (Phrase supprimée)
     with col_left:
         st.markdown("""
             <div style="color: white; padding-bottom: 20px;">
-                <div style="font-size: 38px; font-weight: 900; margin: 0; line-height: 1.1; font-family: Arial, sans-serif;">BUDGET</div>
-                <div style="font-size: 38px; font-weight: 900; margin: 0; line-height: 1.1; font-family: Arial, sans-serif;">PARTICIPATIF</div>
-                <div style="font-size: 52px; color: #88C425; font-weight: 900; margin: 5px 0 0 0; font-family: Arial, sans-serif;">2027</div>
-                <div style="width: 45px; height: 5px; background-color: #88C425; margin: 25px 0; border-radius: 3px;"></div>
-                <div style="font-size: 15px; font-weight: 300; opacity: 0.95; margin: 0; line-height: 1.5; font-family: Arial, sans-serif;">
-                    Portail de Gouvernance, valorisation et arbitrage stratégique des capacités (CAPA).
-                </div>
+                <div style="font-size: 45px; font-weight: 900; margin: 0; line-height: 1.1; font-family: Arial, sans-serif;">BUDGET</div>
+                <div style="font-size: 45px; font-weight: 900; margin: 0; line-height: 1.1; font-family: Arial, sans-serif;">PARTICIPATIF</div>
+                <div style="font-size: 60px; color: #88C425; font-weight: 900; margin: 5px 0 0 0; font-family: Arial, sans-serif;">2027</div>
+                <div style="width: 50px; height: 6px; background-color: #88C425; margin: 30px 0 0 0; border-radius: 3px;"></div>
             </div>
         """, unsafe_allow_html=True)
 
     # DROITE : Formulaire propre
     with col_right:
-        st.image(URL_LOGO_DALKIA, width=150)
-        # On remplace <h3> par <div> pour enlever l'icône (🔗)
-        st.markdown("<div style='color: #002B49; font-weight: 800; font-size: 26px; margin-top: 25px; margin-bottom: 5px; font-family: Arial, sans-serif;'>Bienvenue 👋</div>", unsafe_allow_html=True)
-        st.markdown("<div style='color: #64748B; font-size: 14px; margin-bottom: 25px; font-family: Arial, sans-serif;'>Veuillez saisir vos identifiants pour continuer.</div>", unsafe_allow_html=True)
+        st.image(URL_LOGO_DALKIA, width=170)
+        st.markdown("<div style='color: #002B49; font-weight: 800; font-size: 28px; margin-top: 25px; margin-bottom: 5px; font-family: Arial, sans-serif;'>Bienvenue 👋</div>", unsafe_allow_html=True)
+        st.markdown("<div style='color: #64748B; font-size: 15px; margin-bottom: 30px; font-family: Arial, sans-serif;'>Veuillez saisir vos identifiants pour continuer.</div>", unsafe_allow_html=True)
         
         with st.form("form_login_pro"):
             identifiant = st.text_input("Identifiant", placeholder="ex: vmo ou nhachemi").lower()
