@@ -100,7 +100,7 @@ def ajouter_alertes(df):
 if 'projets' not in st.session_state:
     st.session_state.projets = charger_donnees()
 
-# --- 4. ACCUEIL : INTERFACE CONNEXION SAAS ---
+# --- 4. ACCUEIL : INTERFACE CONNEXION SAAS ÉPURÉE ---
 if 'connecte' not in st.session_state:
     st.session_state.connecte = False
 
@@ -120,14 +120,14 @@ if not st.session_state.connecte:
             justify-content: center !important;
             align-items: center !important;
             height: 100vh !important;
-            max-width: 1300px !important; 
+            max-width: 1250px !important;
         }
 
         div[data-testid="stHorizontalBlock"] {
             background-color: #FFFFFF !important;
             border-radius: 20px !important;
             box-shadow: 0 25px 50px -12px rgba(0, 43, 73, 0.25) !important;
-            height: 88vh !important; 
+            height: 85vh !important;
             min-height: 600px !important;
             width: 100% !important;
             overflow: hidden !important;
@@ -148,7 +148,7 @@ if not st.session_state.connecte:
         div[data-testid="stColumn"]:nth-of-type(2) {
             width: 50% !important;
             min-width: 50% !important;
-            padding: 50px 80px !important;
+            padding: 50px 70px !important;
             display: flex !important;
             flex-direction: column !important;
             justify-content: center !important;
@@ -185,7 +185,7 @@ if not st.session_state.connecte:
             border: none !important;
             width: 100%;
             padding: 14px !important;
-            margin-top: 15px !important;
+            margin-top: 10px !important;
             transition: all 0.3s ease !important;
         }
         div[data-testid="stFormSubmitButton"] > button:hover {
@@ -201,15 +201,19 @@ if not st.session_state.connecte:
         st.empty()
 
     with col_right:
-        st.image(URL_LOGO_DALKIA, width=170)
+        st.image(URL_LOGO_DALKIA, width=150)
         st.markdown(f"""
             <div style="margin-top: 30px; margin-bottom: 35px;">
-                <h1 style="color: #6FA247; font-weight: 900; font-size: 32px; margin: 0; line-height: 1.2; font-family: Arial, sans-serif; text-transform: uppercase;">
-                    BUDGET PARTICIPATIF <span style="color: #002B49;">2027</span>
-                </h1>
+                <span style="background-color: #EEF7E6; color: #6FA247; padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 700; letter-spacing: 0.5px;">
+                    🎯 BUDGET PARTICIPATIF 2027
+                </span>
+                <h2 style="color: #002B49; font-weight: 900; font-size: 32px; margin: 20px 0 8px 0; font-family: Arial, sans-serif;">
+                    Bienvenue 👋
+                </h2>
+                <p style="color: #64748B; font-size: 15px; margin: 0; font-family: Arial, sans-serif; line-height: 1.5;">
+                    Connectez-vous pour accéder à l'espace de gouvernance et d'arbitrage stratégique.
+                </p>
             </div>
-            <div style="color: #002B49; font-weight: 800; font-size: 28px; margin-bottom: 5px; font-family: Arial, sans-serif;">Bienvenue 👋</div>
-            <div style="color: #64748B; font-size: 15px; margin-bottom: 30px; font-family: Arial, sans-serif;">Veuillez saisir vos identifiants pour continuer.</div>
         """, unsafe_allow_html=True)
         
         with st.form("form_login_pro"):
@@ -305,26 +309,46 @@ st.markdown("""
         margin-bottom: 20px !important;
     }
     
+    /* --- NOUVEAU DESIGN DES ACCORDÉONS (ÉTAPES) AVEC COULEUR --- */
     div[data-testid="stExpander"] {
-        border: 1px solid #E2E8F0 !important;
+        border: 1px solid #C1E19F !important;
+        border-left: 6px solid #6FA247 !important;
         border-radius: 10px !important;
         background: #FFFFFF !important;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.02) !important;
-        margin-bottom: 15px !important;
+        box-shadow: 0 4px 10px rgba(111, 162, 71, 0.08) !important;
+        margin-bottom: 20px !important;
         overflow: hidden;
     }
     div[data-testid="stExpander"] summary {
         padding: 15px 20px !important;
-        background-color: #F8FAF6 !important;
+        background-color: #EEF7E6 !important; /* Couleur de fond vert très clair */
         color: #002B49 !important;
-        font-weight: 700 !important;
+        font-weight: 800 !important;
         font-size: 16px !important;
-        border-bottom: 1px solid #E2E8F0 !important;
+        border-bottom: 1px solid #D1E7B6 !important;
         transition: all 0.2s ease;
     }
     div[data-testid="stExpander"] summary:hover {
-        background-color: #EEF7E6 !important;
+        background-color: #E2F0D9 !important;
         color: #6FA247 !important;
+    }
+
+    /* --- BOUTON D'ENREGISTREMENT PRIMAIRE (VERT & MASSIF) --- */
+    button[kind="primary"] {
+        background: linear-gradient(135deg, #6FA247 0%, #4E7A2F 100%) !important;
+        color: white !important;
+        font-weight: 800 !important;
+        font-size: 18px !important;
+        border-radius: 10px !important;
+        border: none !important;
+        padding: 20px !important;
+        box-shadow: 0 8px 20px rgba(111, 162, 71, 0.3) !important;
+        transition: all 0.3s ease !important;
+    }
+    button[kind="primary"]:hover {
+        background: linear-gradient(135deg, #5B8839 0%, #3D6223 100%) !important;
+        transform: translateY(-2px) !important;
+        box-shadow: 0 10px 25px rgba(111, 162, 71, 0.45) !important;
     }
 
     .stTabs [data-baseweb="tab-list"] {
@@ -572,8 +596,14 @@ elif menu in ["⚙️ Gestion des CAPAs", "⚙️ Mes CAPAs (Saisie & Suivi)"]:
             
             st.markdown("<br>", unsafe_allow_html=True)
             
-            # BOUTON SUBMIT GLOBAL DU FORMULAIRE
-            soumettre = st.form_submit_button("💾 Enregistrer la demande EPIC / CAPA", use_container_width=True)
+            # --- LE CADRE ET LE BOUTON D'ENREGISTREMENT EN VERT ---
+            st.markdown("""
+                <div style="background-color: #EEF7E6; padding: 15px; border-radius: 10px; border: 2px dashed #6FA247; text-align: center; margin-bottom: 15px;">
+                    <span style="color: #4E7A2F; font-weight: 600; font-size: 16px;">Vérifiez vos informations avant de valider votre demande.</span>
+                </div>
+            """, unsafe_allow_html=True)
+            
+            soumettre = st.form_submit_button("💾 VALIDER ET ENREGISTRER LA DEMANDE", type="primary", use_container_width=True)
             
             if soumettre:
                 if not epic or not nom_capa:
@@ -662,7 +692,14 @@ elif menu in ["⚙️ Gestion des CAPAs", "⚙️ Mes CAPAs (Saisie & Suivi)"]:
                     new_comm = st.text_area("Commentaires VMO / Arbitrage", value=str(st.session_state.projets.at[idx, 'Commentaires VMO'] or ''))
                 
                 st.markdown("<br>", unsafe_allow_html=True)
-                if st.form_submit_button("💾 Enregistrer la modification"):
+                
+                st.markdown("""
+                    <div style="background-color: #EEF7E6; padding: 15px; border-radius: 10px; border: 1px dashed #6FA247; text-align: center; margin-bottom: 15px;">
+                        <span style="color: #4E7A2F; font-weight: 600;">Validez pour appliquer les modifications à cette CAPA.</span>
+                    </div>
+                """, unsafe_allow_html=True)
+
+                if st.form_submit_button("💾 ENREGISTRER LA MODIFICATION", type="primary", use_container_width=True):
                     st.session_state.projets.at[idx, 'Budget R0 BP 2027 (K€)'] = new_r0
                     st.session_state.projets.at[idx, 'Encouru R1 (K€)'] = new_r1
                     st.session_state.projets.at[idx, 'Reste à engager (K€)'] = new_r0 - new_r1
