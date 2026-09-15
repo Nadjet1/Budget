@@ -10,117 +10,6 @@ st.set_page_config(page_title="Portail Budget Participatif Dalkia 2027", layout=
 # --- LOGO OFFICIEL DALKIA GROUPE EDF ---
 URL_LOGO_DALKIA = "logo.png" if os.path.exists("logo.png") else "https://upload.wikimedia.org/wikipedia/commons/6/63/Dalkia_logo_2014.svg"
 
-# --- 1. DESIGN FULLSCREEN & CARTE FUSIONNÉE (CSS) ---
-st.markdown("""
-    <style>
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    header {visibility: hidden;}
-
-    /* Verrouillage strict de l'écran pour éviter tout scroll */
-    html, body, [data-testid="stAppViewContainer"] {
-        overflow: hidden !important;
-        height: 100vh !important;
-        margin: 0 !important;
-        padding: 0 !important;
-    }
-
-    .stApp {
-        background-color: #F4F7F2 !important;
-    }
-
-    /* Marge globale ajustée */
-    .block-container {
-        padding-top: 3vh !important;
-        padding-bottom: 0rem !important;
-        padding-left: 5vw !important;
-        padding-right: 5vw !important;
-        max-width: 100% !important;
-        height: 100vh !important;
-    }
-
-    /* FUSION : Suppression totale de l'espace (gap) entre les 2 colonnes */
-    div[data-testid="stHorizontalBlock"] {
-        gap: 0 !important;
-        align-items: center !important;
-    }
-    [data-testid="column"]:nth-of-type(1) {
-        padding-right: 0 !important;
-    }
-    [data-testid="column"]:nth-of-type(2) {
-        padding-left: 0 !important;
-    }
-
-    /* Carte de gauche : Image (Coins arrondis à gauche seulement) */
-    .dalkia-cover-card {
-        background: url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1200&auto=format&fit=crop');
-        background-size: cover;
-        background-position: center;
-        border-radius: 24px 0 0 24px !important;
-        height: 80vh !important; 
-        width: 100%;
-        margin: 0;
-        box-shadow: -10px 15px 35px rgba(0, 0, 0, 0.08);
-    }
-
-    /* Formulaire à droite (Coins arrondis à droite seulement) */
-    div[data-testid="stForm"] {
-        background: #FFFFFF !important;
-        border-radius: 0 24px 24px 0 !important;
-        padding: 40px 50px !important;
-        border: none !important;
-        box-shadow: 10px 15px 35px rgba(0, 0, 0, 0.08) !important;
-        height: 80vh !important;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        box-sizing: border-box;
-        margin: 0 !important;
-    }
-
-    /* Bouton vert Dalkia */
-    div[data-testid="stFormSubmitButton"] > button, .stButton > button {
-        background: linear-gradient(135deg, #6FA247 0%, #4E7A2F 100%) !important;
-        color: white !important;
-        font-weight: 700 !important;
-        font-size: 16px !important;
-        border-radius: 12px !important;
-        border: none !important;
-        width: 100%;
-        padding: 14px 24px;
-        transition: all 0.3s ease;
-        box-shadow: 0 6px 18px rgba(111, 162, 71, 0.35);
-    }
-    div[data-testid="stFormSubmitButton"] > button:hover, .stButton > button:hover {
-        background: linear-gradient(135deg, #5B8839 0%, #3D6223 100%) !important;
-        transform: translateY(-2px);
-    }
-
-    input {
-        border-radius: 10px !important;
-        border: 1.5px solid #E2E8F0 !important;
-        padding: 12px 14px !important;
-        background-color: #F8FAF6 !important;
-    }
-    input:focus {
-        border-color: #6FA247 !important;
-        background-color: #FFFFFF !important;
-    }
-
-    /* Styles pour la partie connectée */
-    .cadre-creer {
-        background-color: #F4F8F1;
-        padding: 20px;
-        border-left: 6px solid #6FA247;
-        border-radius: 8px;
-        margin-bottom: 20px;
-    }
-    .titre-section-1 { color: #6FA247; border-bottom: 2px solid #6FA247; padding-bottom: 5px; margin-top: 15px; }
-    .titre-section-2 { color: #005A9C; border-bottom: 2px solid #005A9C; padding-bottom: 5px; margin-top: 15px; }
-    .titre-section-3 { color: #6FA247; border-bottom: 2px solid #6FA247; padding-bottom: 5px; margin-top: 15px; }
-    </style>
-""", unsafe_allow_html=True)
-
 # --- 2. BASE DE DONNÉES UTILISATEURS ---
 UTILISATEURS = {
     "vmo": {"mdp": "dalkia2027", "profil": "VMO", "nom": "Admin VMO"},
@@ -211,40 +100,141 @@ def ajouter_alertes(df):
 if 'projets' not in st.session_state:
     st.session_state.projets = charger_donnees()
 
-# --- 4. ACCUEIL : TITRE MODERNE + CARTE FUSIONNÉE (IMAGE/FORMULAIRE) ---
+# --- 4. ACCUEIL : INTERFACE CONNEXION SAAS ---
 if 'connecte' not in st.session_state:
     st.session_state.connecte = False
 
 if not st.session_state.connecte:
-    st.markdown("""<style>section[data-testid="stSidebar"] {display: none;}</style>""", unsafe_allow_html=True)
-    
-    # TITRE MODERNE STYLÉ AU-DESSUS DE TOUT
+    # CSS SPÉCIFIQUE À LA PAGE DE LOGIN
     st.markdown("""
-        <div style="display: flex; justify-content: center; align-items: center; margin-bottom: 3vh;">
-            <h1 style="color: #002B49; font-weight: 900; font-size: 38px; margin: 0; letter-spacing: 1px; font-family: Arial, sans-serif;">BUDGET PARTICIPATIF</h1>
-            <span style="background: linear-gradient(135deg, #6FA247 0%, #4E7A2F 100%); color: white; font-weight: 900; font-size: 34px; padding: 4px 22px; border-radius: 50px; margin-left: 15px; box-shadow: 0 4px 15px rgba(111,162,71,0.4);">2027</span>
-        </div>
+        <style>
+        /* Nettoyage de l'interface Streamlit */
+        #MainMenu {visibility: hidden;}
+        footer {visibility: hidden;}
+        header {visibility: hidden;}
+        section[data-testid="stSidebar"] {display: none;}
+
+        /* Page globale : fond gris-bleu clair ultra moderne */
+        .stApp {
+            background-color: #F1F5F9 !important; 
+        }
+        
+        /* Conteneur principal : Flexbox pour centrer parfaitement la carte */
+        .block-container {
+            padding: 0 !important;
+            display: flex !important;
+            justify-content: center !important;
+            align-items: center !important;
+            height: 100vh !important;
+            max-width: 100% !important;
+        }
+
+        /* --- LA CARTE FUSIONNÉE --- */
+        div[data-testid="stHorizontalBlock"] {
+            background-color: #FFFFFF !important;
+            border-radius: 20px !important;
+            box-shadow: 0 25px 50px -12px rgba(0, 43, 73, 0.25) !important;
+            width: 950px !important;
+            max-width: 95vw !important;
+            height: 550px !important;
+            overflow: hidden !important; /* Coupe l'image selon les bords arrondis */
+            gap: 0 !important; /* Zéro espace entre l'image et le formulaire */
+            margin: auto !important;
+        }
+
+        /* Colonne de gauche (Image + Texte intégré) */
+        div[data-testid="column"]:nth-child(1) {
+            background: linear-gradient(135deg, rgba(0,43,73,0.85) 0%, rgba(0,43,73,0.3) 100%), url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1200&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            width: 50% !important;
+            min-width: 50% !important;
+            padding: 40px !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: center !important;
+            align-items: flex-start !important;
+        }
+
+        /* Colonne de droite (Formulaire) */
+        div[data-testid="column"]:nth-child(2) {
+            width: 50% !important;
+            min-width: 50% !important;
+            padding: 50px 60px !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: center !important;
+        }
+
+        /* Retrait total des styles natifs du formulaire Streamlit */
+        div[data-testid="stForm"] {
+            border: none !important;
+            padding: 0 !important;
+            box-shadow: none !important;
+            background: transparent !important;
+        }
+
+        /* Inputs élégants */
+        input {
+            border-radius: 8px !important;
+            border: 1px solid #CBD5E1 !important;
+            padding: 12px 16px !important;
+            font-size: 15px !important;
+            background-color: #F8FAFC !important;
+            color: #1E293B !important;
+        }
+        input:focus {
+            border-color: #6FA247 !important;
+            background-color: #FFFFFF !important;
+            box-shadow: 0 0 0 2px rgba(111, 162, 71, 0.2) !important;
+        }
+
+        /* Bouton principal */
+        div[data-testid="stFormSubmitButton"] > button {
+            background: #6FA247 !important;
+            color: white !important;
+            font-weight: 600 !important;
+            font-size: 16px !important;
+            border-radius: 8px !important;
+            border: none !important;
+            width: 100%;
+            padding: 12px !important;
+            margin-top: 15px !important;
+            transition: all 0.3s ease !important;
+        }
+        div[data-testid="stFormSubmitButton"] > button:hover {
+            background: #5B8839 !important;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(111, 162, 71, 0.3);
+        }
+        </style>
     """, unsafe_allow_html=True)
-
-    # LA CARTE FUSIONNÉE (Colonnes sans espace)
-    col_left, col_right = st.columns([1.2, 1])
     
-    # GAUCHE : Image claire intégrée (arrondie à gauche)
+    # LA CARTE SPLIT (Les 2 colonnes s'intègrent dans le CSS stHorizontalBlock défini ci-dessus)
+    col_left, col_right = st.columns([1, 1])
+    
+    # GAUCHE : Texte intégré directement sur l'image
     with col_left:
-        st.markdown('<div class="dalkia-cover-card"></div>', unsafe_allow_html=True)
+        st.markdown("""
+            <div style="color: white; width: 100%;">
+                <h1 style="font-size: 40px; font-weight: 900; margin: 0; line-height: 1.1; letter-spacing: 0.5px; font-family: Arial, sans-serif;">BUDGET</h1>
+                <h1 style="font-size: 40px; font-weight: 900; margin: 0; line-height: 1.1; letter-spacing: 0.5px; font-family: Arial, sans-serif;">PARTICIPATIF</h1>
+                <h2 style="font-size: 50px; color: #88C425; font-weight: 900; margin: 10px 0 0 0; font-family: Arial, sans-serif;">2027</h2>
+                <div style="width: 40px; height: 4px; background-color: #88C425; margin: 25px 0;"></div>
+                <p style="font-size: 16px; font-weight: 300; opacity: 0.9; margin: 0;">Gouvernance, valorisation et arbitrage stratégique des capacités (CAPA).</p>
+            </div>
+        """, unsafe_allow_html=True)
 
-    # DROITE : Formulaire encastré (arrondi à droite)
+    # DROITE : Formulaire propre
     with col_right:
-        with st.form("form_login_merged"):
-            st.image(URL_LOGO_DALKIA, width=170)
-            st.markdown("<h3 style='color: #6FA247; font-weight: 700; margin-top: 15px; margin-bottom: 2px;'>Authentification</h3>", unsafe_allow_html=True)
-            st.markdown("<p style='color: #666; font-size: 13px; margin-bottom: 25px;'>Portail de Gouvernance & Valorisation des CAPAs</p>", unsafe_allow_html=True)
-            
+        st.image(URL_LOGO_DALKIA, width=150)
+        st.markdown("<h3 style='color: #002B49; font-weight: 800; margin-top: 25px; margin-bottom: 5px; font-size: 26px;'>Bienvenue 👋</h3>", unsafe_allow_html=True)
+        st.markdown("<p style='color: #64748B; font-size: 14px; margin-bottom: 25px;'>Veuillez saisir vos identifiants pour continuer.</p>", unsafe_allow_html=True)
+        
+        with st.form("form_login_pro"):
             identifiant = st.text_input("Identifiant", placeholder="ex: vmo ou nhachemi").lower()
             mdp = st.text_input("Mot de passe", type="password", placeholder="••••••••")
-            
-            st.markdown("<br>", unsafe_allow_html=True)
-            submit_login = st.form_submit_button("Se connecter ➔")
+            submit_login = st.form_submit_button("Se connecter")
             
             if submit_login:
                 if identifiant in UTILISATEURS and UTILISATEURS[identifiant]["mdp"] == mdp:
@@ -257,19 +247,56 @@ if not st.session_state.connecte:
 
     st.stop()
 
-# --- 5. NAVIGATION & RÔLES CONNECTÉS (RETOUR DU SCROLL NORMAL) ---
+# --- 5. NAVIGATION & RÔLES CONNECTÉS (CSS NORMAL RÉTABLI) ---
 st.markdown("""
     <style>
+    /* Rétablissement du scroll et des marges pour l'application une fois connecté */
     html, body, [data-testid="stAppViewContainer"], .main {
         overflow: auto !important;
         height: auto !important;
         max-height: none !important;
     }
+    .stApp {
+        background-color: #FFFFFF !important;
+    }
     .block-container {
         padding-top: 2rem !important;
         padding-bottom: 2rem !important;
+        padding-left: 3rem !important;
+        padding-right: 3rem !important;
+        max-width: 1400px !important;
         height: auto !important;
+        display: block !important;
     }
+    /* Restauration de la grille Streamlit standard (annulation du mode carte) */
+    div[data-testid="stHorizontalBlock"] {
+        background-color: transparent !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        height: auto !important;
+        overflow: visible !important;
+        gap: 1rem !important;
+    }
+    div[data-testid="column"]:nth-child(1), div[data-testid="column"]:nth-child(2) {
+        background: none !important;
+        width: auto !important;
+        padding: 0 !important;
+        display: block !important;
+    }
+    
+    /* Design des blocs intérieurs */
+    .cadre-creer {
+        background-color: #F8FAF6;
+        padding: 20px;
+        border-left: 4px solid #6FA247;
+        border-radius: 6px;
+        margin-bottom: 20px;
+    }
+    .titre-section-1 { color: #6FA247; border-bottom: 2px solid #E2E8F0; padding-bottom: 5px; margin-top: 15px; }
+    .titre-section-2 { color: #002B49; border-bottom: 2px solid #E2E8F0; padding-bottom: 5px; margin-top: 15px; }
+    .titre-section-3 { color: #6FA247; border-bottom: 2px solid #E2E8F0; padding-bottom: 5px; margin-top: 15px; }
     </style>
 """, unsafe_allow_html=True)
 
