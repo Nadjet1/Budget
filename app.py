@@ -11,14 +11,15 @@ st.set_page_config(page_title="Portail Budget Participatif Dalkia 2027", layout=
 # --- LOGO OFFICIEL DALKIA GROUPE EDF ---
 URL_LOGO_DALKIA = "logo.png" if os.path.exists("logo.png") else "https://upload.wikimedia.org/wikipedia/commons/6/63/Dalkia_logo_2014.svg"
 
-# --- 1. DESIGN SPLIT SCREEN FULLSCREEN ---
+# --- 1. DESIGN SCHÉMATIQUE & VISUEL (CSS & GEOMETRIC STYLE) ---
 st.markdown("""
     <style>
+    /* Masquer le menu natif Streamlit */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
 
-    /* Fullscreen sans scroll */
+    /* Désactiver le scroll sur la page de login */
     html, body, [data-testid="stAppViewContainer"] {
         overflow: hidden !important;
         height: 100vh !important;
@@ -27,7 +28,7 @@ st.markdown("""
     }
 
     .stApp {
-        background-color: #F8FAF6 !important;
+        background-color: #F3F8EC !important;
     }
 
     .block-container {
@@ -39,10 +40,10 @@ st.markdown("""
         margin: auto !important;
     }
 
-    /* Cadre de connexion à droite */
+    /* Formulaire de connexion à droite */
     div[data-testid="stForm"] {
         background: #FFFFFF !important;
-        border-radius: 20px !important;
+        border-radius: 24px !important;
         padding: 35px 30px !important;
         border: 2px solid #D1E7B6 !important;
         box-shadow: 0 12px 35px rgba(136, 196, 37, 0.15) !important;
@@ -175,7 +176,7 @@ def ajouter_alertes(df):
 if 'projets' not in st.session_state:
     st.session_state.projets = charger_donnees()
 
-# --- 4. ACCUEIL : SCHÉMA GRAPHIQUE A GAUCHE, CONNEXION A DROITE ---
+# --- 4. ACCUEIL : INFOGRAPHIE DYNAMIQUE RÉELLE A GAUCHE, CONNEXION A DROITE ---
 if 'connecte' not in st.session_state:
     st.session_state.connecte = False
 
@@ -184,26 +185,56 @@ if not st.session_state.connecte:
     
     col_left, col_right = st.columns([1.3, 1], gap="large")
     
-    # GAUCHE : Schéma d'Infographie Interactif (Visual Only)
+    # GAUCHE : Génération dynamique basée sur les vraies données Excel
     with col_left:
-        # Création d'un graphique Sunburst / Donut dynamique "style bilan d'images"
-        fig_schema = go.Figure(go.Sunburst(
-            labels=["BP 2027", "Décarbonation", "Numérique", "Performance", "Électrification", "CAPA Infra", "CAPA Data", "Cybersécurité", "Process H2"],
-            parents=["", "BP 2027", "BP 2027", "BP 2027", "BP 2027", "Numérique", "Numérique", "Numérique", "Décarbonation"],
-            values=[100, 35, 30, 20, 15, 12, 10, 8, 35],
-            marker=dict(colors=['#FF6B00', '#6FA247', '#005A9C', '#E5004F', '#88C425', '#002B49', '#009688', '#B3003D', '#4E7A2F'])
-        ))
+        df_donnees = st.session_state.projets.copy()
+        
+        # S'assurer que le budget R0 est numérique
+        if 'Budget R0 BP 2027 (K€)' in df_donnees.columns:
+            df_donnees['Budget_Val'] = pd.to_numeric(df_donnees['Budget R0 BP 2027 (K€)'], errors='coerce').fillna(10)
+        else:
+            df_donnees['Budget_Val'] = 10
+            
+        # Nettoyage des libellés vides
+        df_donnees['Axe Stratégique'] = df_donnees['Axe Stratégique'].fillna('Axes Dalkia')
+        df_donnees['Département'] = df_donnees['Département'].fillna('Général')
+        
+        # Si la base est valide, générer le Sunburst dynamique à partir des données réelles
+        if not df_donnees.empty and df_donnees['Budget_Val'].sum() > 0:
+            fig_schema = px.sunburst(
+                df_donnees,
+                path=['Axe Stratégique', 'Département'],
+                values='Budget_Val',
+                title="<b>Vision Synthétique du Portefeuille BP 2027</b>",
+                color='Axe Stratégique',
+                color_discrete_sequence=['#88C425', '#005A9C', '#E5004F', '#009688', '#FF6B00']
+            )
+        else:
+            # Fallback visuel corporate si aucune donnée saisie
+            data_defaut = pd.DataFrame({
+                'Axe': ['Décarbonation', 'Numérique', 'Performance', 'Électrification'],
+                'Dept': ['DOPING', 'DATA', 'CLEFS', 'Infra'],
+                'Val': [40, 30, 20, 10]
+            })
+            fig_schema = px.sunburst(
+                data_defaut, path=['Axe', 'Dept'], values='Val',
+                title="<b>Structure de Répartition BP 2027</b>",
+                color_discrete_sequence=['#88C425', '#005A9C', '#E5004F', '#009688']
+            )
+
         fig_schema.update_layout(
-            margin=dict(t=10, l=10, r=10, b=10),
-            height=380,
+            margin=dict(t=30, l=10, r=10, b=10),
+            height=390,
             paper_bgcolor='rgba(0,0,0,0)',
-            plot_bgcolor='rgba(0,0,0,0)'
+            plot_bgcolor='rgba(0,0,0,0)',
+            title_font_size=16,
+            title_x=0.2
         )
         st.plotly_chart(fig_schema, use_container_width=True, config={'displayModeBar': False})
         
     # DROITE : Cadre de connexion
     with col_right:
-        with st.form("form_login_infographie"):
+        with st.form("form_login_real"):
             st.image(URL_LOGO_DALKIA, width=170)
             st.markdown("<h3 style='color: #61A814; font-weight: 700; margin-top: 10px; margin-bottom: 2px;'>Budget Participatif 2027</h3>", unsafe_allow_html=True)
             st.markdown("<p style='color: #666; font-size: 13px; margin-bottom: 20px;'>Espace d'Arbitrage & Suivi des CAPAs</p>", unsafe_allow_html=True)
