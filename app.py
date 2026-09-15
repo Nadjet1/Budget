@@ -1,61 +1,62 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-import plotly.graph_objects as go
 import os
 import io
 from datetime import datetime
 
 st.set_page_config(page_title="Portail Budget Participatif Dalkia 2027", layout="wide", initial_sidebar_state="expanded")
 
-# --- LOGO OFFICIEL DALKIA GROUPE EDF ---
+# --- GESTION DU LOGO ---
 URL_LOGO_DALKIA = "logo.png" if os.path.exists("logo.png") else "https://upload.wikimedia.org/wikipedia/commons/6/63/Dalkia_logo_2014.svg"
 
-# --- 1. DESIGN MODERNE, DYNAMIQUE & ÉPURÉ (CSS ADVANCED) ---
+# --- 1. DESIGN DYNAMIQUE DE LOGIN (STYLE APP MODERNE) ---
 st.markdown("""
     <style>
-    /* Masquer l'en-tête et footer par défaut Streamlit */
+    /* Masquer la topbar Streamlit */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
     
-    /* Fond épuré */
-    .stApp {
-        background-color: #F8F9FA !important;
-    }
-    
-    /* Sidebar moderne */
-    section[data-testid="stSidebar"] {
-        background-color: #FFFFFF !important;
-        border-right: 1px solid #E9ECEF;
-    }
-    
-    /* Bouton principal Dalkia */
+    /* Bouton d'action principal moderne */
     div[data-testid="stFormSubmitButton"] > button, .stButton > button {
-        background-color: #6FA247 !important;
+        background: linear-gradient(135deg, #6FA247 0%, #4E7A2F 100%) !important;
         color: white !important;
         font-weight: bold !important;
-        font-size: 15px !important;
-        border-radius: 8px !important;
+        font-size: 16px !important;
+        border-radius: 25px !important;
         border: none !important;
         width: 100%;
         padding: 12px 20px;
         transition: all 0.3s ease;
-        box-shadow: 0 4px 10px rgba(111, 162, 71, 0.2);
+        box-shadow: 0 4px 15px rgba(111, 162, 71, 0.4);
     }
     div[data-testid="stFormSubmitButton"] > button:hover, .stButton > button:hover {
-        background-color: #5B8839 !important;
         transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(111, 162, 71, 0.6);
     }
     
-    /* Hero Banner épurée */
-    .hero-banner-clean {
-        background: linear-gradient(135deg, #005A9C 0%, #002B49 100%);
-        border-radius: 12px;
-        padding: 25px 35px;
+    /* Style de la carte de connexion centrale */
+    .login-card-container {
+        background: white;
+        padding: 40px;
+        border-radius: 24px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+        border: 1px solid #EAEAEA;
+        text-align: center;
+        max-width: 450px;
+        margin: 0 auto;
+    }
+    
+    /* Bannière de fond dégradée style App */
+    .login-bg-banner {
+        background: linear-gradient(135deg, #005A9C 0%, #6FA247 100%);
+        border-radius: 20px;
+        padding: 30px;
         color: white;
-        margin-bottom: 25px;
-        box-shadow: 0 8px 20px rgba(0, 90, 156, 0.15);
+        text-align: center;
+        margin-bottom: -30px;
+        box-shadow: 0 10px 25px rgba(0,90,156,0.2);
     }
     
     .cadre-creer {
@@ -161,71 +162,51 @@ def ajouter_alertes(df):
 if 'projets' not in st.session_state:
     st.session_state.projets = charger_donnees()
 
-# --- 4. AUTHENTIFICATION SÉCURISÉE & ACCUEIL DYNAMIQUE ---
+# --- 4. AUTHENTIFICATION SÉCURISÉE (CARTE DE LOGIN MODERNE) ---
 if 'connecte' not in st.session_state:
     st.session_state.connecte = False
 
-st.sidebar.image(URL_LOGO_DALKIA, width=170)
-st.sidebar.markdown("<h3 style='text-align:center; color:#005A9C; margin-top:10px;'>Authentification</h3>", unsafe_allow_html=True)
-
 if not st.session_state.connecte:
-    identifiant = st.sidebar.text_input("Identifiant (ex: vmo ou nhachemi)").lower()
-    mdp = st.sidebar.text_input("Mot de passe", type="password")
+    # Masquer la sidebar au moment du login pour avoir un rendu centralisé
+    st.markdown("""<style>section[data-testid="stSidebar"] {display: none;}</style>""", unsafe_allow_html=True)
     
-    if st.sidebar.button("🔐 Se connecter"):
-        if identifiant in UTILISATEURS and UTILISATEURS[identifiant]["mdp"] == mdp:
-            st.session_state.connecte = True
-            st.session_state.utilisateur = UTILISATEURS[identifiant]["nom"]
-            st.session_state.profil = UTILISATEURS[identifiant]["profil"]
-            st.rerun()
-        else:
-            st.sidebar.error("❌ Identifiants incorrects.")
-            
-    # --- VUE CENTRALE : BANNIÈRE + GRAPHIQUES DYNAMIQUES INTERACTIFS ---
-    st.markdown("""
-        <div class="hero-banner-clean">
-            <h1 style='margin:0; font-size:28px;'>⚡ Budget Participatif 2027</h1>
-            <p style='margin:5px 0 0 0; opacity:0.85; font-size:15px;'>Portail d'Arbitrage et Valorisation des CAPAs – Dalkia Groupe EDF</p>
-        </div>
-    """, unsafe_allow_html=True)
+    col_l1, col_l2, col_l3 = st.columns([1, 2, 1])
     
-    if not st.session_state.projets.empty:
-        # Métriques dynamiques en haut (en grand)
-        col_m1, col_m2, col_m3 = st.columns(3)
-        total_b = pd.to_numeric(st.session_state.projets['Budget R0 BP 2027 (K€)'], errors='coerce').sum()
-        nb_capas = len(st.session_state.projets)
-        nb_depts = st.session_state.projets['Département'].nunique()
-        
-        col_m1.metric("💰 Portefeuille Total", f"{total_b:,.0f} K€")
-        col_m2.metric("📋 Demandes CAPA", f"{nb_capas} projets")
-        col_m3.metric("🏢 Départements", f"{nb_depts} enregistrés")
+    with col_l2:
+        st.markdown("""
+            <div class="login-bg-banner">
+                <h2 style='margin:0; font-weight:700;'>Bienvenue !</h2>
+                <p style='margin:5px 0 0 0; opacity:0.9; font-size:14px;'>Budget Participatif 2027 • Dalkia Groupe EDF</p>
+            </div>
+        """, unsafe_allow_html=True)
         
         st.markdown("<br>", unsafe_allow_html=True)
         
-        # 2 GRAPHIQUES INTERACTIFS DYNAMIQUES
-        c_g1, c_g2 = st.columns(2)
-        with c_g1:
-            fig1 = px.pie(
-                st.session_state.projets, names='Axe Stratégique', values='Budget R0 BP 2027 (K€)',
-                title="🎯 Ventilation Budgétaire par Axe Stratégique", hole=0.45,
-                color_discrete_sequence=['#6FA247', '#005A9C', '#E5004F', '#009688', '#FF9800']
-            )
-            fig1.update_layout(margin=dict(t=40, b=10, l=10, r=10))
-            st.plotly_chart(fig1, use_container_width=True)
+        with st.form("form_login"):
+            st.image(URL_LOGO_DALKIA, width=180)
+            st.markdown("<h4 style='text-align:center; color:#555; margin-bottom:20px;'>Connexion à votre espace</h4>", unsafe_allow_html=True)
             
-        with c_g2:
-            fig2 = px.bar(
-                st.session_state.projets, x='Département', y='Budget R0 BP 2027 (K€)', color='Priorité',
-                title="📊 Répartition par Département & Priorité",
-                color_discrete_sequence=['#6FA247', '#005A9C', '#E5004F']
-            )
-            fig2.update_layout(margin=dict(t=40, b=10, l=10, r=10))
-            st.plotly_chart(fig2, use_container_width=True)
+            identifiant = st.text_input("👤 Identifiant", placeholder="ex: vmo ou nhachemi").lower()
+            mdp = st.text_input("🔒 Mot de passe", type="password", placeholder="••••••••")
+            
+            st.markdown("<br>", unsafe_allow_html=True)
+            submit_login = st.form_submit_button("Se connecter")
+            
+            if submit_login:
+                if identifiant in UTILISATEURS and UTILISATEURS[identifiant]["mdp"] == mdp:
+                    st.session_state.connecte = True
+                    st.session_state.utilisateur = UTILISATEURS[identifiant]["nom"]
+                    st.session_state.profil = UTILISATEURS[identifiant]["profil"]
+                    st.rerun()
+                else:
+                    st.error("❌ Identifiants incorrects.")
 
     st.stop()
 
-# --- 5. NAVIGATION & RÔLES CONNECTÉS ---
+# --- 5. NAVIGATION & RÔLES UNE FOIS CONNECTÉ ---
+st.sidebar.image(URL_LOGO_DALKIA, width=160)
 st.sidebar.success(f"Connecté : {st.session_state.utilisateur}\n\nProfil : {st.session_state.profil}")
+
 if st.sidebar.button("Se déconnecter"):
     st.session_state.connecte = False
     st.rerun()
@@ -615,4 +596,4 @@ elif menu in ["🤖 Assistant NLP & Radar", "🤖 Mon Assistant NLP & Radar"]:
                 prio = donnees_capa['Priorité'] if 'Priorité' in donnees_capa else "P2"
                 
                 st.success("✅ Synthèse générée avec succès.")
-                st.info(f"**Résumé pour Décideurs :**\n\nLe projet **{nom}**, porté par le département **{dept}**, s'inscrit directement dans l'axe stratégique de **{axe}**. Nécessitant un investissement initial de **{budget} K€**, cette initiative est classée en priorité **{prio}** car elle présente un fort score de gain operational ({c_ope}/4) et économique ({c_eco}/4), justifiant un arbitrage favorable rapide.")
+                st.info(f"**Résumé pour Décideurs :**\n\nLe projet **{nom}**, porté par le département **{dept}**, s'inscrit directement dans l'axe stratégique de **{axe}**. Nécessitant un investissement initial de **{budget} K€**, cette initiative est classée en priorité **{prio}** car elle présente un fort score de gain opérationnel ({c_ope}/4) et économique ({c_eco}/4), justifiant un arbitrage favorable rapide.")
