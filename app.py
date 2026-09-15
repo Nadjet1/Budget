@@ -10,14 +10,14 @@ st.set_page_config(page_title="Portail Budget Participatif Dalkia 2027", layout=
 # --- LOGO OFFICIEL DALKIA GROUPE EDF ---
 URL_LOGO_DALKIA = "logo.png" if os.path.exists("logo.png") else "https://upload.wikimedia.org/wikipedia/commons/6/63/Dalkia_logo_2014.svg"
 
-# --- 1. DESIGN FULLSCREEN & CORRECTIFS VISUELS (CSS) ---
+# --- 1. DESIGN FULLSCREEN (IMAGE CLAIRE & TITRE HORS IMAGE) ---
 st.markdown("""
     <style>
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
 
-    /* Verrouillage strict sans scroll */
+    /* Verrouillage strict de la hauteur et suppression totale de la marge haute */
     html, body, [data-testid="stAppViewContainer"] {
         overflow: hidden !important;
         height: 100vh !important;
@@ -29,8 +29,9 @@ st.markdown("""
         background-color: #F8FAF6 !important;
     }
 
+    /* Marge supérieure mise à 0px pour coller au bord haut de l'écran */
     .block-container {
-        padding-top: 1rem !important;
+        padding-top: 0rem !important;
         padding-bottom: 0rem !important;
         padding-left: 1.5rem !important;
         padding-right: 1.5rem !important;
@@ -38,51 +39,33 @@ st.markdown("""
         height: 100vh !important;
     }
 
+    /* Alignment vertical de la grille */
     div[data-testid="stHorizontalBlock"] {
-        height: 96vh !important;
+        height: 98vh !important;
         align-items: center !important;
     }
 
-    /* Carte de gauche corrigée */
+    /* Carte de gauche : Image 100% claire, sans filtre sombre */
     .dalkia-cover-card {
-        background: linear-gradient(180deg, rgba(0, 30, 60, 0.75) 0%, rgba(0, 43, 73, 0.85) 100%), url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1200&auto=format&fit=crop');
+        background: url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1200&auto=format&fit=crop');
         background-size: cover;
         background-position: center;
         border-radius: 24px;
-        padding: 35px;
-        height: 92vh !important;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        align-items: flex-start;
-        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
-        box-sizing: border-box;
+        height: 86vh !important; /* Ajusté pour laisser la place au titre au-dessus */
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        width: 100%;
     }
 
-    /* Titre vert Dalkia ultra lisible */
-    .title-banner {
-        background: rgba(255, 255, 255, 0.92);
-        padding: 12px 20px;
-        border-radius: 12px;
-        border-left: 5px solid #6FA247;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-    }
-
-    .title-dalkia-green {
+    /* Style du titre placé en haut hors de l'image */
+    .title-dalkia-single-line {
         color: #6FA247;
         font-weight: 900;
-        font-size: 24px;
+        font-size: 30px;
         letter-spacing: 0.5px;
         margin: 0;
+        white-space: nowrap;
         text-transform: uppercase;
         font-family: Arial, sans-serif;
-    }
-
-    .subtitle-dalkia-dark {
-        color: #002B49;
-        font-weight: 900;
-        font-size: 24px;
-        margin: 0;
     }
 
     /* Formulaire de connexion à droite */
@@ -92,7 +75,7 @@ st.markdown("""
         padding: 40px 35px !important;
         border: 2px solid #D1E7B6 !important;
         box-shadow: 0 12px 35px rgba(111, 162, 71, 0.12) !important;
-        height: 92vh !important;
+        height: 95vh !important;
         display: flex;
         flex-direction: column;
         justify-content: center;
@@ -226,7 +209,7 @@ def ajouter_alertes(df):
 if 'projets' not in st.session_state:
     st.session_state.projets = charger_donnees()
 
-# --- 4. ACCUEIL : TITRE SUR BANDEAU NET EN HAUT & LOGO PROPRE EN BAS ---
+# --- 4. ACCUEIL : TITRE HORS IMAGE & IMAGE TRÈS CLAIRE À GAUCHE ---
 if 'connecte' not in st.session_state:
     st.session_state.connecte = False
 
@@ -235,18 +218,13 @@ if not st.session_state.connecte:
     
     col_left, col_right = st.columns([1.1, 1], gap="medium")
     
-    # GAUCHE : Composition visuelle réajustée
+    # GAUCHE : Titre vert au-dessus + Image claire sans texte
     with col_left:
         st.markdown(f"""
-            <div class="dalkia-cover-card">
-                <div class="title-banner">
-                    <span class="title-dalkia-green">BUDGET PARTICIPATIF </span>
-                    <span class="subtitle-dalkia-dark">2027</span>
-                </div>
-                <div style="width: 100%; text-align: left; padding-bottom: 10px;">
-                    <img src="{URL_LOGO_DALKIA}" width="160" style="filter: brightness(0) invert(1); opacity: 0.95;">
-                </div>
+            <div style="margin-bottom: 20px; margin-left: 10px;">
+                <h1 class="title-dalkia-single-line">BUDGET PARTICIPATIF 2027</h1>
             </div>
+            <div class="dalkia-cover-card"></div>
         """, unsafe_allow_html=True)
 
     # DROITE : Formulaire de connexion
