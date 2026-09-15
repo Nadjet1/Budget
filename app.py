@@ -176,7 +176,7 @@ def ajouter_alertes(df):
 if 'projets' not in st.session_state:
     st.session_state.projets = charger_donnees()
 
-# --- 4. ACCUEIL : GRAPHIQUE INFOGRAPHIQUE STYLE IMAGE D'EXEMPLE A GAUCHE ---
+# --- 4. ACCUEIL : GRAPHIQUE INFOGRAPHIQUE PUR À GAUCHE ---
 if 'connecte' not in st.session_state:
     st.session_state.connecte = False
 
@@ -185,7 +185,7 @@ if not st.session_state.connecte:
     
     col_left, col_right = st.columns([1.3, 1], gap="large")
     
-    # GAUCHE : Camembert découper / Donut infographique avec pourcentages
+    # GAUCHE : Graphique circulaire multi-couches sans affichage de chiffres/textes sur les parts
     with col_left:
         df_donnees = st.session_state.projets.copy()
         
@@ -199,8 +199,6 @@ if not st.session_state.connecte:
             })
 
         couleurs = ['#88C425', '#00A86B', '#00A3E0', '#E5004F', '#FF5722', '#9C27B0']
-        
-        # Effet de découpage (pull) pour donner du relief comme sur l'image
         pull_list = [0.08, 0.05, 0.03, 0.02, 0.02, 0.02]
 
         fig_infographic = go.Figure(data=[go.Pie(
@@ -209,10 +207,8 @@ if not st.session_state.connecte:
             hole=0.35,
             pull=pull_list[:len(df_grp)],
             marker_colors=couleurs[:len(df_grp)],
-            textinfo='percent',
-            textfont_size=18,
-            textfont_color='white',
-            textfont_weight='bold',
+            textinfo='none',  # Désactive les pourcentages et chiffres sur le graphique
+            hoverinfo='label', # Affiche uniquement le nom au survol
             marker=dict(line=dict(color='#FFFFFF', width=3))
         )])
 
@@ -224,7 +220,7 @@ if not st.session_state.connecte:
                 y=-0.15,
                 xanchor="center",
                 x=0.5,
-                font=dict(size=12, color="#333333")
+                font=dict(size=13, color="#333333")
             ),
             margin=dict(t=20, b=50, l=10, r=10),
             height=410,
