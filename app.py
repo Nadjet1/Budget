@@ -10,7 +10,7 @@ st.set_page_config(page_title="Portail Budget Participatif Dalkia 2027", layout=
 # --- LOGO OFFICIEL DALKIA GROUPE EDF ---
 URL_LOGO_DALKIA = "logo.png" if os.path.exists("logo.png") else "https://upload.wikimedia.org/wikipedia/commons/6/63/Dalkia_logo_2014.svg"
 
-# --- 1. DESIGN FULLSCREEN (SUPPRESSION MARGE HAUTE & TITRE EN HAUT) ---
+# --- 1. DESIGN FULLSCREEN (SUPPRESSION MARGE HAUTE & TITRE VERT SUR UNE LIGNE) ---
 st.markdown("""
     <style>
     #MainMenu {visibility: hidden;}
@@ -45,7 +45,7 @@ st.markdown("""
         align-items: center !important;
     }
 
-    /* Carte de gauche : Titre positionné tout en haut */
+    /* Carte de gauche : Titre vert sur une seule ligne en haut */
     .dalkia-cover-card {
         background: linear-gradient(180deg, rgba(0, 43, 73, 0.45) 0%, rgba(0, 43, 73, 0.85) 100%), url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1200&auto=format&fit=crop');
         background-size: cover;
@@ -62,24 +62,16 @@ st.markdown("""
         box-sizing: border-box;
     }
 
-    /* Style du titre placé en haut */
-    .title-dalkia-green {
+    /* Style du titre vert unique sur une ligne */
+    .title-dalkia-single-line {
         color: #6FA247;
         font-weight: 900;
-        font-size: 28px;
+        font-size: 26px;
         letter-spacing: 0.5px;
         margin: 0;
-        text-shadow: 0 2px 8px rgba(0,0,0,0.6);
+        white-space: nowrap;
+        text-shadow: 0 2px 8px rgba(0,0,0,0.7);
         text-transform: uppercase;
-    }
-
-    .subtitle-dalkia-orange {
-        color: #FF6B00;
-        font-weight: 900;
-        font-size: 42px;
-        margin: -5px 0 0 0;
-        letter-spacing: -1px;
-        text-shadow: 0 2px 10px rgba(0,0,0,0.6);
     }
 
     /* Formulaire de connexion à droite */
@@ -223,7 +215,7 @@ def ajouter_alertes(df):
 if 'projets' not in st.session_state:
     st.session_state.projets = charger_donnees()
 
-# --- 4. ACCUEIL : TITRE EN HAUT À GAUCHE & FORMULAIRE À DROITE ---
+# --- 4. ACCUEIL : TITRE VERT SUR UNE LIGNE EN HAUT À GAUCHE & FORMULAIRE À DROITE ---
 if 'connecte' not in st.session_state:
     st.session_state.connecte = False
 
@@ -232,13 +224,12 @@ if not st.session_state.connecte:
     
     col_left, col_right = st.columns([1.1, 1], gap="medium")
     
-    # GAUCHE : Titre 'BUDGET PARTICIPATIF 2027' tout en haut à gauche
+    # GAUCHE : Titre vert 'BUDGET PARTICIPATIF 2027' sur une seule ligne
     with col_left:
         st.markdown(f"""
             <div class="dalkia-cover-card">
                 <div style="width: 100%; text-align: left;">
-                    <h1 class="title-dalkia-green">BUDGET PARTICIPATIF</h1>
-                    <h1 class="subtitle-dalkia-orange">2027</h1>
+                    <h1 class="title-dalkia-single-line">BUDGET PARTICIPATIF 2027</h1>
                 </div>
                 <div style="width: 100%; text-align: left;">
                     <img src="{URL_LOGO_DALKIA}" width="170" style="filter: brightness(0) invert(1);">
